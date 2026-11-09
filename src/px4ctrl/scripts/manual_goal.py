@@ -11,6 +11,7 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import VehicleLocalPosition, VehicleStatus
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 from quadrotor_msgs.msg import PositionCommand
 from std_msgs.msg import Empty, Float64, String
@@ -31,6 +32,11 @@ def parse_args():
     parser.add_argument("--clear-manual-yaw-topic", default="/px4ctrl/clear_manual_yaw")
     parser.add_argument("--wait-timeout", type=float, default=30.0)
     parser.add_argument("--publish-count", type=int, default=1)
+    parser.add_argument(
+        "--use-sim-time",
+        action="store_true",
+        help="stamp goals with Gazebo /clock time (required when PX4Ctrl uses simulation time)",
+    )
     args = parser.parse_args()
     if args.auto_yaw == (args.yaw_deg is not None):
         parser.error("provide yaw_deg, or use --auto-yaw")
@@ -51,7 +57,10 @@ def parse_args():
 
 class GoalSender(Node):
     def __init__(self, args):
-        super().__init__("px4ctrl_manual_goal")
+        super().__init__(
+            "px4ctrl_manual_goal",
+            parameter_overrides=[Parameter("use_sim_time", value=args.use_sim_time)],
+        )
         self.args = args
         self.goal_pub = self.create_publisher(PoseStamped, args.goal_topic, 10)
         self.command_pub = self.create_publisher(PositionCommand, args.command_topic, 10)
