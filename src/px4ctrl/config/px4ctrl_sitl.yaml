@@ -1,0 +1,73 @@
+px4ctrl:
+  ros__parameters:
+    use_sim_time: true
+    planner_frame: lidar
+    desired_state_topic: /px4ctrl/desired_state
+    odom_topic: /fastlio2/lio_odom
+    px4_status_topic: /fmu/out/vehicle_status_v4
+    px4_attitude_topic: /fmu/out/vehicle_attitude
+    px4_local_position_topic: /fmu/out/vehicle_local_position_v1
+    offboard_control_mode_topic: /fmu/in/offboard_control_mode
+    attitude_setpoint_topic: /fmu/in/vehicle_attitude_setpoint_v1
+    vehicle_command_topic: /fmu/in/vehicle_command
+    status_topic: /px4ctrl/status
+    manual_yaw_topic: /px4ctrl/manual_yaw
+    clear_manual_yaw_topic: /px4ctrl/clear_manual_yaw
+    publish_rate_hz: 100.0
+    state_timeout_sec: 0.30
+    command_timeout_sec: 0.50
+    px4_status_timeout_sec: 1.50
+    prestream_seconds: 1.0
+    start_offboard_on_first_command: true
+    arm_on_first_command: true
+    gravity_mps2: 9.81
+    # Measured equilibrium output for X500 + gimbal + MID-360 in SITL.
+    hover_thrust: 0.864
+    min_thrust: 0.08
+    max_thrust: 0.95
+    max_tilt_deg: 30.0
+    max_acceleration_mps2: 4.0
+    local_position_timeout_sec: 0.50
+    # Require a continuous estimator/odometry failure before commanding LAND.
+    local_position_fault_delay_sec: 1.00
+    # PX4 may re-anchor the local frame during EV yaw/position convergence.
+    # The controller compensates delta_xy/delta_z; reject only implausibly
+    # large jumps while retaining the safety LAND path.
+    max_ekf_reset_delta_m: 3.0
+    # PX4 compensates normal heading resets in its setpoint path.
+    max_ekf_reset_heading_rad: 3.20
+    require_local_position_valid: true
+    max_local_position_m: 100.0
+    max_local_velocity_mps: 15.0
+    align_to_px4_local_origin: true
+    frame_alignment_velocity_tolerance_mps: 0.20
+    land_on_safety_fault: true
+    auto_takeoff_altitude_m: 0.50
+    minimum_takeoff_altitude_m: 0.25
+    # Never command EGO/PX4Ctrl below this altitude above the takeoff origin.
+    minimum_tracking_altitude_m: 0.25
+    takeoff_duration_sec: 3.0
+    takeoff_tolerance_m: 0.08
+    hover_settle_sec: 0.80
+    hover_velocity_tolerance_mps: 0.15
+    tracking_handoff_sec: 0.75
+    # Smooth discontinuous EGO replans before they reach the attitude loop.
+    command_blend_sec: 0.25
+    max_command_position_jump_m: 0.35
+    max_command_velocity_jump_mps: 1.5
+    # Smooth 180-degree auto-yaw reversals so attitude/yaw demand does not step.
+    max_yaw_rate_radps: 0.6
+    max_yaw_acceleration_radps2: 0.8
+    kp: [1.5, 1.5, 1.8]
+    kv: [1.2, 1.2, 1.4]
+    # Small steady-state correction, enabled only for small velocity error and
+    # decayed whenever the acceleration/thrust output is saturated.
+    ki: [0.10, 0.10, 0.15]
+    integral_limit_mps2: [0.40, 0.40, 0.50]
+    integral_enable_velocity_error_mps: 0.60
+    # planner lidar frame -> PX4 local NED frame
+    transform_rotation_row_major: [
+      0.0, 1.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, -1.0
+    ]
