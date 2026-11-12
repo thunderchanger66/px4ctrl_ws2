@@ -1,0 +1,56 @@
+# MID-360 payload X500 SITL. Reference adapter supplies PX4-local NED.
+px4ctrl:
+  ros__parameters:
+    use_sim_time: true
+    reference_frame: px4_local_ned
+    desired_state_topic: /px4ctrl/desired_state
+    entry_mode: auto_takeoff
+    start_offboard_on_first_command: true
+    arm_on_first_command: true
+    require_takeover_permission: false
+    px4_status_topic: /fmu/out/vehicle_status_v4
+    px4_attitude_topic: /fmu/out/vehicle_attitude
+    px4_local_position_topic: /fmu/out/vehicle_local_position_v1
+    px4_land_detected_topic: /fmu/out/vehicle_land_detected
+    offboard_control_mode_topic: /fmu/in/offboard_control_mode
+    attitude_setpoint_topic: /fmu/in/vehicle_attitude_setpoint_v1
+    vehicle_command_topic: /fmu/in/vehicle_command
+    status_topic: /px4ctrl/status
+    debug_topic: /px4ctrl/debug
+    publish_rate_hz: 100.0
+    command_timeout_sec: 0.50
+    prestream_seconds: 1.0
+    px4_status_timeout_sec: 1.50
+    local_position_timeout_sec: 0.50
+    land_detected_timeout_sec: 2.0
+    local_position_fault_delay_sec: 1.0
+    gravity_mps2: 9.81
+    hover_thrust: 0.864
+    min_thrust: 0.08
+    max_thrust: 0.95
+    max_tilt_deg: 30.0
+    max_acceleration_mps2: 4.0
+    require_local_position_valid: true
+    max_local_position_m: 100.0
+    max_local_velocity_mps: 15.0
+    max_ekf_reset_delta_m: 3.0
+    max_ekf_reset_heading_rad: 3.20
+    land_on_safety_fault: true
+    auto_takeoff_altitude_m: 0.50
+    minimum_takeoff_altitude_m: 0.25
+    minimum_tracking_altitude_m: 0.25
+    takeoff_duration_sec: 3.0
+    takeoff_tolerance_m: 0.08
+    hover_settle_sec: 0.80
+    hover_velocity_tolerance_mps: 0.15
+    tracking_handoff_sec: 0.75
+    command_blend_sec: 0.25
+    max_command_position_jump_m: 0.35
+    max_command_velocity_jump_mps: 1.5
+    max_yaw_rate_radps: 0.6
+    max_yaw_acceleration_radps2: 0.8
+    kp: [2.0, 2.0, 2.3]
+    kv: [1.5, 1.5, 1.7]
+    ki: [0.10, 0.10, 0.15]
+    integral_limit_mps2: [0.40, 0.40, 0.50]
+    integral_enable_velocity_error_mps: 0.60

@@ -49,8 +49,9 @@ px4ctrl:
     max_command_velocity_jump_mps: 1.5
     max_yaw_rate_radps: 0.6
     max_yaw_acceleration_radps2: 0.8
-    kp: [1.5, 1.5, 1.8]
-    kv: [1.2, 1.2, 1.4]
+    # SITL tuning profile C1: improved short-route tracking with similar time.
+    kp: [1.8, 1.8, 2.1]
+    kv: [1.4, 1.4, 1.6]
     ki: [0.10, 0.10, 0.15]
     integral_limit_mps2: [0.40, 0.40, 0.50]
     integral_enable_velocity_error_mps: 0.60

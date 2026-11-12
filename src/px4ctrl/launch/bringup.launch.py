@@ -19,6 +19,13 @@ def generate_launch_description():
     start_agent = LaunchConfiguration('start_agent')
     start_odom_bridge = LaunchConfiguration('start_odom_bridge')
     start_rviz = LaunchConfiguration('start_rviz')
+    ego_max_vel = LaunchConfiguration('ego_max_vel')
+    ego_max_acc = LaunchConfiguration('ego_max_acc')
+    ego_max_jerk = LaunchConfiguration('ego_max_jerk')
+    ego_lambda_smooth = LaunchConfiguration('ego_lambda_smooth')
+    ego_planning_horizon = LaunchConfiguration('ego_planning_horizon')
+    ego_obstacle_inflation = LaunchConfiguration('ego_obstacle_inflation')
+    ego_collision_clearance = LaunchConfiguration('ego_collision_clearance')
 
     ego = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(ego_share, 'launch', 'single_uav_gazebo.launch.py')),
@@ -27,6 +34,13 @@ def generate_launch_description():
             'planning_frame': 'lidar',
             'odom_topic': '/fastlio2/lio_odom',
             'cloud_topic': '/fastlio2/world_cloud',
+            'max_vel': ego_max_vel,
+            'max_acc': ego_max_acc,
+            'max_jerk': ego_max_jerk,
+            'lambda_smooth': ego_lambda_smooth,
+            'planning_horizon': ego_planning_horizon,
+            'obstacle_inflation': ego_obstacle_inflation,
+            'collision_clearance': ego_collision_clearance,
         }.items(),
     )
     rviz = IncludeLaunchDescription(
@@ -42,6 +56,13 @@ def generate_launch_description():
         DeclareLaunchArgument('agent_port', default_value='8888'),
         DeclareLaunchArgument('start_odom_bridge', default_value='true'),
         DeclareLaunchArgument('start_rviz', default_value='false'),
+        DeclareLaunchArgument('ego_max_vel', default_value='1.0'),
+        DeclareLaunchArgument('ego_max_acc', default_value='1.0'),
+        DeclareLaunchArgument('ego_max_jerk', default_value='3.0'),
+        DeclareLaunchArgument('ego_lambda_smooth', default_value='2.0'),
+        DeclareLaunchArgument('ego_planning_horizon', default_value='7.5'),
+        DeclareLaunchArgument('ego_obstacle_inflation', default_value='0.45'),
+        DeclareLaunchArgument('ego_collision_clearance', default_value='0.65'),
         DeclareLaunchArgument(
             'px4ctrl_params',
             default_value=os.path.join(px4ctrl_share, 'config', 'px4ctrl_bringup.yaml')),

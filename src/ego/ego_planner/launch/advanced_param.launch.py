@@ -10,7 +10,7 @@ def generate_launch_description():
     # LaunchConfigurations
     map_size_x = LaunchConfiguration('map_size_x_', default=80.0)
     map_size_y = LaunchConfiguration('map_size_y_', default=80.0)
-    map_size_z = LaunchConfiguration('map_size_z_', default=10.0)
+    map_size_z = LaunchConfiguration('map_size_z_', default=10.5)
     
     odometry_topic = LaunchConfiguration('odometry_topic', default='odom')
     cloud_topic = LaunchConfiguration('cloud_topic', default='cloud')
@@ -158,7 +158,9 @@ def generate_launch_description():
             # Keep the LiDAR hit map stable across sparse world-cloud scans.
             {'grid_map/cloud_voxel_retention_sec': 4.0},
             {'grid_map/local_map_margin': 10},
-            {'grid_map/ground_height': -0.01},
+            # Leave vertical margin below the FAST-LIO local origin. Small
+            # estimator/reset offsets must not make valid odometry out of map.
+            {'grid_map/ground_height': -0.5},
             # local fusion
             {'grid_map/p_hit': 0.65},
             {'grid_map/p_miss': 0.35},

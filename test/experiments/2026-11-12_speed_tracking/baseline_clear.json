@@ -1,0 +1,31 @@
+{
+  "result": "timeout",
+  "goal": [
+    4.0,
+    -4.0,
+    0.5
+  ],
+  "arrival_time_s": null,
+  "samples": 1801,
+  "track_error_3d_rmse_m": null,
+  "track_error_3d_p95_m": null,
+  "track_error_3d_max_m": null,
+  "track_error_xy_rmse_m": null,
+  "goal_error_final_m": 5.624036308058082,
+  "speed_peak_mps": 0.011613978325878552,
+  "speed_p95_mps": 0.008966455293669863,
+  "command_accel_peak_mps2": null,
+  "tilt_peak_deg": 0.42208340764045715,
+  "inflated_map_clearance_min_m": 1.0550639646370714,
+  "inflated_map_clearance_p05_m": 1.0600690454933637,
+  "map_age_p95_s": 0.10099999999999909,
+  "saturation_any_fraction": 0.0,
+  "failsafe_samples": 0,
+  "adapter_status_final": "",
+  "px4_status_final": "control_suspended_offboard_lost",
+  "arrival_radius_m": 0.2,
+  "arrival_speed_mps": 0.2,
+  "settle_duration_s": 1.0,
+  "landing_confirmed": true,
+  "notes": "Inflated-map clearance is nearest published occupied-inflated voxel center, not a Gazebo collision sensor measurement."
+}
