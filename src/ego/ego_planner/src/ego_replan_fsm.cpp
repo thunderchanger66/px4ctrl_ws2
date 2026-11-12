@@ -356,8 +356,14 @@ namespace ego_planner
             msg->pose.pose.position.z);
         if (!position.allFinite() || !planner_manager_->grid_map_->isInMap(position))
         {
+            Eigen::Vector3d map_origin, map_size;
+            planner_manager_->grid_map_->getRegion(map_origin, map_size);
             RCLCPP_ERROR_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-                                  "Rejecting odometry outside the configured occupancy-map bounds");
+                                  "Rejecting odometry [%.3f %.3f %.3f] outside map [%.3f %.3f %.3f]..[%.3f %.3f %.3f]",
+                                  position.x(), position.y(), position.z(),
+                                  map_origin.x(), map_origin.y(), map_origin.z(),
+                                  (map_origin + map_size).x(), (map_origin + map_size).y(),
+                                  (map_origin + map_size).z());
             return;
         }
         Eigen::Quaterniond orientation(
@@ -987,16 +993,6 @@ namespace ego_planner
             enable_fail_safe_ = false;
             flag_escape_emergency_ = true;
             changeFSMExecState(EMERGENCY_STOP, "GOAL_OCCUPIED");
-            return;
-        }
-
-        /* ---------- check lost of depth ---------- */
-        if (map->getOdomDepthTimeout())
-        {
-            RCLCPP_ERROR(node_->get_logger(), "Depth Lost! EMERGENCY_STOP");
-
-            enable_fail_safe_ = false;
-            changeFSMExecState(EMERGENCY_STOP, "SAFETY");
             return;
         }
 

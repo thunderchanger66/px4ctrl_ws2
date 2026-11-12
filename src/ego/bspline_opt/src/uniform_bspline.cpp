@@ -1,5 +1,7 @@
 #include "bspline_opt/uniform_bspline.h"
 
+#include <algorithm>
+
 namespace ego_planner
 {
     UniformBspline::UniformBspline(const Eigen::MatrixXd& points, const int& order,
@@ -123,10 +125,12 @@ namespace ego_planner
 
     double UniformBspline::getInterval() { return interval_; }
 
-    void UniformBspline::setPhysicalLimits(const double& vel, const double& acc, const double& tolerance)
+    void UniformBspline::setPhysicalLimits(const double& vel, const double& acc, const double& jerk,
+                                            const double& tolerance)
     {
         limit_vel_ = vel;
         limit_acc_ = acc;
+        limit_jerk_ = jerk;
         limit_ratio_ = 1.1;
         feasibility_tolerance_ = tolerance;
     }
@@ -183,7 +187,28 @@ namespace ego_planner
             }
         }
 
-        ratio = max(max_vel / limit_vel_, sqrt(fabs(max_acc) / limit_acc_));
+        double max_jerk = 0.0;
+        UniformBspline jerk_spline = getDerivative().getDerivative().getDerivative();
+        const Eigen::MatrixXd jerk_points = jerk_spline.getControlPoint();
+        const double enlarged_jerk_lim = limit_jerk_ * (1.0 + feasibility_tolerance_) + 1e-4;
+        for (int i = 0; i < jerk_points.cols(); ++i)
+        {
+            for (int j = 0; j < dimension; ++j)
+            {
+                const double jerk = std::abs(jerk_points(j, i));
+                if (jerk > enlarged_jerk_lim)
+                {
+                    if (show)
+                        cout << "[Check]: Infeasible jerk " << i << " : " << jerk_points.col(i).transpose() << endl;
+                    fea = false;
+                    max_jerk = std::max(max_jerk, jerk);
+                }
+            }
+        }
+
+        ratio = std::max({1.0, max_vel / limit_vel_,
+                          std::sqrt(std::abs(max_acc) / limit_acc_),
+                          std::cbrt(max_jerk / limit_jerk_)});
 
         return fea;
     }

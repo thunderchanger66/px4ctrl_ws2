@@ -3,22 +3,14 @@
 
 #include <Eigen/Eigen>
 #include <Eigen/StdVector>
-#include <cv_bridge/cv_bridge.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <iostream>
-#include <random>
 #include <nav_msgs/msg/odometry.hpp>
-#include <queue>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-#include <message_filters/subscriber.h>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <message_filters/sync_policies/exact_time.h>
-
-#include <plan_env/raycast.h>
 
 #define logit(x) (log((x) / (1 - (x))))
 
@@ -50,29 +42,14 @@ struct MappingParameters
     double resolution_, resolution_inv_;
     double obstacles_inflation_;
     std::string frame_id_;
-    int pose_type_;
 
-    /* camera parameters */
-    double cx_, cy_, fx_, fy_;
-
-    /* time out */
-    double odom_depth_timeout_;
-    bool use_depth_fusion_;
     // Retain LiDAR hit voxels briefly between sparse world-cloud messages.
     double cloud_voxel_retention_sec_;
 
-    /* depth image projection filtering */
-    double depth_filter_maxdist_, depth_filter_mindist_, depth_filter_tolerance_;
-    int depth_filter_margin_;
-    bool use_depth_filter_;
-    double k_depth_scaling_factor_;
-    int skip_pixel_;
-
-    /* raycasting */
+    /* occupancy thresholds */
     double p_hit_, p_miss_, p_min_, p_max_, p_occ_; // occupancy probability
     double prob_hit_log_, prob_miss_log_, clamp_min_log_, clamp_max_log_,
            min_occupancy_log_; // logit of occupancy probability
-    double min_ray_length_, max_ray_length_; // range of doing raycasting
 
     /* local map update and clear */
     int local_map_margin_;
@@ -94,40 +71,11 @@ struct MappingData
     std::vector<double> occupancy_buffer_;
     std::vector<char> occupancy_buffer_inflate_;
     std::vector<double> cloud_hit_time_sec_;
-
-    // camera position and pose data
-
-    Eigen::Vector3d camera_pos_, last_camera_pos_;
-    Eigen::Matrix3d camera_r_m_, last_camera_r_m_;
-    Eigen::Matrix4d cam2body_;
-
-    // depth image data
-
-    cv::Mat depth_image_, last_depth_image_;
-    int image_cnt_;
+    Eigen::Vector3d lidar_pos_{Eigen::Vector3d::Zero()};
 
     // flags of map state
 
-    bool occ_need_update_, local_updated_;
-    bool has_first_depth_;
     bool has_odom_, has_cloud_;
-
-    // odom_depth_timeout_
-    rclcpp::Time last_occ_update_time_;
-    bool flag_depth_odom_timeout_;
-    bool flag_use_depth_fusion;
-
-    // depth image projected point cloud
-
-    std::vector<Eigen::Vector3d> proj_points_;
-    int proj_points_cnt;
-
-    // flag buffers for speeding up raycasting
-
-    std::vector<short> count_hit_, count_hit_and_miss_;
-    std::vector<char> flag_traverse_, flag_rayend_;
-    char raycast_num_;
-    std::queue<Eigen::Vector3i> cache_voxel_;
 
     // range of updating grid
 
@@ -136,7 +84,6 @@ struct MappingData
     // computation time
 
     double fuse_time_, max_fuse_time_;
-    int update_num_;
 
     Eigen::Vector3i last_cloud_min_idx_{Eigen::Vector3i::Zero()};
     Eigen::Vector3i last_cloud_max_idx_{Eigen::Vector3i::Zero()};
@@ -154,8 +101,6 @@ public:
 
     enum
     {
-        POSE_STAMPED = 1,
-        ODOMETRY = 2,
         INVALID_IDX = -10000
     };
 
@@ -187,15 +132,11 @@ public:
     void publishMap();
     void publishMapInflate(bool all_info = false);
 
-    void publishDepth();
-
-    bool hasDepthObservation();
     bool odomValid();
     void getRegion(Eigen::Vector3d& ori, Eigen::Vector3d& size);
     inline double getResolution() const;
     Eigen::Vector3d getOrigin();
     int getVoxelNum();
-    bool getOdomDepthTimeout() { return md_.flag_depth_odom_timeout_; }
 
     typedef std::shared_ptr<GridMap> Ptr;
 
@@ -205,59 +146,21 @@ private:
     MappingParameters mp_;
     MappingData md_;
 
-    // get depth image and camera pose
-    void depthPoseCallback(const sensor_msgs::msg::Image::ConstPtr& img,
-                           const geometry_msgs::msg::PoseStamped::ConstPtr& pose);
-    void extrinsicCallback(const nav_msgs::msg::Odometry::ConstPtr& odom);
-    void depthOdomCallback(const sensor_msgs::msg::Image::ConstPtr& img, const nav_msgs::msg::Odometry::ConstPtr& odom);
-    void cloudCallback(const sensor_msgs::msg::PointCloud2::ConstPtr& img);
+    void cloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& cloud);
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom);
 
-    // update occupancy by raycasting
-    void updateOccupancyCallback();
     void visCallback();
 
-    // main update process
-    void projectDepthImage();
-    void raycastProcess();
-    void clearAndInflateLocalMap();
-
     inline void inflatePoint(const Eigen::Vector3i& pt, int step, std::vector<Eigen::Vector3i>& pts);
-    int setCacheOccupancy(Eigen::Vector3d pos, int occ);
-    Eigen::Vector3d closetPointInMap(const Eigen::Vector3d& pt, const Eigen::Vector3d& camera_pt);
-
-    // typedef message_filters::sync_policies::ExactTime<sensor_msgs::Image,
-    // nav_msgs::Odometry> SyncPolicyImageOdom; typedef
-    // message_filters::sync_policies::ExactTime<sensor_msgs::Image,
-    // geometry_msgs::PoseStamped> SyncPolicyImagePose;
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, nav_msgs::msg::Odometry>
-    SyncPolicyImageOdom;
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, geometry_msgs::msg::PoseStamped>
-    SyncPolicyImagePose;
-    typedef std::shared_ptr<message_filters::Synchronizer<SyncPolicyImagePose>> SynchronizerImagePose;
-    typedef std::shared_ptr<message_filters::Synchronizer<SyncPolicyImageOdom>> SynchronizerImageOdom;
-
     rclcpp::Node::SharedPtr node_;
-    std::shared_ptr<message_filters::Subscriber<sensor_msgs::msg::Image>> depth_sub_;
-    std::shared_ptr<message_filters::Subscriber<geometry_msgs::msg::PoseStamped>> pose_sub_;
-    std::shared_ptr<message_filters::Subscriber<nav_msgs::msg::Odometry>> odom_sub_;
-    SynchronizerImagePose sync_image_pose_;
-    SynchronizerImageOdom sync_image_odom_;
 
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr indep_cloud_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr indep_odom_sub_;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr extrinsic_sub_;
 
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_pub_;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_inf_pub_;
 
-    rclcpp::TimerBase::SharedPtr occ_timer_;
     rclcpp::TimerBase::SharedPtr vis_timer_;
-
-    //
-    std::uniform_real_distribution<double> rand_noise_;
-    std::normal_distribution<double> rand_noise2_;
-    std::default_random_engine eng_;
 };
 
 /* ============================== definition of inline function

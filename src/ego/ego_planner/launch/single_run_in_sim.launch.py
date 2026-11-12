@@ -101,15 +101,7 @@ def generate_launch_description():
             'map_size_z_': map_size_z,
             'odometry_topic': odom_topic,
             'obj_num_set': obj_num,
-            
-            'camera_pose_topic': 'pcl_render_node/camera_pose',
-            'depth_topic': 'pcl_render_node/depth',
             'cloud_topic': 'pcl_render_node/cloud',
-            
-            'cx': str(321.04638671875),
-            'cy': str(243.44969177246094),
-            'fx': str(387.229248046875),
-            'fy': str(387.229248046875),
             'max_vel': str(2.0),
             'max_acc': str(6.0),
             'planning_horizon': str(7.5),

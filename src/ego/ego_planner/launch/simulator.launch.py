@@ -238,8 +238,7 @@ def generate_launch_description():
         remappings=[
             ('global_map', '/map_generator/global_cloud'),
             ('odometry', ['drone_', drone_id, '_', odometry_topic]),
-            ('pcl_render_node/cloud', ['drone_', drone_id, '_pcl_render_node/cloud']),
-            ('depth', ['drone_', drone_id, '_pcl_render_node/depth'])
+            ('pcl_render_node/cloud', ['drone_', drone_id, '_pcl_render_node/cloud'])
         ]
     )
 

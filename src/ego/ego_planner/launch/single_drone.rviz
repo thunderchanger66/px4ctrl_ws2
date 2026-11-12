@@ -246,20 +246,6 @@ Visualization Manager:
                 Reliability Policy: Reliable
                 Value: /drone_0_vis/robot
               Value: true
-            - Class: rviz_default_plugins/Image
-              Enabled: false
-              Max Value: 1
-              Median window: 5
-              Min Value: 0
-              Name: depth
-              Normalize Range: true
-              Topic:
-                Depth: 5
-                Durability Policy: Volatile
-                History Policy: Keep Last
-                Reliability Policy: Reliable
-                Value: /drone_0_pcl_render_node/depth
-              Value: false
           Enabled: true
           Name: Simulation
       Enabled: true
@@ -387,5 +373,3 @@ Window Geometry:
   Width: 1234
   X: 301
   Y: 114
-  depth:
-    collapsed: false

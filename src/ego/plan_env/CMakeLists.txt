@@ -18,9 +18,7 @@ set(dependencies
         visualization_msgs
         geometry_msgs
         nav_msgs
-        cv_bridge
-        message_filters
-        OpenCV
+        sensor_msgs
         Eigen3
         PCL
         pcl_conversions
@@ -33,13 +31,11 @@ endforeach ()
 # Plan_env Library
 add_library(${PROJECT_NAME} SHARED
         src/library/grid_map.cpp
-        src/library/raycast.cpp
         src/library/obj_predictor.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${Eigen3_INCLUDE_DIRS}
         ${PCL_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 ament_target_dependencies(

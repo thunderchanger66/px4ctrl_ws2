@@ -33,9 +33,11 @@ def generate_launch_description():
             'map_size_z_': cfg['map_size_z'],
             'odometry_topic': cfg['odom_topic'],
             'cloud_topic': cfg['cloud_topic'],
-            # Keep enough stopping margin for the PX4 SITL position loop.
-            'max_vel': '0.6',
-            'max_acc': '0.8',
+            # Keep the increased response limits with an explicit jerk bound.
+            'max_vel': '1.0',
+            'max_acc': '1.2',
+            'max_jerk': '4.0',
+            'lambda_smooth': '2.0',
             'planning_horizon': '7.5',
             'obstacle_inflation': '0.45',
             'collision_clearance': '0.65',

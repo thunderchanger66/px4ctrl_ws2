@@ -339,7 +339,7 @@ namespace ego_planner
         t_start = clock_->now();
 
         UniformBspline pos = UniformBspline(ctrl_pts, 3, ts);
-        pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_, pp_.feasibility_tolerance_);
+        pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_, pp_.max_jerk_, pp_.feasibility_tolerance_);
 
         /*** STEP 3: REFINE(RE-ALLOCATE TIME) IF NECESSARY ***/
         // Note: Only adjust time in single drone mode. But we still allow drone_0 to adjust its time profile.

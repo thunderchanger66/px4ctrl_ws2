@@ -14,15 +14,10 @@ def generate_launch_description():
     
     odometry_topic = LaunchConfiguration('odometry_topic', default='odom')
     cloud_topic = LaunchConfiguration('cloud_topic', default='cloud')
-    use_depth_fusion = LaunchConfiguration('use_depth_fusion', default='false')
-    
-    cx = LaunchConfiguration('cx', default=321.04638671875)
-    cy = LaunchConfiguration('cy', default=243.44969177246094)
-    fx = LaunchConfiguration('fx', default=387.229248046875)
-    fy = LaunchConfiguration('fy', default=387.229248046875)
-    
     max_vel = LaunchConfiguration('max_vel', default=2.0)
     max_acc = LaunchConfiguration('max_acc', default=3.0)
+    max_jerk = LaunchConfiguration('max_jerk', default=4.0)
+    lambda_smooth = LaunchConfiguration('lambda_smooth', default=2.0)
     planning_horizon = LaunchConfiguration('planning_horizon', default=7.5)
     obstacle_inflation = LaunchConfiguration('obstacle_inflation', default=0.45)
     collision_clearance = LaunchConfiguration('collision_clearance', default=0.65)
@@ -57,15 +52,11 @@ def generate_launch_description():
     map_size_z_arg = DeclareLaunchArgument('map_size_z_', default_value=map_size_z, description='Map size along Z')
     odometry_topic_arg = DeclareLaunchArgument('odometry_topic', default_value=odometry_topic, description='Odometry topic')
     cloud_topic_arg = DeclareLaunchArgument('cloud_topic', default_value=cloud_topic, description='Point cloud topic')
-    use_depth_fusion_arg = DeclareLaunchArgument(
-        'use_depth_fusion', default_value=use_depth_fusion,
-        description='Enable optional depth-camera fusion')
-    cx_arg = DeclareLaunchArgument('cx', default_value=cx, description='Camera intrinsic cx')
-    cy_arg = DeclareLaunchArgument('cy', default_value=cy, description='Camera intrinsic cy')
-    fx_arg = DeclareLaunchArgument('fx', default_value=fx, description='Camera intrinsic fx')
-    fy_arg = DeclareLaunchArgument('fy', default_value=fy, description='Camera intrinsic fy')
     max_vel_arg = DeclareLaunchArgument('max_vel', default_value=max_vel, description='Maximum velocity')
     max_acc_arg = DeclareLaunchArgument('max_acc', default_value=max_acc, description='Maximum acceleration')
+    max_jerk_arg = DeclareLaunchArgument('max_jerk', default_value=max_jerk, description='Maximum jerk')
+    lambda_smooth_arg = DeclareLaunchArgument(
+        'lambda_smooth', default_value=lambda_smooth, description='B-spline jerk smoothness weight')
     planning_horizon_arg = DeclareLaunchArgument('planning_horizon', default_value=planning_horizon, description='Planning horizon')
     obstacle_inflation_arg = DeclareLaunchArgument(
         'obstacle_inflation', default_value=obstacle_inflation,
@@ -168,44 +159,28 @@ def generate_launch_description():
             {'grid_map/cloud_voxel_retention_sec': 4.0},
             {'grid_map/local_map_margin': 10},
             {'grid_map/ground_height': -0.01},
-            {'grid_map/use_depth_fusion': use_depth_fusion},
-            # Retained for optional depth fusion; the default LiDAR path does not subscribe to images.
-            {'grid_map/cx': cx},
-            {'grid_map/cy': cy},
-            {'grid_map/fx': fx},
-            {'grid_map/fy': fy},
-            {'grid_map/use_depth_filter': False},
-            {'grid_map/depth_filter_tolerance': 0.15},
-            {'grid_map/depth_filter_maxdist': 5.0},
-            {'grid_map/depth_filter_mindist': 0.2},
-            {'grid_map/depth_filter_margin': 2},
-            {'grid_map/k_depth_scaling_factor': 1000.0},
-            {'grid_map/skip_pixel': 2},
             # local fusion
             {'grid_map/p_hit': 0.65},
             {'grid_map/p_miss': 0.35},
             {'grid_map/p_min': 0.12},
             {'grid_map/p_max': 0.90},
             {'grid_map/p_occ': 0.80},
-            {'grid_map/min_ray_length': 0.1},
-            {'grid_map/max_ray_length': 4.5},
             
             {'grid_map/virtual_ceil_height': 2.9},
             {'grid_map/visualization_truncate_height': 1.8},
             {'grid_map/show_occ_time': False},
-            {'grid_map/pose_type': 2},
             {'grid_map/frame_id': planning_frame},
             # planner manager
             {'manager/max_vel': max_vel},
             {'manager/max_acc': max_acc},
-            {'manager/max_jerk': 4.0},
+            {'manager/max_jerk': max_jerk},
             {'manager/control_points_distance': 0.4},
             {'manager/feasibility_tolerance': 0.05},
             {'manager/planning_horizon': planning_horizon},
             {'manager/use_distinctive_trajs': use_distinctive_trajs},
             {'manager/drone_id': drone_id},
             # Trajectory optimization parameters
-            {'optimization/lambda_smooth': 1.0},
+            {'optimization/lambda_smooth': lambda_smooth},
             {'optimization/lambda_collision': 1.0},
             {'optimization/lambda_feasibility': 0.1},
             {'optimization/lambda_fitness': 1.0},
@@ -235,13 +210,10 @@ def generate_launch_description():
     ld.add_action(map_size_z_arg)
     ld.add_action(odometry_topic_arg)
     ld.add_action(cloud_topic_arg)
-    ld.add_action(use_depth_fusion_arg)
-    ld.add_action(cx_arg)
-    ld.add_action(cy_arg)
-    ld.add_action(fx_arg)
-    ld.add_action(fy_arg)
     ld.add_action(max_vel_arg)
     ld.add_action(max_acc_arg)
+    ld.add_action(max_jerk_arg)
+    ld.add_action(lambda_smooth_arg)
     ld.add_action(planning_horizon_arg)
     ld.add_action(obstacle_inflation_arg)
     ld.add_action(collision_clearance_arg)

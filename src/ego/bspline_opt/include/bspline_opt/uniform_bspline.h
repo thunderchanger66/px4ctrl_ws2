@@ -25,7 +25,7 @@ namespace ego_planner
 
         Eigen::MatrixXd getDerivativeControlPoints();
 
-        double limit_vel_, limit_acc_, limit_ratio_, feasibility_tolerance_;
+        double limit_vel_, limit_acc_, limit_jerk_, limit_ratio_, feasibility_tolerance_;
         // physical limits and time adjustment ratio
 
     public:
@@ -66,7 +66,8 @@ namespace ego_planner
 
         /* check feasibility, adjust time */
 
-        void setPhysicalLimits(const double& vel, const double& acc, const double& tolerance);
+        void setPhysicalLimits(const double& vel, const double& acc, const double& jerk,
+                               const double& tolerance);
         bool checkFeasibility(double& ratio, bool show = false);
         void lengthenTime(const double& ratio);
 
