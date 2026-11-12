@@ -7,7 +7,7 @@
 px4ctrl:
   ros__parameters:
     # Set true when running against Gazebo / any simulator with a /clock topic.
-    use_sim_time: true
+    use_sim_time: false
 
     # Frame id the reference must declare in DesiredState.header.frame_id.
     # Only PX4 local NED is supported.
@@ -51,8 +51,7 @@ px4ctrl:
     # MUST be calibrated for your airframe. Measure the normalized collective
     # thrust that holds a stable hover, then put that number here. A wrong
     # value causes vertical drift or constant saturation.
-    # Keep the measured value for the existing X500 + MID-360 SITL vehicle.
-    hover_thrust: 0.864
+    hover_thrust: 0.60
     min_thrust: 0.08
     max_thrust: 0.95
     max_tilt_deg: 30.0

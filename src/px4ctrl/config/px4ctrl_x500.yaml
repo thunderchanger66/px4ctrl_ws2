@@ -1,9 +1,11 @@
 # Bare Gazebo X500: PX4 local NED feedback and automatic airborne takeover.
+# The reference is published directly in PX4 local NED, so no external
+# odometry stream and no frame alignment are required.
 px4ctrl:
   ros__parameters:
     use_sim_time: true
     entry_mode: airborne_takeover
-    planner_frame: px4_local_ned
+    reference_frame: px4_local_ned
     desired_state_topic: /px4ctrl/desired_state
     px4_status_topic: /fmu/out/vehicle_status_v4
     px4_attitude_topic: /fmu/out/vehicle_attitude
@@ -37,7 +39,6 @@ px4ctrl:
     require_local_position_valid: true
     max_local_position_m: 100.0
     max_local_velocity_mps: 15.0
-    align_to_px4_local_origin: false
     land_on_safety_fault: true
     auto_takeoff_altitude_m: 0.0
     minimum_takeoff_altitude_m: 0.0
@@ -55,8 +56,3 @@ px4ctrl:
     ki: [0.10, 0.10, 0.15]
     integral_limit_mps2: [0.40, 0.40, 0.50]
     integral_enable_velocity_error_mps: 0.60
-    transform_rotation_row_major: [
-      1.0, 0.0, 0.0,
-      0.0, 1.0, 0.0,
-      0.0, 0.0, 1.0
-    ]
