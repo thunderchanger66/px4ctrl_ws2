@@ -49,6 +49,7 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     node_->declare_parameter("grid_map/local_map_margin", 1);
     node_->declare_parameter("grid_map/ground_height", 1.0);
     node_->declare_parameter("grid_map/odom_depth_timeout", 1.0);
+    node_->declare_parameter("grid_map/use_depth_fusion", false);
     node_->declare_parameter("grid_map/cloud_voxel_retention_sec", 4.0);
 
     node_->get_parameter("grid_map/resolution", mp_.resolution_);
@@ -87,6 +88,7 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     node_->get_parameter("grid_map/local_map_margin", mp_.local_map_margin_);
     node_->get_parameter("grid_map/ground_height", mp_.ground_height_);
     node_->get_parameter("grid_map/odom_depth_timeout", mp_.odom_depth_timeout_);
+    node_->get_parameter("grid_map/use_depth_fusion", mp_.use_depth_fusion_);
     node_->get_parameter("grid_map/cloud_voxel_retention_sec", mp_.cloud_voxel_retention_sec_);
     if (!std::isfinite(mp_.resolution_) || mp_.resolution_ <= 0.0 ||
         !std::isfinite(x_size) || !std::isfinite(y_size) || !std::isfinite(z_size) ||
@@ -181,9 +183,9 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
 
     md_.raycast_num_ = 0;
 
-    // Depth images may be any supported resolution. Reserve the common camera
-    // size, then grow to the actual frame before projecting to avoid overflow.
-    md_.proj_points_.resize(640 * 480 / mp_.skip_pixel_ / mp_.skip_pixel_);
+    // Depth support is optional; the LiDAR-only path does not allocate image buffers.
+    if (mp_.use_depth_fusion_)
+        md_.proj_points_.resize(640 * 480 / mp_.skip_pixel_ / mp_.skip_pixel_);
     md_.proj_points_cnt = 0;
 
     md_.cam2body_ << 0.0, 0.0, 1.0, 0.0,
@@ -193,33 +195,31 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
 
     /* init callback */
 
-    // 初始化 message_filters::Subscriber
-    depth_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::Image>>(
-        node_, "grid_map/depth", rclcpp::QoS(50).best_effort().get_rmw_qos_profile());
-
-    extrinsic_sub_ = node_->create_subscription<nav_msgs::msg::Odometry>(
-        "/vins_estimator/extrinsic", 10,
-        std::bind(&GridMap::extrinsicCallback, this, std::placeholders::_1));
-
-    if (mp_.pose_type_ == POSE_STAMPED)
+    if (mp_.use_depth_fusion_)
     {
-        pose_sub_ = std::make_shared<message_filters::Subscriber<geometry_msgs::msg::PoseStamped>>(
-            node_, "grid_map/pose", rclcpp::QoS(25).get_rmw_qos_profile());
-
-        sync_image_pose_ = std::make_shared<message_filters::Synchronizer<SyncPolicyImagePose>>(
-            SyncPolicyImagePose(100), *depth_sub_, *pose_sub_);
-        sync_image_pose_->registerCallback(
-            std::bind(&GridMap::depthPoseCallback, this, std::placeholders::_1, std::placeholders::_2));
-    }
-    else if (mp_.pose_type_ == ODOMETRY)
-    {
-        odom_sub_ = std::make_shared<message_filters::Subscriber<nav_msgs::msg::Odometry>>(
-            node_, "grid_map/odom", rclcpp::QoS(100).best_effort().get_rmw_qos_profile());
-
-        sync_image_odom_ = std::make_shared<message_filters::Synchronizer<SyncPolicyImageOdom>>(
-            SyncPolicyImageOdom(100), *depth_sub_, *odom_sub_);
-        sync_image_odom_->registerCallback(
-            std::bind(&GridMap::depthOdomCallback, this, std::placeholders::_1, std::placeholders::_2));
+        depth_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::Image>>(
+            node_, "grid_map/depth", rclcpp::QoS(50).best_effort().get_rmw_qos_profile());
+        if (mp_.pose_type_ == POSE_STAMPED)
+        {
+            pose_sub_ = std::make_shared<message_filters::Subscriber<geometry_msgs::msg::PoseStamped>>(
+                node_, "grid_map/pose", rclcpp::QoS(25).get_rmw_qos_profile());
+            sync_image_pose_ = std::make_shared<message_filters::Synchronizer<SyncPolicyImagePose>>(
+                SyncPolicyImagePose(100), *depth_sub_, *pose_sub_);
+            sync_image_pose_->registerCallback(
+                std::bind(&GridMap::depthPoseCallback, this, std::placeholders::_1, std::placeholders::_2));
+        }
+        else if (mp_.pose_type_ == ODOMETRY)
+        {
+            odom_sub_ = std::make_shared<message_filters::Subscriber<nav_msgs::msg::Odometry>>(
+                node_, "grid_map/odom", rclcpp::QoS(100).best_effort().get_rmw_qos_profile());
+            sync_image_odom_ = std::make_shared<message_filters::Synchronizer<SyncPolicyImageOdom>>(
+                SyncPolicyImageOdom(100), *depth_sub_, *odom_sub_);
+            sync_image_odom_->registerCallback(
+                std::bind(&GridMap::depthOdomCallback, this, std::placeholders::_1, std::placeholders::_2));
+        }
+        extrinsic_sub_ = node_->create_subscription<nav_msgs::msg::Odometry>(
+            "/vins_estimator/extrinsic", 10,
+            std::bind(&GridMap::extrinsicCallback, this, std::placeholders::_1));
     }
 
     // 使用独立的里程计和点云订阅

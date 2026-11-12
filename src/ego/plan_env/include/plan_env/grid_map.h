@@ -57,6 +57,7 @@ struct MappingParameters
 
     /* time out */
     double odom_depth_timeout_;
+    bool use_depth_fusion_;
     // Retain LiDAR hit voxels briefly between sparse world-cloud messages.
     double cloud_voxel_retention_sec_;
 

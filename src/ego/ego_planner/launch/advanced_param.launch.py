@@ -13,9 +13,8 @@ def generate_launch_description():
     map_size_z = LaunchConfiguration('map_size_z_', default=4.0)
     
     odometry_topic = LaunchConfiguration('odometry_topic', default='odom')
-    camera_pose_topic = LaunchConfiguration('camera_pose_topic', default='camera_pose')
-    depth_topic = LaunchConfiguration('depth_topic', default='depth_image')
     cloud_topic = LaunchConfiguration('cloud_topic', default='cloud')
+    use_depth_fusion = LaunchConfiguration('use_depth_fusion', default='false')
     
     cx = LaunchConfiguration('cx', default=321.04638671875)
     cy = LaunchConfiguration('cy', default=243.44969177246094)
@@ -57,9 +56,10 @@ def generate_launch_description():
     map_size_y_arg = DeclareLaunchArgument('map_size_y_', default_value=map_size_y, description='Map size along Y')
     map_size_z_arg = DeclareLaunchArgument('map_size_z_', default_value=map_size_z, description='Map size along Z')
     odometry_topic_arg = DeclareLaunchArgument('odometry_topic', default_value=odometry_topic, description='Odometry topic')
-    camera_pose_topic_arg = DeclareLaunchArgument('camera_pose_topic', default_value=camera_pose_topic, description='Camera pose topic')
-    depth_topic_arg = DeclareLaunchArgument('depth_topic', default_value=depth_topic, description='Depth topic')
     cloud_topic_arg = DeclareLaunchArgument('cloud_topic', default_value=cloud_topic, description='Point cloud topic')
+    use_depth_fusion_arg = DeclareLaunchArgument(
+        'use_depth_fusion', default_value=use_depth_fusion,
+        description='Enable optional depth-camera fusion')
     cx_arg = DeclareLaunchArgument('cx', default_value=cx, description='Camera intrinsic cx')
     cy_arg = DeclareLaunchArgument('cy', default_value=cy, description='Camera intrinsic cy')
     fx_arg = DeclareLaunchArgument('fx', default_value=fx, description='Camera intrinsic fx')
@@ -120,9 +120,6 @@ def generate_launch_description():
             ('grid_map/odom', [odometry_topic]),
             # ('grid_map/cloud', ['drone_', drone_id, '_', cloud_topic]),
             ('grid_map/cloud', [cloud_topic]),
-            ('grid_map/pose', ['drone_', drone_id, '_', camera_pose_topic]),
-            # ('grid_map/depth', ['drone_', drone_id, '_', depth_topic]),
-            ('grid_map/depth', [depth_topic]),
             ('grid_map/occupancy_inflate', ['drone_', drone_id, '_grid/grid_map/occupancy_inflate'])
             # ('/move_base_simple/goal', ['/goal_pose'])
         ],
@@ -171,12 +168,12 @@ def generate_launch_description():
             {'grid_map/cloud_voxel_retention_sec': 4.0},
             {'grid_map/local_map_margin': 10},
             {'grid_map/ground_height': -0.01},
-            # camera parameter
+            {'grid_map/use_depth_fusion': use_depth_fusion},
+            # Retained for optional depth fusion; the default LiDAR path does not subscribe to images.
             {'grid_map/cx': cx},
             {'grid_map/cy': cy},
             {'grid_map/fx': fx},
             {'grid_map/fy': fy},
-            # depth filter
             {'grid_map/use_depth_filter': False},
             {'grid_map/depth_filter_tolerance': 0.15},
             {'grid_map/depth_filter_maxdist': 5.0},
@@ -237,9 +234,8 @@ def generate_launch_description():
     ld.add_action(map_size_y_arg)
     ld.add_action(map_size_z_arg)
     ld.add_action(odometry_topic_arg)
-    ld.add_action(camera_pose_topic_arg)
-    ld.add_action(depth_topic_arg)
     ld.add_action(cloud_topic_arg)
+    ld.add_action(use_depth_fusion_arg)
     ld.add_action(cx_arg)
     ld.add_action(cy_arg)
     ld.add_action(fx_arg)

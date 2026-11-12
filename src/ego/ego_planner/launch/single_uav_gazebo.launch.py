@@ -19,7 +19,6 @@ def generate_launch_description():
         'map_size_z': '4.0',
         'odom_topic': '/fastlio2/lio_odom',
         'cloud_topic': '/fastlio2/world_cloud',
-        'depth_topic': '/depth_camera_bestef',
     }
     cfg = {name: LaunchConfiguration(name) for name in args}
     advanced = IncludeLaunchDescription(
@@ -34,7 +33,6 @@ def generate_launch_description():
             'map_size_z_': cfg['map_size_z'],
             'odometry_topic': cfg['odom_topic'],
             'cloud_topic': cfg['cloud_topic'],
-            'depth_topic': cfg['depth_topic'],
             # Keep enough stopping margin for the PX4 SITL position loop.
             'max_vel': '0.6',
             'max_acc': '0.8',

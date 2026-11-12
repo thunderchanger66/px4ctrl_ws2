@@ -10,6 +10,7 @@ import uuid
 from ament_index_python.packages import get_package_prefix
 import pytest
 import rclpy
+from nav_msgs.msg import Odometry
 from px4_msgs.msg import (
     OffboardControlMode, VehicleAttitudeSetpoint, VehicleLandDetected,
     VehicleLocalPosition, VehicleStatus,
@@ -96,9 +97,7 @@ def test_airborne_takeover_and_offboard_loss(ros_graph):
         "use_sim_time": "false",
         "entry_mode": "airborne_takeover",
         "require_takeover_permission": "true",
-        "planner_frame": "px4_local_ned",
-        "align_to_px4_local_origin": "false",
-        "transform_rotation_row_major": "[1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0]",
+        "reference_frame": "px4_local_ned",
         "start_offboard_on_first_command": "false",
         "arm_on_first_command": "false",
         "auto_takeoff_altitude_m": "0.0",
@@ -221,7 +220,16 @@ def test_ego_adapter_filters_and_translates(ros_graph):
     suffix = uuid.uuid4().hex[:8]
     input_topic = f"/px4ctrl_adapter_test_{suffix}/input"
     output_topic = f"/px4ctrl_adapter_test_{suffix}/output"
+    odom_topic = f"/px4ctrl_adapter_test_{suffix}/odom"
+    local_topic = f"/px4ctrl_adapter_test_{suffix}/local_position"
     source = node.create_publisher(PositionCommand, input_topic, 20)
+    odom_source = node.create_publisher(Odometry, odom_topic, 20)
+    sensor_qos = QoSProfile(
+        history=HistoryPolicy.KEEP_LAST, depth=10,
+        reliability=ReliabilityPolicy.BEST_EFFORT,
+        durability=DurabilityPolicy.VOLATILE,
+    )
+    local_source = node.create_publisher(VehicleLocalPosition, local_topic, sensor_qos)
     received = []
     node.create_subscription(DesiredState, output_topic,
                              lambda msg: received.append(msg), 20)
@@ -229,9 +237,27 @@ def test_ego_adapter_filters_and_translates(ros_graph):
         "input_topic": input_topic,
         "output_topic": output_topic,
         "planner_frame": "lidar",
+        "odom_topic": odom_topic,
+        "local_position_topic": local_topic,
     })
     try:
-        _wait(executor, lambda: source.get_subscription_count() > 0)
+        def publish_alignment_state():
+            odom = Odometry()
+            odom.header.frame_id = "lidar"
+            odom.pose.pose.position.x = 10.0
+            odom.pose.pose.position.y = 20.0
+            odom.pose.pose.orientation.w = 1.0
+            odom_source.publish(odom)
+            local = VehicleLocalPosition()
+            local.timestamp = time.monotonic_ns() // 1000
+            local.xy_valid = local.z_valid = True
+            local.v_xy_valid = local.v_z_valid = True
+            local.x, local.y, local.z = 2.0, 3.0, -1.0
+            local_source.publish(local)
+
+        _wait(executor, lambda: source.get_subscription_count() > 0 and
+              odom_source.get_subscription_count() > 0 and
+              local_source.get_subscription_count() > 0, publish_alignment_state)
         command = PositionCommand()
         command.header.frame_id = "wrong"
         command.trajectory_flag = PositionCommand.TRAJECTORY_STATUS_READY
@@ -251,12 +277,19 @@ def test_ego_adapter_filters_and_translates(ros_graph):
         command.velocity.y = -0.4
         command.acceleration.z = 0.2
         command.yaw, command.yaw_dot = 0.5, 0.1
-        _wait(executor, lambda: bool(received), lambda: source.publish(command))
+        def publish_inputs():
+            publish_alignment_state()
+            source.publish(command)
+
+        _wait(executor, lambda: bool(received), publish_inputs)
         actual = received[-1]
-        assert actual.header.frame_id == "lidar"
-        assert actual.position.x == 3.0
-        assert actual.velocity.y == -0.4
-        assert actual.acceleration.z == 0.2
-        assert actual.yaw == 0.5 and actual.yaw_rate == 0.1
+        assert actual.header.frame_id == "px4_local_ned"
+        assert math.isclose(actual.position.x, -18.0, abs_tol=1e-6)
+        assert math.isclose(actual.position.y, -4.0, abs_tol=1e-6)
+        assert math.isclose(actual.position.z, -1.0, abs_tol=1e-6)
+        assert math.isclose(actual.velocity.x, -0.4, abs_tol=1e-6)
+        assert math.isclose(actual.acceleration.z, -0.2, abs_tol=1e-6)
+        assert math.isclose(actual.yaw, math.pi / 2.0 - 0.5, abs_tol=1e-6)
+        assert math.isclose(actual.yaw_rate, -0.1, abs_tol=1e-6)
     finally:
         _stop(process)

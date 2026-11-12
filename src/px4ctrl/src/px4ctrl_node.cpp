@@ -13,7 +13,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "nav_msgs/msg/odometry.hpp"
 #include "px4_msgs/msg/offboard_control_mode.hpp"
 #include "px4_msgs/msg/vehicle_attitude.hpp"
 #include "px4_msgs/msg/vehicle_attitude_setpoint.hpp"
@@ -121,14 +120,30 @@ public:
   Px4Ctrl()
   : Node("px4ctrl")
   {
-    declare_parameter("planner_frame", "lidar");
+    // Parameters that were dropped when the controller became planner
+    // agnostic. ROS 2 silently ignores undeclared parameters, so a stale
+    // configuration would otherwise keep running while the reference was
+    // reinterpreted in PX4 local NED. Refuse to start instead.
+    for (const auto & override_param : get_node_parameters_interface()->get_parameter_overrides()) {
+      const std::string & name = override_param.first;
+      if (name == "planner_frame" || name == "odom_topic" || name == "state_timeout_sec" ||
+        name == "align_to_px4_local_origin" ||
+        name == "frame_alignment_velocity_tolerance_mps" ||
+        name == "transform_rotation_row_major")
+      {
+        throw std::runtime_error(
+          "parameter '" + name + "' was removed: the reference must already be expressed in "
+          "PX4 local NED. Use 'reference_frame' for the frame id and remove '" + name + "'.");
+      }
+    }
+
+    declare_parameter("reference_frame", "px4_local_ned");
     declare_parameter("desired_state_topic", "/px4ctrl/desired_state");
     declare_parameter("debug_topic", "/px4ctrl/debug");
     declare_parameter("entry_mode", "auto_takeoff");
     declare_parameter("takeover_velocity_tolerance_mps", 0.20);
     declare_parameter("require_takeover_permission", false);
     declare_parameter("takeover_permission_topic", "/eight/takeover_allowed");
-    declare_parameter("odom_topic", "/fastlio2/lio_odom");
     declare_parameter("px4_status_topic", "/fmu/out/vehicle_status_v4");
     declare_parameter("px4_attitude_topic", "/fmu/out/vehicle_attitude");
     declare_parameter("px4_local_position_topic", "/fmu/out/vehicle_local_position_v1");
@@ -142,7 +157,6 @@ public:
     declare_parameter("manual_yaw_topic", "/px4ctrl/manual_yaw");
     declare_parameter("clear_manual_yaw_topic", "/px4ctrl/clear_manual_yaw");
     declare_parameter("publish_rate_hz", 100.0);
-    declare_parameter("state_timeout_sec", 0.30);
     declare_parameter("command_timeout_sec", 0.50);
     declare_parameter("prestream_seconds", 1.0);
     declare_parameter("start_offboard_on_first_command", true);
@@ -162,8 +176,6 @@ public:
     declare_parameter("require_local_position_valid", true);
     declare_parameter("max_local_position_m", 100.0);
     declare_parameter("max_local_velocity_mps", 15.0);
-    declare_parameter("align_to_px4_local_origin", true);
-    declare_parameter("frame_alignment_velocity_tolerance_mps", 0.20);
     declare_parameter("land_on_safety_fault", true);
     declare_parameter("auto_takeoff_altitude_m", 0.50);
     declare_parameter("minimum_takeoff_altitude_m", 0.25);
@@ -183,14 +195,11 @@ public:
     declare_parameter("ki", std::vector<double>{0.10, 0.10, 0.15});
     declare_parameter("integral_limit_mps2", std::vector<double>{0.40, 0.40, 0.50});
     declare_parameter("integral_enable_velocity_error_mps", 0.60);
-    declare_parameter("transform_rotation_row_major", std::vector<double>{
-      0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0});
 
-    planner_frame_ = get_parameter("planner_frame").as_string();
+    reference_frame_ = get_parameter("reference_frame").as_string();
     entry_mode_ = get_parameter("entry_mode").as_string();
     takeover_velocity_tolerance_mps_ = get_parameter("takeover_velocity_tolerance_mps").as_double();
     require_takeover_permission_ = get_parameter("require_takeover_permission").as_bool();
-    state_timeout_sec_ = get_parameter("state_timeout_sec").as_double();
     command_timeout_sec_ = get_parameter("command_timeout_sec").as_double();
     prestream_seconds_ = get_parameter("prestream_seconds").as_double();
     start_offboard_ = get_parameter("start_offboard_on_first_command").as_bool();
@@ -210,9 +219,6 @@ public:
     require_local_position_valid_ = get_parameter("require_local_position_valid").as_bool();
     max_local_position_m_ = get_parameter("max_local_position_m").as_double();
     max_local_velocity_mps_ = get_parameter("max_local_velocity_mps").as_double();
-    align_to_px4_local_origin_ = get_parameter("align_to_px4_local_origin").as_bool();
-    frame_alignment_velocity_tolerance_mps_ =
-      get_parameter("frame_alignment_velocity_tolerance_mps").as_double();
     land_on_safety_fault_ = get_parameter("land_on_safety_fault").as_bool();
     auto_takeoff_altitude_m_ = get_parameter("auto_takeoff_altitude_m").as_double();
     minimum_takeoff_altitude_m_ = get_parameter("minimum_takeoff_altitude_m").as_double();
@@ -233,10 +239,8 @@ public:
     const auto integral_limit = get_parameter("integral_limit_mps2").as_double_array();
     integral_enable_velocity_error_mps_ =
       get_parameter("integral_enable_velocity_error_mps").as_double();
-    const auto rotation = get_parameter("transform_rotation_row_major").as_double_array();
     if (kp.size() != 3 || kv.size() != 3 || ki.size() != 3 || integral_limit.size() != 3 ||
-        rotation.size() != 9 ||
-        !std::isfinite(state_timeout_sec_) || state_timeout_sec_ <= 0.0 ||
+        reference_frame_.empty() ||
         !std::isfinite(command_timeout_sec_) || command_timeout_sec_ <= 0.0 ||
         !std::isfinite(prestream_seconds_) || prestream_seconds_ < 0.0 ||
         !std::isfinite(gravity_) || gravity_ <= 0.0 || !std::isfinite(hover_thrust_) ||
@@ -256,8 +260,6 @@ public:
         !std::isfinite(max_ekf_reset_heading_rad_) || max_ekf_reset_heading_rad_ <= 0.0 ||
         !std::isfinite(max_local_position_m_) || max_local_position_m_ <= 0.0 ||
         !std::isfinite(max_local_velocity_mps_) || max_local_velocity_mps_ <= 0.0 ||
-        !std::isfinite(frame_alignment_velocity_tolerance_mps_) ||
-        frame_alignment_velocity_tolerance_mps_ <= 0.0 ||
         !std::isfinite(auto_takeoff_altitude_m_) || auto_takeoff_altitude_m_ < 0.0 ||
         !std::isfinite(minimum_takeoff_altitude_m_) || minimum_takeoff_altitude_m_ < 0.0 ||
         minimum_takeoff_altitude_m_ > auto_takeoff_altitude_m_ ||
@@ -287,25 +289,10 @@ public:
         throw std::runtime_error("kp, kv, ki and integral limits must be finite and non-negative");
       }
     }
-    for (size_t r = 0; r < 3; ++r) for (size_t c = 0; c < 3; ++c) {
-      rotation_(static_cast<Eigen::Index>(r), static_cast<Eigen::Index>(c)) = rotation[r * 3 + c];
-    }
-    if (!rotation_.isApprox(rotation_.transpose().inverse(), 1e-4) ||
-        std::abs(rotation_.determinant() - 1.0) > 1e-4) {
-      throw std::runtime_error("transform_rotation_row_major must be a proper rotation");
-    }
-
     const auto px4_qos = rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile();
     command_sub_ = create_subscription<DesiredStateMsg>(
       get_parameter("desired_state_topic").as_string(), rclcpp::QoS(20),
       std::bind(&Px4Ctrl::command_callback, this, std::placeholders::_1));
-    // FAST-LIO is a sensor stream.  Use best-effort reception so the
-    // controller remains compatible with both the current RELIABLE publisher
-    // and deployments where the LIO node uses sensor-data QoS.
-    const auto sensor_qos = rclcpp::QoS(rclcpp::KeepLast(20)).best_effort().durability_volatile();
-    odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
-      get_parameter("odom_topic").as_string(), sensor_qos,
-      std::bind(&Px4Ctrl::odom_callback, this, std::placeholders::_1));
     status_sub_ = create_subscription<px4_msgs::msg::VehicleStatus>(
       get_parameter("px4_status_topic").as_string(), px4_qos,
       std::bind(&Px4Ctrl::vehicle_status_callback, this, std::placeholders::_1));
@@ -325,9 +312,6 @@ public:
     takeover_permission_sub_ = create_subscription<std_msgs::msg::Bool>(
       get_parameter("takeover_permission_topic").as_string(), rclcpp::QoS(10),
       [this](const std_msgs::msg::Bool::SharedPtr msg) { takeover_permission_ = msg->data; });
-    emergency_sub_ = create_subscription<std_msgs::msg::Empty>(
-      "/planning/emergency_stop", rclcpp::QoS(10),
-      std::bind(&Px4Ctrl::planner_emergency_callback, this, std::placeholders::_1));
     manual_yaw_sub_ = create_subscription<std_msgs::msg::Float64>(
       get_parameter("manual_yaw_topic").as_string(), rclcpp::QoS(10),
       [this](const std_msgs::msg::Float64::SharedPtr msg) {
@@ -353,13 +337,13 @@ public:
     timer_ = create_timer(
       std::chrono::duration<double>(1.0 / rate), std::bind(&Px4Ctrl::timer_callback, this));
     publish_status(entry_mode_ == "airborne_takeover" ?
-      "waiting_for_airborne_takeover" : "waiting_for_fastlio_odom_and_planner_command");
+      "waiting_for_airborne_takeover" : "waiting_for_px4_local_position_and_reference_command");
   }
 
 private:
   void command_callback(const DesiredStateMsg::SharedPtr msg)
   {
-    if (!msg || msg->header.frame_id != planner_frame_) return;
+    if (!msg || msg->header.frame_id != reference_frame_) return;
     const auto stamp = rclcpp::Time(msg->header.stamp, get_clock()->get_clock_type());
     const double age = (get_clock()->now() - stamp).seconds();
     if (stamp.nanoseconds() <= 0 || !std::isfinite(age) ||
@@ -387,10 +371,10 @@ private:
     const double velocity_jump = has_previous_target ?
       (candidate.velocity - previous_target.velocity).norm() : 0.0;
 
-    // EGO normally replaces a B-spline with a state-continuous command. If a
-    // planner reset or stale message violates that contract, transition from
-    // the currently applied reference instead of sending a step to the
-    // attitude controller. Normal trajectory samples remain unfiltered.
+    // A planner normally replaces its trajectory with a state-continuous
+    // command. If a planner reset or stale message violates that contract,
+    // transition from the currently applied reference instead of sending a
+    // step to the attitude controller. Normal samples remain unfiltered.
     if (has_previous_target &&
       (position_jump > max_command_position_jump_m_ ||
        velocity_jump > max_command_velocity_jump_mps_))
@@ -399,7 +383,7 @@ private:
       reference_blend_start_ = get_clock()->now();
       reference_blending_ = command_blend_sec_ > 1e-6;
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000,
-        "Blending discontinuous EGO command: position jump %.2f m, velocity jump %.2f m/s",
+        "Blending discontinuous reference: position jump %.2f m, velocity jump %.2f m/s",
         position_jump, velocity_jump);
     }
     desired_ = candidate;
@@ -407,36 +391,7 @@ private:
     pending_desired_ = candidate;
     desired_command_time_ = get_clock()->now();
     command_seen_ = true;
-    planner_emergency_hold_ = false;
     if (!first_command_time_) first_command_time_ = desired_command_time_;
-  }
-
-  void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
-  {
-    if (!msg) return;
-    if (msg->header.frame_id != planner_frame_) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Rejecting odometry frame '%s'; expected '%s'",
-        msg->header.frame_id.c_str(), planner_frame_.c_str());
-      return;
-    }
-    const Vector3 p(msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z);
-    const Vector3 body_v(msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z);
-    Eigen::Quaterniond q(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x,
-                         msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
-    if (!finite(p) || !finite(body_v) || !std::isfinite(q.norm()) || q.norm() < 1e-6) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Rejecting non-finite FAST-LIO odometry");
-      return;
-    }
-    q.normalize();
-    const Vector3 v = q * body_v;
-    if (!finite(v)) return;
-    odom_position_ = p;
-    odom_velocity_ = v;
-    odom_orientation_ = q;
-    odom_time_ = get_clock()->now();
-    odom_received_ = true;
   }
 
   void vehicle_status_callback(const px4_msgs::msg::VehicleStatus::SharedPtr msg)
@@ -484,7 +439,7 @@ private:
       (msg->xy_reset_counter != local_position_->xy_reset_counter ||
       msg->z_reset_counter != local_position_->z_reset_counter ||
       msg->heading_reset_counter != local_position_->heading_reset_counter);
-    if (local_frame_reset && frame_aligned_) {
+    if (local_frame_reset) {
       const bool xy_reset = msg->xy_reset_counter != local_position_->xy_reset_counter;
       const bool z_reset = msg->z_reset_counter != local_position_->z_reset_counter;
       const bool heading_reset =
@@ -500,11 +455,10 @@ private:
         std::abs(heading_delta) > max_ekf_reset_heading_rad_)
       {
         latch_safety_fault("px4_local_position_reset_too_large");
-      } else if (frame_aligned_) {
+      } else {
         // PX4 position-control tasks compensate EKF resets by adding delta_xy
         // and delta_z to their existing setpoints. Apply the same correction to
         // every local-NED target used by this direct attitude controller.
-        translation_ += reset_delta;
         hover_position_ += reset_delta;
         takeoff_target_ += reset_delta;
         if (z_reset && takeoff_origin_z_) {
@@ -585,72 +539,19 @@ private:
     }
   }
 
-  void planner_emergency_callback(const std_msgs::msg::Empty::SharedPtr)
-  {
-    if (!local_position_healthy()) {
-      latch_safety_fault("planner_emergency_without_healthy_px4_position");
-      return;
-    }
-
-    const auto & p = *local_position_;
-    hover_position_ = {static_cast<double>(p.x), static_cast<double>(p.y), static_cast<double>(p.z)};
-    hold_yaw_ = std::isfinite(p.heading) ? static_cast<double>(p.heading) : hold_yaw_;
-    hover_settle_start_time_ = get_clock()->now();
-    desired_command_time_.reset();
-    pending_desired_.reset();
-    reference_blending_ = false;
-    tracking_handoff_start_time_.reset();
-    integral_acceleration_.setZero();
-    state_ = ControlState::hover;
-    planner_emergency_hold_ = true;
-    publish_status("planner_emergency_hold");
-    RCLCPP_WARN(get_logger(), "Planner emergency: holding current PX4 position");
-  }
-
   bool state_fresh() const
   {
-    // PX4 local position is the state used by the feedback controller. FAST-
-    // LIO is needed before alignment, but after that it is an upstream input
-    // to the estimator/planner rather than a second control-state source.
-    if (frame_aligned_ || !align_to_px4_local_origin_) return local_position_received_ && local_position_time_ &&
-        seconds_since(*local_position_time_) <= local_position_timeout_sec_;
-    return odom_position_ && odom_velocity_ && odom_time_ &&
-      seconds_since(*odom_time_) <= state_timeout_sec_;
+    // PX4 local position is the only control-state source. The reference is
+    // already expressed in the same frame, so no second odometry stream is
+    // needed to establish or maintain a common origin.
+    return local_position_received_ && local_position_time_ &&
+      seconds_since(*local_position_time_) <= local_position_timeout_sec_;
   }
 
   bool command_fresh() const
   {
     return pending_desired_ && desired_command_time_ &&
       seconds_since(*desired_command_time_) <= command_timeout_sec_;
-  }
-
-  bool align_frames_if_stationary()
-  {
-    if (frame_aligned_) return true;
-    if (!align_to_px4_local_origin_) {
-      frame_aligned_ = true;
-      return true;
-    }
-    if (!odom_position_ || !odom_velocity_ || !local_position_ || !local_position_healthy()) {
-      return false;
-    }
-    const Vector3 local_velocity(
-      static_cast<double>(local_position_->vx), static_cast<double>(local_position_->vy),
-      static_cast<double>(local_position_->vz));
-    if (odom_velocity_->norm() > frame_alignment_velocity_tolerance_mps_ ||
-      local_velocity.norm() > frame_alignment_velocity_tolerance_mps_)
-    {
-      return false;
-    }
-    const Vector3 local_position(
-      static_cast<double>(local_position_->x), static_cast<double>(local_position_->y),
-      static_cast<double>(local_position_->z));
-    translation_ = local_position - rotation_ * *odom_position_;
-    frame_aligned_ = true;
-    RCLCPP_INFO(get_logger(), "Aligned planner frame to PX4 local NED: translation [%.3f %.3f %.3f] m",
-      translation_.x(), translation_.y(), translation_.z());
-    publish_status("planner_frame_aligned");
-    return true;
   }
 
   ControlOutput calculate_output()
@@ -660,10 +561,9 @@ private:
     const Vector3 v(static_cast<double>(lpos.vx), static_cast<double>(lpos.vy), static_cast<double>(lpos.vz));
     DesiredState d = desired_.value_or(DesiredState{});
 
-    // EGO publishes references in the planner frame.  Blend a discontinuous
-    // replan before applying the planner-to-NED transform; blending after the
-    // transform mixes a previous planner-frame state with a NED state and can
-    // create a false position/yaw step when axes are exchanged.
+    // Blend a discontinuous replan before it reaches the attitude loop. A
+    // planner that replaces its reference with a state-continuous command
+    // never triggers this; only a discontinuity such as a planner reset does.
     if (reference_blending_ && reference_blend_start_ && command_blend_sec_ > 1e-6) {
       const double elapsed = seconds_since(*reference_blend_start_);
       const double u = std::clamp(elapsed / command_blend_sec_, 0.0, 1.0);
@@ -677,14 +577,11 @@ private:
       if (u >= 1.0) reference_blending_ = false;
     }
 
-    d.position = rotation_ * d.position + translation_;
-    d.velocity = rotation_ * d.velocity;
-    d.acceleration = rotation_ * d.acceleration;
     if (entry_mode_ != "airborne_takeover" && state_ == ControlState::tracking &&
-        frame_aligned_ && takeoff_origin_z_) {
-      // The planner frame can briefly publish a failed/recovery trajectory
-      // below the safe flight floor. Keep the direct attitude controller from
-      // commanding a descent while EGO is waiting for a valid replacement.
+        takeoff_origin_z_) {
+      // The reference can briefly publish a failed/recovery trajectory below
+      // the safe flight floor. Keep the direct attitude controller from
+      // commanding a descent while the planner waits for a valid replacement.
       const double minimum_z = *takeoff_origin_z_ - minimum_tracking_altitude_m_;
       if (d.position.z() > minimum_z) {
         // In NED, smaller z means higher altitude. If already above the
@@ -693,18 +590,12 @@ private:
         if (d.velocity.z() > 0.0) d.velocity.z() = 0.0;
         if (d.acceleration.z() > 0.0) d.acceleration.z() = 0.0;
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-          "Clamping planner command to minimum tracking altitude %.2f m", minimum_tracking_altitude_m_);
+          "Clamping reference to minimum tracking altitude %.2f m", minimum_tracking_altitude_m_);
       }
     }
-    const Vector3 heading_in_ned = rotation_ * Vector3(std::cos(d.yaw), std::sin(d.yaw), 0.0);
-    const Vector3 heading_rate_in_ned = rotation_ * Vector3(
-      -std::sin(d.yaw) * d.yaw_rate, std::cos(d.yaw) * d.yaw_rate, 0.0);
-    d.yaw = std::atan2(heading_in_ned.y(), heading_in_ned.x());
+    // The reference already uses PX4 local NED, so yaw and yaw rate pass
+    // through unchanged. Only the estimator heading-reset offset is applied.
     d.yaw = std::remainder(d.yaw + heading_reset_offset_, 2.0 * M_PI);
-    const double heading_norm_sq = heading_in_ned.head<2>().squaredNorm();
-    d.yaw_rate = heading_norm_sq > 1e-8 ?
-      (heading_in_ned.x() * heading_rate_in_ned.y() -
-      heading_in_ned.y() * heading_rate_in_ned.x()) / heading_norm_sq : 0.0;
     if (!command_fresh()) {
       d.velocity.setZero();
       d.acceleration.setZero();
@@ -723,14 +614,11 @@ private:
       d.yaw_rate *= blend;
     }
     // Keep the launch heading while takeoff and hover settling establish lift.
-    // A manual goal may request a large turn, which should start only once the
-    // vehicle is airborne and the planner reference is being tracked.
+    // A reference may request a large turn, which should start only once the
+    // vehicle is airborne and the reference is being tracked.
     double yaw_target = state_ == ControlState::tracking ? d.yaw : hold_yaw_;
     if (state_ == ControlState::tracking && manual_yaw_) {
-      const Vector3 manual_heading = rotation_ * Vector3(
-        std::cos(*manual_yaw_), std::sin(*manual_yaw_), 0.0);
-      yaw_target = std::remainder(
-        std::atan2(manual_heading.y(), manual_heading.x()) + heading_reset_offset_, 2.0 * M_PI);
+      yaw_target = std::remainder(*manual_yaw_ + heading_reset_offset_, 2.0 * M_PI);
     }
     const auto yaw_now = get_clock()->now();
     const double yaw_dt = last_yaw_update_ ? std::clamp(
@@ -1014,10 +902,10 @@ private:
         if (std::max(0.0, (now - *unhealthy_since_).seconds()) >=
           local_position_fault_delay_sec_)
         {
-          latch_safety_fault("fastlio_odom_timeout");
+          latch_safety_fault("px4_local_position_timeout");
         }
       } else {
-        publish_status("waiting_for_fresh_fastlio_odom");
+        publish_status("waiting_for_fresh_px4_local_position");
       }
       return;
     }
@@ -1036,11 +924,6 @@ private:
     }
     unhealthy_since_.reset();
 
-    if (!align_frames_if_stationary()) {
-      publish_status("waiting_for_stationary_frame_alignment");
-      return;
-    }
-
     update_state_machine();
     if (state_ == ControlState::waiting_for_command) {
       publish_status(entry_mode_ == "airborne_takeover" ?
@@ -1054,13 +937,11 @@ private:
     if (state_ == ControlState::hover || state_ == ControlState::takeoff) {
       DesiredState hold;
       const Vector3 target = state_ == ControlState::takeoff ? takeoff_target_ : hover_position_;
-      // calculate_output applies planner->PX4 rotation to all desired states.
-      hold.position = rotation_.transpose() * (target - translation_);
+      // The hold target is already a PX4 local NED position.
+      hold.position = target;
       hold.velocity.setZero();
       hold.acceleration.setZero();
-      const Vector3 px4_heading{std::cos(hold_yaw_), std::sin(hold_yaw_), 0.0};
-      const Vector3 planner_heading = rotation_.transpose() * px4_heading;
-      hold.yaw = manual_yaw_.value_or(std::atan2(planner_heading.y(), planner_heading.x()));
+      hold.yaw = manual_yaw_.value_or(hold_yaw_);
       desired_ = hold;
     }
     if (state_ == ControlState::tracking && pending_desired_) {
@@ -1115,9 +996,8 @@ private:
       publish_status("attitude_offboard_arm_requested");
     }
     const std::string phase = control_state_name();
-    publish_status(planner_emergency_hold_ ? phase + "_planner_emergency_hold" :
-      (command_fresh() ? phase + "_attitude_thrust_tracking" :
-      phase + "_command_stale_hovering"));
+    publish_status(command_fresh() ? phase + "_attitude_thrust_tracking" :
+      phase + "_command_stale_hovering");
   }
 
   std::string control_state_name() const
@@ -1191,10 +1071,9 @@ private:
     debug_pub_->publish(msg);
   }
 
-  std::string planner_frame_;
+  std::string reference_frame_;
   std::string entry_mode_{"auto_takeoff"};
   std::string suspension_reason_;
-  double state_timeout_sec_{0.3};
   double command_timeout_sec_{0.5};
   double prestream_seconds_{1.0};
   double takeover_velocity_tolerance_mps_{0.20};
@@ -1217,8 +1096,6 @@ private:
   bool require_local_position_valid_{true};
   double max_local_position_m_{100.0};
   double max_local_velocity_mps_{15.0};
-  bool align_to_px4_local_origin_{true};
-  double frame_alignment_velocity_tolerance_mps_{0.20};
   bool land_on_safety_fault_{true};
   double auto_takeoff_altitude_m_{0.5};
   double minimum_takeoff_altitude_m_{0.25};
@@ -1241,14 +1118,6 @@ private:
   double integral_enable_velocity_error_mps_{0.60};
   bool last_output_saturated_{false};
   std::optional<rclcpp::Time> last_control_time_;
-  Matrix3 rotation_{Matrix3::Identity()};
-  Vector3 translation_{Vector3::Zero()};
-  bool frame_aligned_{false};
-  std::optional<Vector3> odom_position_;
-  std::optional<Vector3> odom_velocity_;
-  std::optional<Eigen::Quaterniond> odom_orientation_;
-  std::optional<rclcpp::Time> odom_time_;
-  bool odom_received_{false};
   std::optional<DesiredState> desired_;
   std::optional<DesiredState> reference_target_;
   DesiredState reference_blend_from_;
@@ -1275,7 +1144,6 @@ private:
   bool control_suspended_{false};
   bool offboard_seen_{false};
   bool command_seen_{false};
-  bool planner_emergency_hold_{false};
   ControlState state_{ControlState::waiting_for_command};
   Vector3 hover_position_{Vector3::Zero()};
   Vector3 takeoff_target_{Vector3::Zero()};
@@ -1293,13 +1161,11 @@ private:
   uint64_t px4_timestamp_{0};
   uint64_t last_setpoint_timestamp_{0};
   rclcpp::Subscription<DesiredStateMsg>::SharedPtr command_sub_;
-  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr status_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLocalPosition>::SharedPtr local_position_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLandDetected>::SharedPtr land_detected_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr takeover_permission_sub_;
-  rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr emergency_sub_;
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr manual_yaw_sub_;
   rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr clear_manual_yaw_sub_;
   rclcpp::Publisher<px4_msgs::msg::OffboardControlMode>::SharedPtr mode_pub_;

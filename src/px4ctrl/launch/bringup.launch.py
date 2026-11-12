@@ -42,7 +42,6 @@ def generate_launch_description():
             "planning_frame": "lidar",
             "odom_topic": "/fastlio2/lio_odom",
             "cloud_topic": "/fastlio2/world_cloud",
-            "depth_topic": "/depth_camera_bestef",
         }.items(),
     )
 
@@ -109,6 +108,14 @@ def generate_launch_description():
                 "input_topic": adapter_input_topic,
                 "output_topic": adapter_output_topic,
                 "planner_frame": adapter_planner_frame,
+                "reference_frame": "px4_local_ned",
+                "odom_topic": "/fastlio2/lio_odom",
+                "local_position_topic": "/fmu/out/vehicle_local_position_v1",
+                "transform_rotation_row_major": [
+                    0.0, 1.0, 0.0,
+                    1.0, 0.0, 0.0,
+                    0.0, 0.0, -1.0,
+                ],
             }],
         ),
     ])
