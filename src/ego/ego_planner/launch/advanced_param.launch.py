@@ -10,7 +10,7 @@ def generate_launch_description():
     # LaunchConfigurations
     map_size_x = LaunchConfiguration('map_size_x_', default=80.0)
     map_size_y = LaunchConfiguration('map_size_y_', default=80.0)
-    map_size_z = LaunchConfiguration('map_size_z_', default=4.0)
+    map_size_z = LaunchConfiguration('map_size_z_', default=10.0)
     
     odometry_topic = LaunchConfiguration('odometry_topic', default='odom')
     cloud_topic = LaunchConfiguration('cloud_topic', default='cloud')
@@ -166,8 +166,8 @@ def generate_launch_description():
             {'grid_map/p_max': 0.90},
             {'grid_map/p_occ': 0.80},
             
-            {'grid_map/virtual_ceil_height': 2.9},
-            {'grid_map/visualization_truncate_height': 1.8},
+            {'grid_map/virtual_ceil_height': 9.9},
+            {'grid_map/visualization_truncate_height': 9.9},
             {'grid_map/show_occ_time': False},
             {'grid_map/frame_id': planning_frame},
             # planner manager

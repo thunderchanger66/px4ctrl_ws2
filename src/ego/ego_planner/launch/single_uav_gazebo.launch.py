@@ -16,7 +16,7 @@ def generate_launch_description():
         'drone_id': '0',
         'map_size_x': '80.0',
         'map_size_y': '80.0',
-        'map_size_z': '4.0',
+        'map_size_z': '10.0',
         'odom_topic': '/fastlio2/lio_odom',
         'cloud_topic': '/fastlio2/world_cloud',
     }
@@ -35,8 +35,8 @@ def generate_launch_description():
             'cloud_topic': cfg['cloud_topic'],
             # Keep the increased response limits with an explicit jerk bound.
             'max_vel': '1.0',
-            'max_acc': '1.2',
-            'max_jerk': '4.0',
+            'max_acc': '1.0',
+            'max_jerk': '3.0',
             'lambda_smooth': '2.0',
             'planning_horizon': '7.5',
             'obstacle_inflation': '0.45',

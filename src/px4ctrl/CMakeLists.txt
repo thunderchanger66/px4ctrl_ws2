@@ -27,8 +27,6 @@ rosidl_get_typesupport_target(px4ctrl_typesupport_target ${PROJECT_NAME} "rosidl
 target_link_libraries(px4ctrl_node "${px4ctrl_typesupport_target}")
 
 install(TARGETS px4ctrl_node DESTINATION lib/${PROJECT_NAME})
-install(PROGRAMS scripts/offboard_thrust_probe.py
-  DESTINATION lib/${PROJECT_NAME} RENAME offboard_thrust_probe)
 install(PROGRAMS scripts/ego_position_command_adapter.py
   DESTINATION lib/${PROJECT_NAME} RENAME ego_position_command_adapter)
 install(PROGRAMS scripts/manual_goal.py
