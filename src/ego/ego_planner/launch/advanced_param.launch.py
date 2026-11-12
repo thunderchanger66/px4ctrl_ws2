@@ -1,4 +1,3 @@
-import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -7,6 +6,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time", default="false")
     planning_frame = LaunchConfiguration("planning_frame", default="world")
+    wait_for_stable_px4 = LaunchConfiguration('wait_for_stable_px4', default='false')
     # LaunchConfigurations
     map_size_x = LaunchConfiguration('map_size_x_', default=80.0)
     map_size_y = LaunchConfiguration('map_size_y_', default=80.0)
@@ -107,16 +107,14 @@ def generate_launch_description():
             ('optimal_list', ['drone_', drone_id, '_plan_vis/optimal_list']),
             ('a_star_list', ['drone_', drone_id, '_plan_vis/a_star_list']),
             
-            # ('grid_map/odom', ['drone_', drone_id, '_', odometry_topic]),
             ('grid_map/odom', [odometry_topic]),
-            # ('grid_map/cloud', ['drone_', drone_id, '_', cloud_topic]),
             ('grid_map/cloud', [cloud_topic]),
             ('grid_map/occupancy_inflate', ['drone_', drone_id, '_grid/grid_map/occupancy_inflate'])
-            # ('/move_base_simple/goal', ['/goal_pose'])
         ],
         parameters=[
             {"use_sim_time": use_sim_time},
             {"planning_frame": planning_frame},
+            {'fsm/wait_for_stable_px4': wait_for_stable_px4},
             {'fsm/flight_type': flight_type},
             {'fsm/thresh_replan_time': 1.0},
             {'fsm/thresh_no_replan_meter': 1.0},
@@ -246,6 +244,9 @@ def generate_launch_description():
     # Add Node
     ld.add_action(DeclareLaunchArgument("use_sim_time", default_value="false"))
     ld.add_action(DeclareLaunchArgument("planning_frame", default_value="world"))
+    ld.add_action(DeclareLaunchArgument(
+        'wait_for_stable_px4', default_value=wait_for_stable_px4,
+        description='Queue manual EGO goals until px4ctrl reports stable tracking'))
     ld.add_action(ego_planner_node)
 
     return ld

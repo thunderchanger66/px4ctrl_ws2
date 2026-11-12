@@ -92,13 +92,12 @@ ros2 launch px4ctrl bringup.launch.py
 PX4 本地 NED，并与 `/fmu/out/vehicle_local_position_v1` 对齐原点。启动时飞机
 应静止在地面，且 PX4 本地位置和 FAST-LIO 里程计都有效；成功后可检查
 `/px4ctrl/reference_adapter_status`，看到 `publishing_px4_local_ned_reference`。
-先单独起飞并等待悬停稳定，再发送 EGO 导航目标。`takeoff` 向 px4ctrl 提供原地爬升
-参考，不会触发 EGO 规划；返回成功后再用 `manual_goal`。
+bringup 默认自动运行 `takeoff`，向 px4ctrl 提供原地爬升参考并等待稳定；EGO 同时
+等待 px4ctrl 报告 `tracking_attitude_thrust_tracking`，之后才规划和执行目标。可以在
+起飞期间提前发送 EGO 导航目标，EGO 会暂存最新目标并保持等待。
 
 ```bash
-ros2 run px4ctrl takeoff --altitude 0.5 --wait-timeout 45
-
-# takeoff 命令成功返回后，再开始 EGO 规划
+# bringup 自动起飞和稳定后，发送 EGO 目标
 ros2 run px4ctrl manual_goal 4.0 -4.0 0.5 90
 # Omit yaw_deg (or pass --auto-yaw) to face along EGO's path
 ros2 run px4ctrl manual_goal 4.0 -4.0 0.5 --auto-yaw
@@ -106,7 +105,11 @@ ros2 run px4ctrl manual_goal 4.0 -4.0 0.5 --auto-yaw
 
 `takeoff` 等待 PX4 本地位置有效、控制器进入跟踪状态，并在目标高度附近保持低速
 0.8 s。若定位无效、解锁/Offboard 失败或没有稳定到达高度，会超时并报告最后状态；
-此时不要发送 EGO 导航目标。
+EGO 会继续等待 stable tracking 状态。手动控制起飞时可用
+`start_takeoff:=false` 关闭 bringup 自动起飞。
+
+bringup 默认 `wait_for_px4_stable:=true`。如需旧式立即规划行为，可在启动时显式传
+`wait_for_px4_stable:=false`；常规 PX4Ctrl 流程建议保持默认值。
 
 该命令把目标发到 EGO 的 `/goal_pose`，数值属于 `lidar` 规划系；它不是 PX4 NED
 目标消息。传入 `yaw_deg` 时同时向控制器发送固定的 PX4 NED 航向；省略 yaw 或使用

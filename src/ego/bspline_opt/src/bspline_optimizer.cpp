@@ -896,12 +896,10 @@ namespace ego_planner
     }
 
     // 急停情况下提前退出
-    int BsplineOptimizer::earlyExit(void* func_data, const double* x, const double* g, const double fx,
-                                    const double xnorm, const double gnorm, const double step, int n, int k, int ls)
+    int BsplineOptimizer::earlyExit(void* func_data, const double*, const double*, const double,
+                                    const double, const double, const double, int, int, int)
     {
         BsplineOptimizer* opt = reinterpret_cast<BsplineOptimizer*>(func_data);
-        // cout << "k=" << k << endl;
-        // cout << "opt->flag_continue_to_optimize_=" << opt->flag_continue_to_optimize_ << endl;
         return (opt->force_stop_type_ == STOP_FOR_ERROR || opt->force_stop_type_ == STOP_FOR_REBOUND);
     }
 
@@ -1616,6 +1614,12 @@ namespace ego_planner
         // Keep the final order_ control points fixed so optimization cannot
         // move the initialized terminal position, velocity, or acceleration.
         int end_id = this->cps_.size - order_;
+        if (end_id <= start_id)
+        {
+            RCLCPP_WARN(rclcpp::get_logger("rebound_optimize"),
+                        "Not enough control points for rebound optimization");
+            return false;
+        }
         // 变量个数
         variable_num_ = 3 * (end_id - start_id);
 
@@ -1635,8 +1639,8 @@ namespace ego_planner
             success = false;
 
             // 控制点数组初始化
-            double q[variable_num_];
-            memcpy(q, cps_.points.data() + 3 * start_id, variable_num_ * sizeof(q[0]));
+            std::vector<double> q(static_cast<size_t>(variable_num_));
+            memcpy(q.data(), cps_.points.data() + 3 * start_id, q.size() * sizeof(q[0]));
 
             // 初始化L-BFGS算法的参数
             lbfgs::lbfgs_parameter_t lbfgs_params;
@@ -1648,7 +1652,7 @@ namespace ego_planner
             /* ---------- optimize ---------- */
             t1 = clock_->now();
             // 执行优化
-            int result = lbfgs::lbfgs_optimize(variable_num_, q, &final_cost, BsplineOptimizer::costFunctionRebound,
+            int result = lbfgs::lbfgs_optimize(variable_num_, q.data(), &final_cost, BsplineOptimizer::costFunctionRebound,
                                                NULL, BsplineOptimizer::earlyExit, this, &lbfgs_params);
             t2 = clock_->now();
             double time_ms = (t2 - t1).seconds() * 1000;
@@ -1814,12 +1818,18 @@ namespace ego_planner
         iter_num_ = 0;
         int start_id = order_;
         int end_id = this->cps_.points.cols() - order_;
+        if (end_id <= start_id)
+        {
+            RCLCPP_WARN(rclcpp::get_logger("refine_optimize"),
+                        "Not enough control points for trajectory refinement");
+            return false;
+        }
         variable_num_ = 3 * (end_id - start_id);
 
-        double q[variable_num_];
+        std::vector<double> q(static_cast<size_t>(variable_num_));
         double final_cost;
 
-        memcpy(q, cps_.points.data() + 3 * start_id, variable_num_ * sizeof(q[0]));
+        memcpy(q.data(), cps_.points.data() + 3 * start_id, q.size() * sizeof(q[0]));
 
         double origin_lambda4 = lambda4_;
         bool flag_safe = true;
@@ -1832,7 +1842,7 @@ namespace ego_planner
             lbfgs_params.max_iterations = 200;
             lbfgs_params.g_epsilon = 0.001;
 
-            int result = lbfgs::lbfgs_optimize(variable_num_, q, &final_cost, BsplineOptimizer::costFunctionRefine,
+            int result = lbfgs::lbfgs_optimize(variable_num_, q.data(), &final_cost, BsplineOptimizer::costFunctionRefine,
                                                NULL, NULL, this, &lbfgs_params);
             if (result == lbfgs::LBFGS_CONVERGENCE ||
                 result == lbfgs::LBFGSERR_MAXIMUMITERATION ||

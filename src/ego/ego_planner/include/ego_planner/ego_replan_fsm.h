@@ -16,6 +16,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "traj_utils/msg/data_disp.hpp"
 #include "std_msgs/msg/empty.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "ego_planner/planner_manager.h"
 #include "traj_utils/planning_visualization.h"
 
@@ -64,6 +65,9 @@ namespace ego_planner
         double emergency_time_;
         bool flag_realworld_experiment_;
         bool enable_fail_safe_;
+        bool wait_for_stable_px4_{false};
+        bool px4_stable_seen_{false};
+        std::shared_ptr<const geometry_msgs::msg::PoseStamped> pending_waypoint_;
 
         /* planning data */
         bool have_trigger_, have_target_, have_odom_, have_new_target_, have_recv_pre_agent_;
@@ -92,6 +96,7 @@ namespace ego_planner
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr waypoint_sub_;
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
         rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr emergency_sub_;
+        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr px4_status_sub_;
         rclcpp::Subscription<traj_utils::msg::MultiBsplines>::SharedPtr swarm_trajs_sub_;
         rclcpp::Subscription<traj_utils::msg::Bspline>::SharedPtr broadcast_bspline_sub_;
         rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr trigger_sub_;
@@ -125,6 +130,7 @@ namespace ego_planner
         void execFSMCallback();
         void checkCollisionCallback();
         void waypointCallback(const std::shared_ptr<const geometry_msgs::msg::PoseStamped>& msg);
+        void px4StatusCallback(const std::shared_ptr<const std_msgs::msg::String>& msg);
         void triggerCallback(const std::shared_ptr<const geometry_msgs::msg::PoseStamped>& msg);
         void odometryCallback(const std::shared_ptr<const nav_msgs::msg::Odometry>& msg);
         void externalEmergencyCallback(const std::shared_ptr<const std_msgs::msg::Empty>& msg);

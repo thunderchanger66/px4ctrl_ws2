@@ -28,6 +28,7 @@ namespace ego_planner
         node_->declare_parameter("fsm/emergency_time", 1.0);
         node_->declare_parameter("fsm/realworld_experiment", false);
         node_->declare_parameter("fsm/fail_safe", true);
+        node_->declare_parameter("fsm/wait_for_stable_px4", false);
 
         node_->get_parameter("fsm/flight_type", target_type_);
         node_->get_parameter("fsm/thresh_replan_time", replan_thresh_);
@@ -52,6 +53,7 @@ namespace ego_planner
         node_->get_parameter("fsm/emergency_time", emergency_time_);
         node_->get_parameter("fsm/realworld_experiment", flag_realworld_experiment_);
         node_->get_parameter("fsm/fail_safe", enable_fail_safe_);
+        node_->get_parameter("fsm/wait_for_stable_px4", wait_for_stable_px4_);
 
         have_trigger_ = !flag_realworld_experiment_;
 
@@ -171,6 +173,14 @@ namespace ego_planner
         emergency_sub_ = node_->create_subscription<std_msgs::msg::Empty>(
             "/planning/emergency_stop", 10,
             std::bind(&EGOReplanFSM::externalEmergencyCallback, this, std::placeholders::_1));
+        if (wait_for_stable_px4_)
+        {
+            px4_status_sub_ = node_->create_subscription<std_msgs::msg::String>(
+                "/px4ctrl/status", rclcpp::QoS(10),
+                std::bind(&EGOReplanFSM::px4StatusCallback, this, std::placeholders::_1));
+            RCLCPP_INFO(node_->get_logger(),
+                        "EGO goal execution is gated until px4ctrl reports stable tracking");
+        }
 
         if (target_type_ == MANUAL_TARGET)
         {
@@ -296,7 +306,7 @@ namespace ego_planner
         }
     }
 
-    void EGOReplanFSM::triggerCallback(const std::shared_ptr<const geometry_msgs::msg::PoseStamped>& msg)
+    void EGOReplanFSM::triggerCallback(const std::shared_ptr<const geometry_msgs::msg::PoseStamped>&)
     {
         have_trigger_ = true;
         cout << "Triggered!" << endl;
@@ -312,6 +322,14 @@ namespace ego_planner
         }
         if (msg->pose.position.z < -0.1)
             return;
+
+        if (wait_for_stable_px4_ && !px4_stable_seen_)
+        {
+            pending_waypoint_ = msg;
+            RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+                                 "Holding EGO goal until PX4 takeoff and hover settling complete");
+            return;
+        }
 
         cout << "Triggered!" << endl;
 
@@ -338,7 +356,24 @@ namespace ego_planner
             return;
         }
 
+        have_trigger_ = true;
+
         planNextWaypoint(end_wp);
+    }
+
+    void EGOReplanFSM::px4StatusCallback(const std::shared_ptr<const std_msgs::msg::String>& msg)
+    {
+        if (!msg || px4_stable_seen_ || msg->data != "tracking_attitude_thrust_tracking")
+            return;
+
+        px4_stable_seen_ = true;
+        RCLCPP_INFO(node_->get_logger(),
+                    "PX4Ctrl is stable; EGO may now plan and execute the pending goal");
+        if (pending_waypoint_)
+        {
+            auto goal = std::move(pending_waypoint_);
+            waypointCallback(goal);
+        }
     }
 
     void EGOReplanFSM::odometryCallback(const std::shared_ptr<const nav_msgs::msg::Odometry>& msg)

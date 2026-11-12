@@ -67,7 +67,6 @@ class BenchmarkObserver(Node):
         self.goal = np.array([args.goal_x, args.goal_y, args.goal_z], dtype=float)
         self.goal_start = None
         self.goal_start_source = None
-        self.goal_pose_matches = None
         self.odom = None
         self.odom_velocity = None
         self.command = None
@@ -130,16 +129,12 @@ class BenchmarkObserver(Node):
     def goal_cb(self, msg):
         incoming = np.array([msg.pose.position.x, msg.pose.position.y,
                              msg.pose.position.z], dtype=float)
-        self.goal_pose_matches = bool(np.linalg.norm(incoming - self.goal) <= 0.05)
-        if not self.goal_pose_matches:
-            self.get_logger().warning(
-                f"Observed goal {incoming.tolist()} differs from configured target {self.goal.tolist()}")
+        if np.linalg.norm(incoming - self.goal) > 0.05:
             return
         if self.goal_start is None:
             stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
             self.goal_start = stamp if stamp > 0 else self.get_clock().now().nanoseconds * 1e-9
             self.goal_start_source = "goal_pose"
-            self.get_logger().info(f"Observed goal timestamp for {self.goal.tolist()} in {msg.header.frame_id}")
 
     def odom_cb(self, msg):
         p = msg.pose.pose.position
@@ -212,6 +207,10 @@ class BenchmarkObserver(Node):
         for name, matched in checks:
             if matched:
                 self.events[name] += 1
+        if (self.bspline_count == 0 and logger == "drone_0_ego_planner_node" and
+                ("rejecting goal inside an occupied" in text or
+                 "rejecting unreachable waypoint" in text)):
+            self.finish("goal_rejected_in_occupied_map")
 
     def map_cb(self, msg):
         if self.odom is None or msg.width == 0:
@@ -338,7 +337,6 @@ class BenchmarkObserver(Node):
                                  self.bspline_count > 0 and clear.size > 0),
             "goal": self.goal.tolist() if self.goal is not None else None,
             "goal_start_source": self.goal_start_source,
-            "goal_pose_topic_matched_config": self.goal_pose_matches,
             "arrival_time_s": self.arrival_time,
             "samples": len(self.rows),
             "ego_bspline_messages": self.bspline_count,

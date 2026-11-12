@@ -19,6 +19,10 @@ def generate_launch_description():
     start_agent = LaunchConfiguration('start_agent')
     start_odom_bridge = LaunchConfiguration('start_odom_bridge')
     start_rviz = LaunchConfiguration('start_rviz')
+    start_takeoff = LaunchConfiguration('start_takeoff')
+    takeoff_altitude = LaunchConfiguration('takeoff_altitude')
+    takeoff_timeout = LaunchConfiguration('takeoff_timeout')
+    wait_for_px4_stable = LaunchConfiguration('wait_for_px4_stable')
     ego_max_vel = LaunchConfiguration('ego_max_vel')
     ego_max_acc = LaunchConfiguration('ego_max_acc')
     ego_max_jerk = LaunchConfiguration('ego_max_jerk')
@@ -34,6 +38,7 @@ def generate_launch_description():
             'planning_frame': 'lidar',
             'odom_topic': '/fastlio2/lio_odom',
             'cloud_topic': '/fastlio2/world_cloud',
+            'wait_for_stable_px4': wait_for_px4_stable,
             'max_vel': ego_max_vel,
             'max_acc': ego_max_acc,
             'max_jerk': ego_max_jerk,
@@ -56,6 +61,12 @@ def generate_launch_description():
         DeclareLaunchArgument('agent_port', default_value='8888'),
         DeclareLaunchArgument('start_odom_bridge', default_value='true'),
         DeclareLaunchArgument('start_rviz', default_value='false'),
+        DeclareLaunchArgument('start_takeoff', default_value='true',
+                              description='Automatically request and settle at takeoff_altitude'),
+        DeclareLaunchArgument('takeoff_altitude', default_value='0.5'),
+        DeclareLaunchArgument('takeoff_timeout', default_value='45'),
+        DeclareLaunchArgument('wait_for_px4_stable', default_value='true',
+                              description='Queue EGO goals until px4ctrl takeoff/hover is stable'),
         DeclareLaunchArgument('ego_max_vel', default_value='1.0'),
         DeclareLaunchArgument('ego_max_acc', default_value='1.0'),
         DeclareLaunchArgument('ego_max_jerk', default_value='3.0'),
@@ -95,4 +106,12 @@ def generate_launch_description():
         Node(
             package='px4ctrl', executable='px4ctrl_node', name='px4ctrl',
             output='screen', parameters=[LaunchConfiguration('px4ctrl_params')]),
+        ExecuteProcess(
+            cmd=['ros2', 'run', 'px4ctrl', 'takeoff',
+                 '--altitude', takeoff_altitude,
+                 '--wait-timeout', takeoff_timeout],
+            name='px4ctrl_takeoff',
+            output='screen',
+            condition=IfCondition(start_takeoff),
+        ),
     ])

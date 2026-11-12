@@ -79,7 +79,6 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
                     "grid_map/cloud_voxel_retention_sec must be in [0.5, 60]; using 4.0 s");
         mp_.cloud_voxel_retention_sec_ = 4.0;
     }
-    std::cout<<"hhhhhhhhhhhhhhhhhhhhhhhhhhhh!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
     if (mp_.virtual_ceil_height_ - mp_.ground_height_ > z_size)
     {
         mp_.virtual_ceil_height_ = mp_.ground_height_ + z_size;
@@ -142,10 +141,6 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     map_inf_pub_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>("grid_map/occupancy_inflate", 10);
 
     md_.has_odom_ = false;
-    md_.has_cloud_ = false;
-
-    md_.fuse_time_ = 0.0;
-    md_.max_fuse_time_ = 0.0;
 
     // rand_noise_ = uniform_real_distribution<double>(-0.2, 0.2);
     // rand_noise2_ = normal_distribution<double>(0, 0.2);
@@ -204,7 +199,7 @@ void GridMap::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
     md_.has_odom_ = true;
 }
 
-void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstPtr& img)
+void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& img)
 {
     if (img->header.frame_id != mp_.frame_id_)
     {
@@ -216,11 +211,10 @@ void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstPtr& img)
     pcl::PointCloud<pcl::PointXYZ> latest_cloud;
     pcl::fromROSMsg(*img, latest_cloud);
 
-    md_.has_cloud_ = true;
-
     if (!md_.has_odom_)
     {
-        std::cout << "no odom!" << std::endl;
+        RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+                             "Ignoring world cloud until a valid odometry sample is available");
         return;
     }
 

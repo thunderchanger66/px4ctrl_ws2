@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstddef>
 #include <limits>
 #include <rclcpp/rclcpp.hpp>
 #include <plan_env/grid_map.h>
 #include <queue>
+#include <stdexcept>
 
 constexpr double inf = std::numeric_limits<double>::infinity();
 struct GridNode;
@@ -26,7 +28,7 @@ struct GridNode
     {
         UNDEFINED
     };
-    Eigen::Vector3i index;
+    Eigen::Vector3i index{Eigen::Vector3i::Zero()};
 
     double gScore{inf}, fScore{inf};
     GridNodePtr cameFrom{nullptr};
@@ -44,6 +46,18 @@ public:
 class AStar
 {
     GridMap::Ptr grid_map_;
+
+    std::size_t nodeAddress(const Eigen::Vector3i& index) const
+    {
+        return (static_cast<std::size_t>(index.x()) * static_cast<std::size_t>(POOL_SIZE_.y()) +
+                static_cast<std::size_t>(index.y())) * static_cast<std::size_t>(POOL_SIZE_.z()) +
+               static_cast<std::size_t>(index.z());
+    }
+
+    GridNodePtr nodeAt(const Eigen::Vector3i& index)
+    {
+        return &grid_nodes_[nodeAddress(index)];
+    }
 
     inline void coord2gridIndexFast(double x, double y, double z, int& id_x, int& id_y, int& id_z);
 
@@ -64,14 +78,16 @@ class AStar
 
     std::vector<GridNodePtr> retrievePath(GridNodePtr current);
 
-    double step_size_, inv_step_size_;
-    Eigen::Vector3d center_;
-    Eigen::Vector3i CENTER_IDX_, POOL_SIZE_;
+    double step_size_{0.1}, inv_step_size_{10.0};
+    Eigen::Vector3d center_{Eigen::Vector3d::Zero()};
+    Eigen::Vector3i CENTER_IDX_{Eigen::Vector3i::Zero()}, POOL_SIZE_{Eigen::Vector3i::Zero()};
     const double tie_breaker_ = 1.0 + 1.0 / 10000;
 
     std::vector<GridNodePtr> gridPath_;
 
-    GridNodePtr*** GridNodeMap_;
+    // A contiguous pool avoids one million individual allocations for the
+    // default 100^3 search volume and keeps node accesses cache-friendly.
+    std::vector<GridNode> grid_nodes_;
     std::priority_queue<GridNodePtr, std::vector<GridNodePtr>, NodeComparator> openSet_;
 
     int rounds_{0};
@@ -80,7 +96,7 @@ public:
     typedef std::shared_ptr<AStar> Ptr;
 
     AStar() = default;
-    ~AStar();
+    ~AStar() = default;
 
     void initGridMap(GridMap::Ptr occ_map, Eigen::Vector3i pool_size);
 

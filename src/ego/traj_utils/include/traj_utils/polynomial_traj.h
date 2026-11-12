@@ -2,6 +2,8 @@
 #define POLYNOMIAL_TRAJ_H
 
 #include <Eigen/Eigen>
+#include <cmath>
+#include <cstddef>
 #include <vector>
 
 using std::vector;
@@ -13,12 +15,12 @@ class PolynomialTraj
   vector<vector<double>> cys; // coefficient of y of each segment
   vector<vector<double>> czs; // coefficient of z of each segment
 
-  double time_sum;
-  int num_seg;
+  double time_sum{0.0};
+  int num_seg{0};
 
   /* evaluation */
   vector<Eigen::Vector3d> traj_vec3d;
-  double length;
+  double length{0.0};
 
 public:
   PolynomialTraj(/* args */)
@@ -41,9 +43,9 @@ public:
 
   void init()
   {
-    num_seg = times.size();
+    num_seg = static_cast<int>(times.size());
     time_sum = 0.0;
-    for (int i = 0; i < times.size(); ++i)
+    for (size_t i = 0; i < times.size(); ++i)
     {
       time_sum += times[i];
     }
@@ -180,9 +182,13 @@ public:
   double getLength()
   {
     length = 0.0;
+    if (traj_vec3d.size() < 2)
+    {
+      return length;
+    }
 
     Eigen::Vector3d p_l = traj_vec3d[0], p_n;
-    for (int i = 1; i < traj_vec3d.size(); ++i)
+    for (size_t i = 1; i < traj_vec3d.size(); ++i)
     {
       p_n = traj_vec3d[i];
       length += (p_n - p_l).norm();
@@ -193,15 +199,16 @@ public:
 
   double getMeanVel()
   {
-    double mean_vel = length / time_sum;
+    return time_sum > 0.0 ? length / time_sum : 0.0;
   }
 
   double getAccCost()
   {
+    if (times.empty() || cxs.empty()) return 0.0;
     double cost = 0.0;
     int order = cxs[0].size();
 
-    for (int s = 0; s < times.size(); ++s)
+    for (size_t s = 0; s < times.size(); ++s)
     {
       Eigen::Vector3d um;
       um(0) = 2 * cxs[s][order - 3], um(1) = 2 * cys[s][order - 3], um(2) = 2 * czs[s][order - 3];
@@ -213,10 +220,11 @@ public:
 
   double getJerk()
   {
+    if (times.empty()) return 0.0;
     double jerk = 0.0;
 
     /* evaluate jerk */
-    for (int s = 0; s < times.size(); ++s)
+    for (size_t s = 0; s < times.size(); ++s)
     {
       Eigen::VectorXd cxv(cxs[s].size()), cyv(cys[s].size()), czv(czs[s].size());
       /* convert coefficient */
@@ -248,9 +256,10 @@ public:
   void getMeanAndMaxVel(double &mean_v, double &max_v)
   {
     int num = 0;
-    mean_v = 0.0, max_v = -1.0;
-    for (int s = 0; s < times.size(); ++s)
+    mean_v = 0.0, max_v = 0.0;
+    for (size_t s = 0; s < times.size(); ++s)
     {
+      if (!std::isfinite(times[s]) || times[s] <= 0.0) continue;
       int order = cxs[s].size();
       Eigen::VectorXd vx(order - 1), vy(order - 1), vz(order - 1);
 
@@ -281,15 +290,16 @@ public:
       }
     }
 
-    mean_v = mean_v / double(num);
+    if (num > 0) mean_v /= static_cast<double>(num);
   }
 
   void getMeanAndMaxAcc(double &mean_a, double &max_a)
   {
     int num = 0;
-    mean_a = 0.0, max_a = -1.0;
-    for (int s = 0; s < times.size(); ++s)
+    mean_a = 0.0, max_a = 0.0;
+    for (size_t s = 0; s < times.size(); ++s)
     {
+      if (!std::isfinite(times[s]) || times[s] <= 0.0) continue;
       int order = cxs[s].size();
       Eigen::VectorXd ax(order - 2), ay(order - 2), az(order - 2);
 
@@ -320,7 +330,7 @@ public:
       }
     }
 
-    mean_a = mean_a / double(num);
+    if (num > 0) mean_a /= static_cast<double>(num);
   }
 
   static PolynomialTraj minSnapTraj(const Eigen::MatrixXd &Pos, const Eigen::Vector3d &start_vel,

@@ -19,7 +19,6 @@ set(dependencies
 foreach (Dependency IN ITEMS ${dependencies})
     find_package(${Dependency} REQUIRED)
 endforeach ()
-find_package(path_searching REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
         src/uniform_bspline.cpp

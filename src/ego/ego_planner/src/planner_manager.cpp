@@ -1,11 +1,9 @@
 #include <ego_planner/planner_manager.h>
 #include <memory>
-#include <memory>
 #include <thread>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include "visualization_msgs/msg/marker.hpp" // zx-todo
 
 namespace ego_planner
 {
@@ -48,11 +46,9 @@ namespace ego_planner
 
         local_data_.traj_id_ = 0;
         grid_map_ = std::make_shared<GridMap>();
-        // grid_map_->initMap(nh);
         grid_map_->initMap(node);
 
         bspline_optimizer_ = std::make_unique<BsplineOptimizer>();
-        // bspline_optimizer_->setParam(nh);
         bspline_optimizer_->setParam(node);
         bspline_optimizer_->setEnvironment(grid_map_, obj_predictor_);
         bspline_optimizer_->a_star_ = std::make_shared<AStar>();

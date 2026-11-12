@@ -14,22 +14,6 @@
 
 #define logit(x) (log((x) / (1 - (x))))
 
-// voxel hashing
-template <typename T>
-struct matrix_hash : std::unary_function<T, size_t>
-{
-    std::size_t operator()(T const& matrix) const
-    {
-        size_t seed = 0;
-        for (size_t i = 0; i < matrix.size(); ++i)
-        {
-            auto elem = *(matrix.data() + i);
-            seed ^= std::hash<typename T::Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-        return seed;
-    }
-};
-
 // constant parameters
 
 struct MappingParameters
@@ -75,15 +59,11 @@ struct MappingData
 
     // flags of map state
 
-    bool has_odom_, has_cloud_;
+    bool has_odom_;
 
     // range of updating grid
 
     Eigen::Vector3i local_bound_min_, local_bound_max_;
-
-    // computation time
-
-    double fuse_time_, max_fuse_time_;
 
     Eigen::Vector3i last_cloud_min_idx_{Eigen::Vector3i::Zero()};
     Eigen::Vector3i last_cloud_max_idx_{Eigen::Vector3i::Zero()};
@@ -284,7 +264,6 @@ inline bool GridMap::isInMap(const Eigen::Vector3d& pos)
     if (pos(0) < mp_.map_min_boundary_(0) + 1e-4 || pos(1) < mp_.map_min_boundary_(1) + 1e-4 ||
         pos(2) < mp_.map_min_boundary_(2) + 1e-4)
     {
-        // cout << "less than min range!" << endl;
         return false;
     }
     if (pos(0) > mp_.map_max_boundary_(0) - 1e-4 || pos(1) > mp_.map_max_boundary_(1) - 1e-4 ||

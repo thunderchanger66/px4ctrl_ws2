@@ -77,7 +77,7 @@ class LandRequester(Node):
         if landed or ground_confirmed:
             if armed and ground_confirmed and not landed:
                 self.publish_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM,
-                                     param1=0.0, param2=0.0)
+                                     param1=0.0, param2=21196.0)
                 return
             if not armed:
                 self.get_logger().info(
