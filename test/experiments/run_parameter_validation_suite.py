@@ -12,7 +12,7 @@ import time
 
 ROOT = Path("/home/thunder/GRA_1")
 WS = ROOT / "px4ctrl_ws2"
-OUT = WS / "test/experiments/2026-11-13_five_point_validation"
+OUT = WS / "test/experiments/2026-11-13_five_point_dual_localization_p04_3_0"
 OBSERVER = WS / "test/experiments/benchmark_observer.py"
 LANDER = WS / "test/experiments/land_vehicle.py"
 PX4_LAUNCH = ROOT / "mid360_ws/src/mid360_gazebo_harmonic/launch/mid360_posix_sitl.launch.py"
@@ -22,7 +22,7 @@ CASES = [
     ("P01_2_0_0p5", 2.0, 0.0, 0.5),
     ("P02_2_m0p5_0p5", 2.0, -0.5, 0.5),
     ("P03_4_m4_0p5", 4.0, -4.0, 0.5),
-    ("P04_4_m3_0p5", 4.0, -3.0, 0.5),
+    ("P04_3_0_0p5", 3.0, 0.0, 0.5),
     ("P05_2_0_1p5", 2.0, 0.0, 1.5),
 ]
 
@@ -289,16 +289,31 @@ def main():
             parser.error("unknown case name(s): " + ", ".join(sorted(unknown)))
         selected = [case for case in CASES if case[0] in wanted]
     suite = []
-    for case in selected:
+    for index, case in enumerate(selected):
         result = one_trial(case)
         suite.append(result)
         print(json.dumps({key: result.get(key) for key in (
             "name", "outcome", "arrival_time_s", "track_error_3d_rmse_m",
-            "track_error_3d_p95_m", "goal_error_final_m", "speed_peak_mps",
+            "track_error_3d_p95_m", "goal_error_final_m",
+            "px4_local_ned_tracking_error_rmse_m",
+            "px4_local_ned_tracking_error_p95_m",
+            "px4_local_ned_goal_error_final_m", "speed_peak_mps",
             "command_accel_peak_mps2", "inflated_map_clearance_min_m",
             "failsafe_samples", "landing_confirmed", "clearance_gate_pass",
         )}, allow_nan=False), flush=True)
-    summary = {"cases": suite, "complete": len(suite) == len(selected),
+        if not result.get("landing_confirmed", False):
+            for skipped in selected[index + 1:]:
+                suite.append({
+                    "name": skipped[0],
+                    "goal_lidar_m": [skipped[1], skipped[2], skipped[3]],
+                    "outcome": "not_run_previous_landing_unconfirmed",
+                    "landing_confirmed": False,
+                })
+            break
+    summary = {"cases": suite,
+               "complete": len(suite) == len(selected) and
+                           all(case.get("outcome") != "not_run_previous_landing_unconfirmed"
+                               for case in suite),
                "selected_case_names": [case[0] for case in selected]}
     (OUT / "suite_results.json").write_text(
         json.dumps(summary, indent=2, allow_nan=False) + "\n", encoding="utf-8")

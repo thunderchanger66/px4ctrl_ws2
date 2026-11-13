@@ -31,6 +31,8 @@ FIELDS = [
     "cmd_ax", "cmd_ay", "cmd_az", "trajectory_flag",
     "track_error_3d", "track_error_xy", "goal_error_3d", "speed_mps",
     "px4_x", "px4_y", "px4_z", "px4_vx", "px4_vy", "px4_vz",
+    "px4_ref_x", "px4_ref_y", "px4_ref_z",
+    "px4_tracking_error_3d", "px4_tracking_error_xy",
     "debug_error_3d", "debug_accel_requested", "debug_accel_feasible",
     "thrust", "tilt_deg", "yaw_rate", "saturation_flags", "local_valid",
     "armed", "offboard", "failsafe", "inflated_clearance_m", "map_age_sec",
@@ -84,6 +86,7 @@ class BenchmarkObserver(Node):
             "px4_acceleration_projected": 0,
         }
         self.px4 = None
+        self.desired = None
         self.debug = None
         self.px4_status = ""
         self.adapter_status = ""
@@ -163,7 +166,11 @@ class BenchmarkObserver(Node):
             self.get_logger().info(f"Received first EGO B-spline id={self.last_trajectory_id}")
 
     def desired_cb(self, msg):
-        del msg
+        if msg.header.frame_id != "px4_local_ned":
+            return
+        self.desired = np.array([
+            msg.position.x, msg.position.y, msg.position.z,
+        ], dtype=float)
 
     def px4_cb(self, msg):
         self.px4 = msg
@@ -245,6 +252,12 @@ class BenchmarkObserver(Node):
         else:
             track_error = track_error_xy = math.nan
         goal_error = magnitude(self.goal - self.odom)
+        if px4 is not None and self.desired is not None:
+            px4_error = self.desired - np.array([px4.x, px4.y, px4.z], dtype=float)
+            px4_track_error = magnitude(px4_error)
+            px4_track_error_xy = magnitude(px4_error[:2])
+        else:
+            px4_track_error = px4_track_error_xy = math.nan
         speed = magnitude(self.odom_velocity) if self.odom_velocity is not None else math.nan
         debug_error = magnitude((debug.position_error.x, debug.position_error.y,
                                  debug.position_error.z)) if debug else math.nan
@@ -279,6 +292,11 @@ class BenchmarkObserver(Node):
             "px4_vx": px4.vx if px4 else math.nan,
             "px4_vy": px4.vy if px4 else math.nan,
             "px4_vz": px4.vz if px4 else math.nan,
+            "px4_ref_x": self.desired[0] if self.desired is not None else math.nan,
+            "px4_ref_y": self.desired[1] if self.desired is not None else math.nan,
+            "px4_ref_z": self.desired[2] if self.desired is not None else math.nan,
+            "px4_tracking_error_3d": px4_track_error,
+            "px4_tracking_error_xy": px4_track_error_xy,
             "debug_error_3d": debug_error,
             "debug_accel_requested": magnitude((debug.acceleration_requested.x,
                                                   debug.acceleration_requested.y,
@@ -321,6 +339,8 @@ class BenchmarkObserver(Node):
             return np.asarray([r[field] for r in self.rows if math.isfinite(float(r[field]))], dtype=float)
         error = values("track_error_3d")
         error_xy = values("track_error_xy")
+        px4_error = values("px4_tracking_error_3d")
+        px4_error_xy = values("px4_tracking_error_xy")
         goal_error = values("goal_error_3d")
         speed = values("speed_mps")
         clear = values("inflated_clearance_m")
@@ -347,7 +367,17 @@ class BenchmarkObserver(Node):
             "track_error_3d_p95_m": finite_or_none(np.percentile(error, 95)) if error.size else None,
             "track_error_3d_max_m": finite_or_none(np.max(error)) if error.size else None,
             "track_error_xy_rmse_m": finite_or_none(np.sqrt(np.mean(error_xy**2))) if error_xy.size else None,
+            "px4_local_ned_tracking_error_rmse_m": finite_or_none(np.sqrt(np.mean(px4_error**2))) if px4_error.size else None,
+            "px4_local_ned_tracking_error_p95_m": finite_or_none(np.percentile(px4_error, 95)) if px4_error.size else None,
+            "px4_local_ned_tracking_error_max_m": finite_or_none(np.max(px4_error)) if px4_error.size else None,
+            "px4_local_ned_tracking_error_xy_rmse_m": finite_or_none(np.sqrt(np.mean(px4_error_xy**2))) if px4_error_xy.size else None,
             "goal_error_final_m": finite_or_none(goal_error[-1]) if goal_error.size else None,
+            "fastlio_goal_error_final_m": finite_or_none(goal_error[-1]) if goal_error.size else None,
+            "px4_local_ned_goal_error_final_m": (
+                finite_or_none(px4_error[-1])
+                if px4_error.size and self.bspline_count > 0 and self.command_count > 0
+                else None
+            ),
             "speed_peak_mps": finite_or_none(np.max(speed)) if speed.size else None,
             "speed_p95_mps": finite_or_none(np.percentile(speed, 95)) if speed.size else None,
             "command_accel_peak_mps2": finite_or_none(np.max(accel_cmd)) if accel_cmd.size else None,
