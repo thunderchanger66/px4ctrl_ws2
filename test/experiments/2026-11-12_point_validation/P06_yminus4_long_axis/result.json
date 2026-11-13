@@ -1,0 +1,21 @@
+{
+  "name": "P06_yminus4_long_axis",
+  "goal_lidar_m": [
+    0.0,
+    -4.0,
+    0.5
+  ],
+  "ego": {
+    "max_vel_mps": 1.0,
+    "max_acc_mps2": 1.0,
+    "max_jerk_mps3": 3.0,
+    "obstacle_inflation_m": 0.45,
+    "collision_clearance_m": 0.65
+  },
+  "px4ctrl_profile": "/home/thunder/GRA_1/px4ctrl_ws2/test/experiments/2026-11-12_speed_tracking/profiles/controller_kp18_kv14.yaml",
+  "outcome": "not_started",
+  "takeoff_exit_code": 0,
+  "goal_command_exit_code": 0,
+  "landing_exit_code": 0,
+  "landing_confirmed": true
+}

@@ -1,0 +1,21 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-12-23-35-19-971657-thunder-233851
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [233920]
+[INFO] [pgo_node-2]: process started with pid [233921]
+[lio_node-1] [INFO] [1794497720.040559684] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794497720.040767427] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794497720.067412035] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794497720.067631990] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] [WARN] [1794497720.410451460] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] Multi thread started 
+[lio_node-1] [WARN] [1794497730.029575048] [fastlio2.lio_node]: Dropping lidar scan without preceding IMU coverage
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1794497770.929017861] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794497770.929018111] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794497770.930050871] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794497770.931064685] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 233921]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 233920]

@@ -1,0 +1,21 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-12-23-36-27-034868-thunder-236012
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [236081]
+[INFO] [pgo_node-2]: process started with pid [236082]
+[lio_node-1] [INFO] [1794497787.102351970] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794497787.102624365] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794497787.128922838] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794497787.129101525] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] [WARN] [1794497787.511893706] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] Multi thread started 
+[pgo_node-2] [WARN] [1794497941.242459171] [pgo.pgo_node]: LOOP ACCEPTED source=9 target=1 score=0.015874 | constraint residual: 0.960 m / 2.54 deg -> 0.958 m / 2.55 deg | source correction: 0.007 m / 0.01 deg | loops=1
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1794497943.960949667] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794497943.960954897] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794497943.961807907] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794497943.962664703] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 236082]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 236081]

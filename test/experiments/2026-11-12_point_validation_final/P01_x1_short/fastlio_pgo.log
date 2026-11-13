@@ -1,0 +1,19 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-12-21-33-42-364440-thunder-165650
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [165730]
+[INFO] [pgo_node-2]: process started with pid [165731]
+[lio_node-1] [INFO] [1794490422.451633333] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794490422.451828337] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794490422.454355227] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794490422.454526438] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] Multi thread started 
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[pgo_node-2] [INFO] [1794490581.221854871] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794490581.221855192] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794490581.222733411] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794490581.223499255] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 165731]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 165730]

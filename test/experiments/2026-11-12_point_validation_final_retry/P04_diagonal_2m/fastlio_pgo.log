@@ -1,0 +1,226 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-12-21-57-54-541125-thunder-193283
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [193362]
+[INFO] [pgo_node-2]: process started with pid [193363]
+[lio_node-1] [INFO] [1794491874.603455824] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794491874.603638025] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794491874.643688165] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794491874.643860108] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] Multi thread started 
+[lio_node-1] [WARN] [1794491944.371935970] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491949.553087256] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491951.573084157] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491953.593821952] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491955.594852847] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491957.694539204] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491959.796952141] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491961.893015156] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491963.992936613] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491966.093347986] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] [WARN] [1794491968.152019130] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[lio_node-1] NO Effective Points!
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1794491989.830430134] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794491989.830429153] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794491989.832125333] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794491989.832625782] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 193363]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 193362]

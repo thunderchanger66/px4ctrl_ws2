@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "name": "P04_4_m5_0p5",
+      "goal_lidar_m": [
+        4.0,
+        -5.0,
+        0.5
+      ],
+      "ego": {
+        "max_vel_mps": 1.0,
+        "max_acc_mps2": 1.0,
+        "max_jerk_mps3": 3.0,
+        "obstacle_inflation_m": 0.45,
+        "collision_clearance_m": 0.65
+      },
+      "px4ctrl_profile": "/home/thunder/GRA_1/px4ctrl_ws2/test/experiments/2026-11-12_speed_tracking/profiles/controller_kp18_kv14.yaml",
+      "outcome": "timeout",
+      "takeoff_exit_code": 0,
+      "goal_command_exit_code": 0,
+      "goal_retry_exit_codes": [],
+      "observer_exit_code": 0,
+      "result": "timeout",
+      "trial_valid": false,
+      "goal": [
+        4.0,
+        -5.0,
+        0.5
+      ],
+      "goal_start_source": "goal_pose",
+      "arrival_time_s": null,
+      "samples": 2401,
+      "ego_bspline_messages": 10,
+      "ego_position_command_messages": 11943,
+      "last_trajectory_id": 10,
+      "event_counts": {
+        "ego_odom_timeout": 56,
+        "ego_odom_out_of_map": 6,
+        "ego_goal_rejected": 0,
+        "ego_replan_failed": 0,
+        "ego_trajectory_ended_away_from_goal": 0,
+        "ego_emergency": 1,
+        "px4_reference_blended": 3,
+        "px4_acceleration_projected": 4
+      },
+      "track_error_3d_rmse_m": 90.03329026295066,
+      "track_error_3d_p95_m": 96.88187639125388,
+      "track_error_3d_max_m": 96.88187639125388,
+      "track_error_xy_rmse_m": 87.89470181327027,
+      "goal_error_final_m": 100.70167398917627,
+      "speed_peak_mps": 15.774431617454145,
+      "speed_p95_mps": 13.803216954080105,
+      "command_accel_peak_mps2": 1.1054940704817697,
+      "tilt_peak_deg": 22.2276611328125,
+      "inflated_map_clearance_min_m": 0.031175218164978178,
+      "inflated_map_clearance_p05_m": 0.39135347385321917,
+      "map_age_p95_s": 99.97,
+      "saturation_any_fraction": 0.9416909620991254,
+      "failsafe_samples": 0,
+      "adapter_status_final": "publishing_px4_local_ned_reference",
+      "px4_status_final": "safety_latched_no_setpoint",
+      "arrival_radius_m": 0.2,
+      "arrival_speed_mps": 0.2,
+      "settle_duration_s": 1.0,
+      "notes": "Inflated-map clearance is nearest published occupied-inflated voxel center, not a Gazebo collision sensor measurement.",
+      "landing_exit_code": 0,
+      "landing_confirmed": true,
+      "clearance_gate_pass": false
+    }
+  ],
+  "complete": true,
+  "selected_case_names": [
+    "P04_4_m5_0p5"
+  ]
+}
