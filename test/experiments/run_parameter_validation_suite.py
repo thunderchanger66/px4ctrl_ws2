@@ -12,17 +12,17 @@ import time
 
 ROOT = Path("/home/thunder/GRA_1")
 WS = ROOT / "px4ctrl_ws2"
-OUT = WS / "test/experiments/2026-11-12_point_validation"
+OUT = WS / "test/experiments/2026-11-13_five_point_validation"
 OBSERVER = WS / "test/experiments/benchmark_observer.py"
 LANDER = WS / "test/experiments/land_vehicle.py"
 PX4_LAUNCH = ROOT / "mid360_ws/src/mid360_gazebo_harmonic/launch/mid360_posix_sitl.launch.py"
-PX4_PARAMS = WS / "test/experiments/2026-11-12_speed_tracking/profiles/controller_kp18_kv14.yaml"
+PX4_PARAMS = WS / "src/px4ctrl/config/px4ctrl_bringup.yaml"
 
 CASES = [
     ("P01_2_0_0p5", 2.0, 0.0, 0.5),
     ("P02_2_m0p5_0p5", 2.0, -0.5, 0.5),
     ("P03_4_m4_0p5", 4.0, -4.0, 0.5),
-    ("P04_4_m5_0p5", 4.0, -5.0, 0.5),
+    ("P04_4_m3_0p5", 4.0, -3.0, 0.5),
     ("P05_2_0_1p5", 2.0, 0.0, 1.5),
 ]
 
@@ -67,22 +67,18 @@ def wait_ros_topic(topic, timeout=90.0):
 
 def wait_ego_goal_subscription(timeout=90.0):
     deadline = time.monotonic() + timeout
-    command = SOURCE + "ros2 node info /drone_0_ego_planner_node"
+    command = SOURCE + "ros2 topic info /goal_pose"
     while time.monotonic() < deadline:
         probe = subprocess.run(["bash", "-lc", command], cwd=WS,
                                capture_output=True, text=True, check=False)
         if probe.returncode == 0:
-            lines = probe.stdout.splitlines()
-            in_subscriptions = False
-            for line in lines:
-                stripped = line.strip()
-                if stripped in ("Subscribers:", "Subscriptions:"):
-                    in_subscriptions = True
-                    continue
-                if in_subscriptions and stripped.startswith("/goal_pose:"):
-                    return True
-                if in_subscriptions and stripped.endswith(":"):
-                    in_subscriptions = False
+            for line in probe.stdout.splitlines():
+                if line.strip().startswith("Subscription count:"):
+                    try:
+                        if int(line.split(":", 1)[1].strip()) > 0:
+                            return True
+                    except ValueError:
+                        pass
         time.sleep(1.0)
     return False
 
@@ -165,7 +161,7 @@ def one_trial(case):
 
         observer_cmd = (
             SOURCE + f"python3 {OBSERVER} --csv {trial_dir / 'samples.csv'} "
-            f"--goal-x {x} --goal-y {y} --goal-z {z} --timeout 120 "
+            f"--goal-x {x} --goal-y {y} --goal-z {z} --timeout 60 "
             "--startup-timeout 600"
         )
         observer, observer_log = start(observer_cmd, trial_dir / "observer.log", WS)
@@ -173,7 +169,7 @@ def one_trial(case):
         time.sleep(2.0)
 
         takeoff_rc = run_command(
-            SOURCE + "ros2 run px4ctrl takeoff --altitude 0.5 --wait-timeout 45",
+            SOURCE + "ros2 run px4ctrl takeoff --altitude 0.5 --wait-timeout 45 --require-ev-fusion",
             trial_dir / "takeoff.log", WS, 90.0,
         )
         result["takeoff_exit_code"] = takeoff_rc

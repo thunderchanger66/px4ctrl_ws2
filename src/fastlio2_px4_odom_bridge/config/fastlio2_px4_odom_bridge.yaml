@@ -23,7 +23,6 @@ fastlio2_px4_odom_bridge:
     max_pose_reset_jump_m: 1.50
     max_sample_interval_sec: 0.75
     max_sample_age_sec: 0.75
-    max_px4_position_residual_m: 0.75
     max_attitude_step_rad: 1.3
     # Existing planner bridge convention: PX4 NED = [lidar_y, lidar_x, -lidar_z].
     transform_translation: [0.0, 0.0, 0.0]

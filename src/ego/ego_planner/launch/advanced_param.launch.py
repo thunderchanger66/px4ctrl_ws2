@@ -122,7 +122,7 @@ def generate_launch_description():
             {'fsm/flight_type': flight_type},
             {'fsm/thresh_replan_time': 1.0},
             {'fsm/thresh_no_replan_meter': 1.0},
-            {'fsm/goal_tolerance_m': 0.15},
+            {'fsm/goal_tolerance_m': 0.07},
             {'fsm/replan_retry_interval': 0.25},
             {'fsm/planning_horizon': planning_horizon},
             {'fsm/planning_horizen_time': 3.0},

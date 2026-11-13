@@ -1,0 +1,25 @@
+{
+  "name": "P03_4_m4_0p5",
+  "goal_lidar_m": [
+    4.0,
+    -4.0,
+    0.5
+  ],
+  "ego": {
+    "max_vel_mps": 1.0,
+    "max_acc_mps2": 1.0,
+    "max_jerk_mps3": 3.0,
+    "obstacle_inflation_m": 0.45,
+    "collision_clearance_m": 0.65
+  },
+  "px4ctrl_profile": "/home/thunder/GRA_1/px4ctrl_ws2/src/px4ctrl/config/px4ctrl_bringup.yaml",
+  "outcome": "not_started",
+  "takeoff_exit_code": 0,
+  "goal_command_exit_code": 0,
+  "goal_retry_exit_codes": [
+    0,
+    0
+  ],
+  "landing_exit_code": 0,
+  "landing_confirmed": true
+}
