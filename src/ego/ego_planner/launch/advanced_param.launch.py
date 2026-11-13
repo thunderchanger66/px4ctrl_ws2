@@ -21,6 +21,7 @@ def generate_launch_description():
     planning_horizon = LaunchConfiguration('planning_horizon', default=7.5)
     obstacle_inflation = LaunchConfiguration('obstacle_inflation', default=0.45)
     collision_clearance = LaunchConfiguration('collision_clearance', default=0.65)
+    min_flight_height = LaunchConfiguration('min_flight_height', default=0.25)
     
     point_num = LaunchConfiguration('point_num', default=1)
     point0_x = LaunchConfiguration('point0_x', default=0.0)
@@ -64,6 +65,9 @@ def generate_launch_description():
     collision_clearance_arg = DeclareLaunchArgument(
         'collision_clearance', default_value=collision_clearance,
         description='Optimizer collision clearance in metres')
+    min_flight_height_arg = DeclareLaunchArgument(
+        'min_flight_height', default_value=min_flight_height,
+        description='Minimum planning-frame flight height above FAST-LIO origin')
     
     point_num_arg = DeclareLaunchArgument('point_num', default_value=point_num, description='Number of waypoints')
     point0_x_arg = DeclareLaunchArgument('point0_x', default_value=point0_x, description='Waypoint 0 X coordinate')
@@ -156,9 +160,10 @@ def generate_launch_description():
             # Keep the LiDAR hit map stable across sparse world-cloud scans.
             {'grid_map/cloud_voxel_retention_sec': 4.0},
             {'grid_map/local_map_margin': 10},
-            # Leave vertical margin below the FAST-LIO local origin. Small
-            # estimator/reset offsets must not make valid odometry out of map.
-            {'grid_map/ground_height': -0.5},
+            # Leave enough vertical margin for FAST-LIO/PX4 ground and reset
+            # offsets while the controller enforces the airborne flight floor.
+            {'grid_map/ground_height': -0.15},
+            {'grid_map/min_flight_height': min_flight_height},
             # local fusion
             {'grid_map/p_hit': 0.65},
             {'grid_map/p_miss': 0.35},
@@ -217,6 +222,7 @@ def generate_launch_description():
     ld.add_action(planning_horizon_arg)
     ld.add_action(obstacle_inflation_arg)
     ld.add_action(collision_clearance_arg)
+    ld.add_action(min_flight_height_arg)
     
     ld.add_action(point_num_arg)
     ld.add_action(point0_x_arg)

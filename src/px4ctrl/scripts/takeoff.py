@@ -6,7 +6,7 @@ import math
 import time
 
 import rclpy
-from px4_msgs.msg import VehicleLocalPosition
+from px4_msgs.msg import EstimatorStatusFlags, VehicleLocalPosition
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from std_msgs.msg import String
@@ -15,21 +15,30 @@ from px4ctrl.msg import DesiredState
 
 
 class Takeoff(Node):
-    def __init__(self, altitude, velocity_tolerance):
+    def __init__(self, altitude, velocity_tolerance, require_ev_fusion=False, ev_ready_seconds=1.0):
         super().__init__('px4ctrl_takeoff', parameter_overrides=[
             rclpy.parameter.Parameter('use_sim_time', value=True)])
         self.altitude = altitude
         self.velocity_tolerance = velocity_tolerance
+        self.require_ev_fusion = require_ev_fusion
+        self.ev_ready_seconds = ev_ready_seconds
         self.local_position = None
         self.takeoff_reference = None
         self.status = 'waiting_for_controller'
         self.stable_since = None
+        self.ev_fusion_active = False
+        self.ev_flags_received_at = None
+        self.ev_fusion_ready_since = None
         self.publisher = self.create_publisher(DesiredState, '/px4ctrl/desired_state', 10)
         self.create_subscription(
             VehicleLocalPosition, '/fmu/out/vehicle_local_position_v1',
             self.position_callback,
             QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         self.create_subscription(String, '/px4ctrl/status', self.status_callback, 10)
+        self.create_subscription(
+            EstimatorStatusFlags, '/fmu/out/estimator_status_flags',
+            self.estimator_status_callback,
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         self.timer = self.create_timer(0.05, self.publish_reference)
 
     def position_callback(self, msg):
@@ -44,11 +53,36 @@ class Takeoff(Node):
     def status_callback(self, msg):
         self.status = msg.data
 
+    def estimator_status_callback(self, msg):
+        self.ev_flags_received_at = self.get_clock().now()
+        self.ev_fusion_active = msg.cs_ev_pos and msg.cs_ev_hgt and msg.cs_ev_vel
+        if self.ev_fusion_active:
+            if self.ev_fusion_ready_since is None:
+                self.ev_fusion_ready_since = self.ev_flags_received_at
+        else:
+            self.ev_fusion_ready_since = None
+
+    def ev_fusion_ready(self):
+        if not self.require_ev_fusion:
+            return True
+        if not self.ev_fusion_active or self.ev_flags_received_at is None or \
+                self.ev_fusion_ready_since is None:
+            return False
+        now = self.get_clock().now()
+        return ((now - self.ev_flags_received_at).seconds() <= 0.5 and
+                (now - self.ev_fusion_ready_since).seconds() >= self.ev_ready_seconds)
+
     def publish_reference(self):
         p = self.local_position
         reference = self.takeoff_reference
-        if p is None or reference is None:
+        if p is None:
             return
+        if reference is None:
+            if not self.ev_fusion_ready():
+                self.status = 'waiting_for_external_vision_fusion'
+                return
+            self.takeoff_reference = (p.x, p.y, p.z - self.altitude, p.heading)
+            reference = self.takeoff_reference
         msg = DesiredState()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'px4_local_ned'
@@ -73,15 +107,21 @@ def main(args=None):
                         help='settling speed limit in m/s (default: 0.15)')
     parser.add_argument('--wait-timeout', type=float, default=45.0,
                         help='wall-clock timeout in seconds (default: 45)')
+    parser.add_argument('--require-ev-fusion', action='store_true',
+                        help='wait for PX4 external-vision position, height, and velocity fusion')
+    parser.add_argument('--ev-ready-seconds', type=float, default=1.0,
+                        help='required continuous EV fusion time before takeoff')
     options = parser.parse_args(args)
     if (not all(math.isfinite(value) for value in
-                (options.altitude, options.velocity_tolerance, options.wait_timeout)) or
+                (options.altitude, options.velocity_tolerance, options.wait_timeout,
+                 options.ev_ready_seconds)) or
             options.altitude <= 0.0 or options.velocity_tolerance <= 0.0 or
-            options.wait_timeout <= 0.0):
-        parser.error('altitude, velocity tolerance, and timeout must be finite and positive')
+            options.wait_timeout <= 0.0 or options.ev_ready_seconds < 0.0):
+        parser.error('altitude, velocity tolerance, timeout, and EV ready time must be finite and valid')
 
     rclpy.init()
-    node = Takeoff(options.altitude, options.velocity_tolerance)
+    node = Takeoff(options.altitude, options.velocity_tolerance,
+                   options.require_ev_fusion, options.ev_ready_seconds)
     deadline = time.monotonic() + options.wait_timeout
     try:
         while rclpy.ok() and time.monotonic() < deadline:
@@ -90,7 +130,8 @@ def main(args=None):
                 print(f'PX4Ctrl takeoff complete: climbed {options.altitude:g} m and settled.')
                 return 0
         raise RuntimeError(
-            f'takeoff did not settle before timeout; last px4ctrl status: {node.status}')
+            f'takeoff did not settle before timeout; last status: {node.status}; '
+            f'EV fusion active: {node.ev_fusion_active}')
     finally:
         node.destroy_node()
         rclpy.try_shutdown()

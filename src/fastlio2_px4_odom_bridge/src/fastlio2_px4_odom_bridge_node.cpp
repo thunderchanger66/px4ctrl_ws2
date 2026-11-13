@@ -57,6 +57,7 @@ public:
     declare_parameter("max_pose_reset_jump_m", 1.50);
     declare_parameter("max_sample_interval_sec", 0.75);
     declare_parameter("max_sample_age_sec", 0.75);
+    declare_parameter("max_px4_position_residual_m", 0.75);
     declare_parameter("max_attitude_step_rad", 1.3);
     declare_parameter("transform_translation", std::vector<double>{0.0, 0.0, 0.0});
     declare_parameter("world_rotation_row_major", std::vector<double>{
@@ -86,6 +87,7 @@ public:
     max_pose_reset_jump_m_ = get_parameter("max_pose_reset_jump_m").as_double();
     max_sample_interval_sec_ = get_parameter("max_sample_interval_sec").as_double();
     max_sample_age_sec_ = get_parameter("max_sample_age_sec").as_double();
+    max_px4_position_residual_m_ = get_parameter("max_px4_position_residual_m").as_double();
     max_attitude_step_rad_ = get_parameter("max_attitude_step_rad").as_double();
     align_to_px4_local_origin_ = get_parameter("align_to_px4_local_origin").as_bool();
     translation_ = vector3_parameter("transform_translation");
@@ -103,6 +105,7 @@ public:
       !std::isfinite(max_pose_reset_jump_m_) || max_pose_reset_jump_m_ <= 0.0 ||
       !std::isfinite(max_sample_interval_sec_) || max_sample_interval_sec_ <= 0.0 ||
       !std::isfinite(max_sample_age_sec_) || max_sample_age_sec_ <= 0.0 ||
+      !std::isfinite(max_px4_position_residual_m_) || max_px4_position_residual_m_ <= 0.0 ||
       !std::isfinite(max_attitude_step_rad_) || max_attitude_step_rad_ <= 0.0 ||
       max_attitude_step_rad_ > 3.141592653589793)
     {
@@ -122,6 +125,10 @@ public:
       [this](const px4_msgs::msg::VehicleLocalPosition::SharedPtr msg) {
         px4_timestamp_us_ = msg->timestamp;
         px4_local_position_ = Vector3(msg->x, msg->y, msg->z);
+        px4_local_velocity_ = Vector3(msg->vx, msg->vy, msg->vz);
+        px4_local_state_valid_ = msg->timestamp > 0 && msg->xy_valid && msg->z_valid &&
+          msg->v_xy_valid && msg->v_z_valid && !msg->dead_reckoning &&
+          px4_local_position_.allFinite() && px4_local_velocity_.allFinite();
         // During EKF startup xy_valid can be false even though PX4 has
         // already established its local origin.  The first finite sample is
         // sufficient for frame alignment; the controller separately requires
@@ -284,6 +291,16 @@ private:
         "Skipping FAST-LIO sample %.3f s ahead of ROS simulation clock", -sample_age_sec);
       return;
     }
+    if (origin_aligned_ && px4_local_state_valid_) {
+      const Vector3 px4_position_at_sample = px4_local_position_ -
+        px4_local_velocity_ * sample_age_sec;
+      const double px4_position_residual = (position_ned - px4_position_at_sample).norm();
+      if (!std::isfinite(px4_position_residual) ||
+        px4_position_residual > max_px4_position_residual_m_) {
+        latch_fault("FAST-LIO pose disagrees with PX4 local position");
+        return;
+      }
+    }
     const double speed = velocity_ned.norm();
     if (!std::isfinite(speed) || speed > max_linear_speed_mps_) {
       latch_fault("odometry velocity exceeded max_linear_speed_mps");
@@ -443,6 +460,7 @@ private:
   double max_pose_reset_jump_m_{1.50};
   double max_sample_interval_sec_{0.75};
   double max_sample_age_sec_{0.75};
+  double max_px4_position_residual_m_{0.75};
   double max_attitude_step_rad_{1.3};
   Vector3 translation_{};
   Matrix3 world_rotation_{Matrix3::Identity()};
@@ -451,7 +469,9 @@ private:
   bool fault_latched_{false};
   bool origin_aligned_{false};
   bool px4_local_position_valid_{false};
+  bool px4_local_state_valid_{false};
   Vector3 px4_local_position_{};
+  Vector3 px4_local_velocity_{};
   std::optional<int64_t> last_stamp_ns_;
   std::optional<int64_t> last_mapped_sample_us_;
   std::optional<Vector3> last_position_ned_;

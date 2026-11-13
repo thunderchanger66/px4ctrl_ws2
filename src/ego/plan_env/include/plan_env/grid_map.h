@@ -25,6 +25,7 @@ struct MappingParameters
     Eigen::Vector3d local_update_range_;
     double resolution_, resolution_inv_;
     double obstacles_inflation_;
+    double min_flight_height_;
     std::string frame_id_;
 
     // Retain LiDAR hit voxels briefly between sparse world-cloud messages.
@@ -243,6 +244,8 @@ inline int GridMap::getInflateOccupancy(Eigen::Vector3d pos)
 {
     if (!isInMap(pos))
         return -1;
+    if (pos.z() < mp_.min_flight_height_)
+        return 1;
 
     Eigen::Vector3i id;
     posToIndex(pos, id);

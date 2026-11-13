@@ -12,6 +12,9 @@ px4ctrl:
     px4_attitude_topic: /fmu/out/vehicle_attitude
     px4_local_position_topic: /fmu/out/vehicle_local_position_v1
     px4_land_detected_topic: /fmu/out/vehicle_land_detected
+    estimator_status_topic: /fmu/out/estimator_status_flags
+    require_external_vision_fusion: true
+    external_vision_aid_timeout_sec: 2.0
     offboard_control_mode_topic: /fmu/in/offboard_control_mode
     attitude_setpoint_topic: /fmu/in/vehicle_attitude_setpoint_v1
     vehicle_command_topic: /fmu/in/vehicle_command

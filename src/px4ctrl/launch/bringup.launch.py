@@ -30,6 +30,7 @@ def generate_launch_description():
     ego_planning_horizon = LaunchConfiguration('ego_planning_horizon')
     ego_obstacle_inflation = LaunchConfiguration('ego_obstacle_inflation')
     ego_collision_clearance = LaunchConfiguration('ego_collision_clearance')
+    ego_min_flight_height = LaunchConfiguration('ego_min_flight_height')
 
     ego = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(ego_share, 'launch', 'single_uav_gazebo.launch.py')),
@@ -46,6 +47,7 @@ def generate_launch_description():
             'planning_horizon': ego_planning_horizon,
             'obstacle_inflation': ego_obstacle_inflation,
             'collision_clearance': ego_collision_clearance,
+            'min_flight_height': ego_min_flight_height,
         }.items(),
     )
     rviz = IncludeLaunchDescription(
@@ -74,6 +76,7 @@ def generate_launch_description():
         DeclareLaunchArgument('ego_planning_horizon', default_value='7.5'),
         DeclareLaunchArgument('ego_obstacle_inflation', default_value='0.45'),
         DeclareLaunchArgument('ego_collision_clearance', default_value='0.65'),
+        DeclareLaunchArgument('ego_min_flight_height', default_value='0.25'),
         DeclareLaunchArgument(
             'px4ctrl_params',
             default_value=os.path.join(px4ctrl_share, 'config', 'px4ctrl_bringup.yaml')),
@@ -109,7 +112,8 @@ def generate_launch_description():
         ExecuteProcess(
             cmd=['ros2', 'run', 'px4ctrl', 'takeoff',
                  '--altitude', takeoff_altitude,
-                 '--wait-timeout', takeoff_timeout],
+                 '--wait-timeout', takeoff_timeout,
+                 '--require-ev-fusion'],
             name='px4ctrl_takeoff',
             output='screen',
             condition=IfCondition(start_takeoff),

@@ -27,6 +27,7 @@ def generate_launch_description():
         'planning_horizon': '7.5',
         'obstacle_inflation': '0.45',
         'collision_clearance': '0.65',
+        'min_flight_height': '0.25',
     }
     cfg = {name: LaunchConfiguration(name) for name in args}
     advanced = IncludeLaunchDescription(
@@ -49,6 +50,7 @@ def generate_launch_description():
             'planning_horizon': cfg['planning_horizon'],
             'obstacle_inflation': cfg['obstacle_inflation'],
             'collision_clearance': cfg['collision_clearance'],
+            'min_flight_height': cfg['min_flight_height'],
             'use_distinctive_trajs': 'True',
             'flight_type': '1',
         }.items(),

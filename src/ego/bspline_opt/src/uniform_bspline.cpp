@@ -140,8 +140,6 @@ namespace ego_planner
         bool fea = true;
 
         Eigen::MatrixXd P = control_points_;
-        int dimension = control_points_.rows();
-
         /* check vel feasibility and insert points */
         double max_vel = -1.0;
         double enlarged_vel_lim = limit_vel_ * (1.0 + feasibility_tolerance_) + 1e-4;
@@ -149,17 +147,14 @@ namespace ego_planner
         {
             Eigen::VectorXd vel = p_ * (P.col(i + 1) - P.col(i)) / (u_(i + p_ + 1) - u_(i + 1));
 
-            if (fabs(vel(0)) > enlarged_vel_lim || fabs(vel(1)) > enlarged_vel_lim ||
-                fabs(vel(2)) > enlarged_vel_lim)
+            const double speed = vel.norm();
+            if (speed > enlarged_vel_lim)
             {
                 if (show)
-                    cout << "[Check]: Infeasible vel " << i << " :" << vel.transpose() << endl;
+                    cout << "[Check]: Infeasible vel " << i << " :" << vel.transpose()
+                         << " (norm=" << speed << ")" << endl;
                 fea = false;
-
-                for (int j = 0; j < dimension; ++j)
-                {
-                    max_vel = max(max_vel, fabs(vel(j)));
-                }
+                max_vel = std::max(max_vel, speed);
             }
         }
 
@@ -173,17 +168,14 @@ namespace ego_planner
                     (P.col(i + 1) - P.col(i)) / (u_(i + p_ + 1) - u_(i + 1))) /
                 (u_(i + p_ + 1) - u_(i + 2));
 
-            if (fabs(acc(0)) > enlarged_acc_lim || fabs(acc(1)) > enlarged_acc_lim ||
-                fabs(acc(2)) > enlarged_acc_lim)
+            const double acceleration = acc.norm();
+            if (acceleration > enlarged_acc_lim)
             {
                 if (show)
-                    cout << "[Check]: Infeasible acc " << i << " :" << acc.transpose() << endl;
+                    cout << "[Check]: Infeasible acc " << i << " :" << acc.transpose()
+                         << " (norm=" << acceleration << ")" << endl;
                 fea = false;
-
-                for (int j = 0; j < dimension; ++j)
-                {
-                    max_acc = max(max_acc, fabs(acc(j)));
-                }
+                max_acc = std::max(max_acc, acceleration);
             }
         }
 
@@ -193,16 +185,14 @@ namespace ego_planner
         const double enlarged_jerk_lim = limit_jerk_ * (1.0 + feasibility_tolerance_) + 1e-4;
         for (int i = 0; i < jerk_points.cols(); ++i)
         {
-            for (int j = 0; j < dimension; ++j)
+            const double jerk = jerk_points.col(i).norm();
+            if (jerk > enlarged_jerk_lim)
             {
-                const double jerk = std::abs(jerk_points(j, i));
-                if (jerk > enlarged_jerk_lim)
-                {
-                    if (show)
-                        cout << "[Check]: Infeasible jerk " << i << " : " << jerk_points.col(i).transpose() << endl;
-                    fea = false;
-                    max_jerk = std::max(max_jerk, jerk);
-                }
+                if (show)
+                    cout << "[Check]: Infeasible jerk " << i << " : " << jerk_points.col(i).transpose()
+                         << " (norm=" << jerk << ")" << endl;
+                fea = false;
+                max_jerk = std::max(max_jerk, jerk);
             }
         }
 

@@ -19,6 +19,7 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     node_->declare_parameter("grid_map/local_update_range_y", -1.0);
     node_->declare_parameter("grid_map/local_update_range_z", -1.0);
     node_->declare_parameter("grid_map/obstacles_inflation", -1.0);
+    node_->declare_parameter("grid_map/min_flight_height", 0.25);
     node_->declare_parameter("grid_map/p_hit", 0.70);
     node_->declare_parameter("grid_map/p_miss", 0.35);
     node_->declare_parameter("grid_map/p_min", 0.12);
@@ -42,6 +43,7 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     node_->get_parameter("grid_map/local_update_range_y", mp_.local_update_range_(1));
     node_->get_parameter("grid_map/local_update_range_z", mp_.local_update_range_(2));
     node_->get_parameter("grid_map/obstacles_inflation", mp_.obstacles_inflation_);
+    node_->get_parameter("grid_map/min_flight_height", mp_.min_flight_height_);
     node_->get_parameter("grid_map/p_hit", mp_.p_hit_);
     node_->get_parameter("grid_map/p_miss", mp_.p_miss_);
     node_->get_parameter("grid_map/p_min", mp_.p_min_);
@@ -71,6 +73,13 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
     {
         RCLCPP_FATAL(node_->get_logger(), "grid_map occupancy probabilities must satisfy 0 < p_min < p_occ < p_max < 1");
         throw std::invalid_argument("invalid EGO occupancy probabilities");
+    }
+    if (!std::isfinite(mp_.min_flight_height_) || mp_.min_flight_height_ <= mp_.ground_height_ ||
+        mp_.min_flight_height_ >= mp_.ground_height_ + z_size)
+    {
+        RCLCPP_FATAL(node_->get_logger(),
+                     "grid_map/min_flight_height must lie inside the vertical map bounds");
+        throw std::invalid_argument("invalid EGO minimum flight height");
     }
     if (!std::isfinite(mp_.cloud_voxel_retention_sec_) ||
         mp_.cloud_voxel_retention_sec_ < 0.5 || mp_.cloud_voxel_retention_sec_ > 60.0)

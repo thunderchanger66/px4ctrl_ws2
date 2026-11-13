@@ -17,6 +17,7 @@
 #include "px4_msgs/msg/vehicle_attitude.hpp"
 #include "px4_msgs/msg/vehicle_attitude_setpoint.hpp"
 #include "px4_msgs/msg/vehicle_command.hpp"
+#include "px4_msgs/msg/estimator_status_flags.hpp"
 #include "px4_msgs/msg/vehicle_land_detected.hpp"
 #include "px4_msgs/msg/vehicle_local_position.hpp"
 #include "px4_msgs/msg/vehicle_status.hpp"
@@ -148,6 +149,9 @@ public:
     declare_parameter("px4_attitude_topic", "/fmu/out/vehicle_attitude");
     declare_parameter("px4_local_position_topic", "/fmu/out/vehicle_local_position_v1");
     declare_parameter("px4_land_detected_topic", "/fmu/out/vehicle_land_detected");
+    declare_parameter("estimator_status_topic", "/fmu/out/estimator_status_flags");
+    declare_parameter("require_external_vision_fusion", false);
+    declare_parameter("external_vision_aid_timeout_sec", 2.0);
     declare_parameter("offboard_control_mode_topic", "/fmu/in/offboard_control_mode");
     // PX4 1.x exposes the versioned uORB input for this message.  Publishing
     // to the unversioned legacy name leaves no PX4 subscriber on current SITL.
@@ -212,6 +216,8 @@ public:
     max_acceleration_ = get_parameter("max_acceleration_mps2").as_double();
     local_position_timeout_sec_ = get_parameter("local_position_timeout_sec").as_double();
     land_detected_timeout_sec_ = get_parameter("land_detected_timeout_sec").as_double();
+    require_external_vision_fusion_ = get_parameter("require_external_vision_fusion").as_bool();
+    external_vision_aid_timeout_sec_ = get_parameter("external_vision_aid_timeout_sec").as_double();
     px4_status_timeout_sec_ = get_parameter("px4_status_timeout_sec").as_double();
     local_position_fault_delay_sec_ = get_parameter("local_position_fault_delay_sec").as_double();
     max_ekf_reset_delta_m_ = get_parameter("max_ekf_reset_delta_m").as_double();
@@ -252,6 +258,7 @@ public:
         max_tilt_rad_ >= M_PI_2 || !std::isfinite(max_acceleration_) || max_acceleration_ <= 0.0 ||
         !std::isfinite(local_position_timeout_sec_) || local_position_timeout_sec_ <= 0.0 ||
         !std::isfinite(land_detected_timeout_sec_) || land_detected_timeout_sec_ <= 0.0 ||
+        !std::isfinite(external_vision_aid_timeout_sec_) || external_vision_aid_timeout_sec_ <= 0.0 ||
         !std::isfinite(px4_status_timeout_sec_) || px4_status_timeout_sec_ <= 0.0 ||
         !std::isfinite(takeover_velocity_tolerance_mps_) || takeover_velocity_tolerance_mps_ <= 0.0 ||
         (entry_mode_ != "auto_takeoff" && entry_mode_ != "airborne_takeover") ||
@@ -309,6 +316,9 @@ public:
         land_detected_ = *msg;
         land_detected_time_ = get_clock()->now();
       });
+    estimator_status_sub_ = create_subscription<px4_msgs::msg::EstimatorStatusFlags>(
+      get_parameter("estimator_status_topic").as_string(), px4_qos,
+      std::bind(&Px4Ctrl::estimator_status_callback, this, std::placeholders::_1));
     takeover_permission_sub_ = create_subscription<std_msgs::msg::Bool>(
       get_parameter("takeover_permission_topic").as_string(), rclcpp::QoS(10),
       [this](const std_msgs::msg::Bool::SharedPtr msg) { takeover_permission_ = msg->data; });
@@ -486,6 +496,18 @@ private:
     update_px4_clock(msg->timestamp);
     local_position_time_ = get_clock()->now();
     local_position_received_ = true;
+  }
+
+  void estimator_status_callback(const px4_msgs::msg::EstimatorStatusFlags::SharedPtr msg)
+  {
+    if (!msg) return;
+    estimator_status_time_ = get_clock()->now();
+    external_vision_fusion_active_ = msg->cs_ev_pos && msg->cs_ev_hgt && msg->cs_ev_vel;
+    if (external_vision_fusion_active_) {
+      ev_fusion_lost_since_.reset();
+    } else if (!ev_fusion_lost_since_) {
+      ev_fusion_lost_since_ = estimator_status_time_;
+    }
   }
 
   bool local_position_healthy() const
@@ -894,6 +916,21 @@ private:
     }
     if (vehicle_offboard() && state_ != ControlState::waiting_for_command) offboard_seen_ = true;
     const auto now = get_clock()->now();
+    if (require_external_vision_fusion_ && vehicle_armed() &&
+        state_ != ControlState::waiting_for_command) {
+      const bool ev_status_fresh = estimator_status_time_ &&
+        seconds_since(*estimator_status_time_) <= external_vision_aid_timeout_sec_;
+      const bool aids_healthy = ev_status_fresh && external_vision_fusion_active_;
+      if (!aids_healthy) {
+        if (!ev_fusion_lost_since_) ev_fusion_lost_since_ = now;
+        if (seconds_since(*ev_fusion_lost_since_) >= external_vision_aid_timeout_sec_) {
+          latch_safety_fault("external_vision_fusion_lost");
+          return;
+        }
+      } else {
+        ev_fusion_lost_since_.reset();
+      }
+    }
     if (!state_fresh()) {
       if (vehicle_status_ && vehicle_status_->arming_state !=
         px4_msgs::msg::VehicleStatus::ARMING_STATE_DISARMED)
@@ -1091,9 +1128,12 @@ private:
   double land_detected_timeout_sec_{2.0};
   double px4_status_timeout_sec_{1.5};
   double local_position_fault_delay_sec_{1.0};
+  double external_vision_aid_timeout_sec_{2.0};
   double max_ekf_reset_delta_m_{1.0};
   double max_ekf_reset_heading_rad_{0.35};
   bool require_local_position_valid_{true};
+  bool require_external_vision_fusion_{false};
+  bool external_vision_fusion_active_{false};
   double max_local_position_m_{100.0};
   double max_local_velocity_mps_{15.0};
   bool land_on_safety_fault_{true};
@@ -1136,6 +1176,8 @@ private:
   std::optional<rclcpp::Time> vehicle_status_time_;
   std::optional<px4_msgs::msg::VehicleLocalPosition> local_position_;
   std::optional<rclcpp::Time> local_position_time_;
+  std::optional<rclcpp::Time> estimator_status_time_;
+  std::optional<rclcpp::Time> ev_fusion_lost_since_;
   std::optional<px4_msgs::msg::VehicleLandDetected> land_detected_;
   std::optional<rclcpp::Time> land_detected_time_;
   std::optional<rclcpp::Time> unhealthy_since_;
@@ -1164,6 +1206,7 @@ private:
   rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr status_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLocalPosition>::SharedPtr local_position_sub_;
+  rclcpp::Subscription<px4_msgs::msg::EstimatorStatusFlags>::SharedPtr estimator_status_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLandDetected>::SharedPtr land_detected_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr takeover_permission_sub_;
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr manual_yaw_sub_;
