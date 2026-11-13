@@ -1,0 +1,2 @@
+[INFO] [1794580687.588185886] [px4_ned_hover_benchmark]: Waiting for valid PX4 NED hover and goal
+[INFO] [1794580694.966073793] [px4_ned_hover_benchmark]: Hover baseline captured in PX4 local NED: [-0.04214701056480408, 0.013720614835619926, -0.4830053150653839]

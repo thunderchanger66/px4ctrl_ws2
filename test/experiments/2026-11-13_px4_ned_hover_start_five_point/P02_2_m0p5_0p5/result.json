@@ -1,0 +1,14 @@
+{
+  "name": "P02_2_m0p5_0p5",
+  "goal_lidar_m": [
+    2.0,
+    -0.5,
+    0.5
+  ],
+  "outcome": "not_started",
+  "takeoff_exit_code": 0,
+  "hover_confirmed_before_goal": true,
+  "goal_command_exit_code": 0,
+  "landing_exit_code": 0,
+  "landing_confirmed": true
+}

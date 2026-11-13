@@ -1,0 +1,27 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-13-22-47-30-431667-thunder-79625
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [79705]
+[INFO] [pgo_node-2]: process started with pid [79706]
+[lio_node-1] [INFO] [1794581250.496257198] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794581250.496448222] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794581250.541642743] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794581250.541887277] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] Multi thread started 
+[lio_node-1] [WARN] [1794581338.304895728] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794581339.420907576] [pgo.pgo_node]: LOOP ACCEPTED source=193 target=4 score=0.031620 | constraint residual: 0.131 m / 1.16 deg -> 0.108 m / 1.14 deg | source correction: 0.033 m / 0.02 deg | loops=1
+[pgo_node-2] [WARN] [1794581345.446171865] [pgo.pgo_node]: LOOP ACCEPTED source=213 target=12 score=0.050333 | constraint residual: 0.196 m / 2.54 deg -> 0.176 m / 2.53 deg | source correction: 0.027 m / 0.02 deg | loops=2
+[pgo_node-2] [WARN] [1794581350.414202394] [pgo.pgo_node]: LOOP ACCEPTED source=232 target=25 score=0.021161 | constraint residual: 0.077 m / 0.54 deg -> 0.071 m / 0.52 deg | source correction: 0.007 m / 0.03 deg | loops=3
+[pgo_node-2] [WARN] [1794581355.734587189] [pgo.pgo_node]: LOOP ACCEPTED source=248 target=37 score=0.020857 | constraint residual: 0.047 m / 0.58 deg -> 0.033 m / 0.57 deg | source correction: 0.012 m / 0.01 deg | loops=4
+[pgo_node-2] [WARN] [1794581360.787929250] [pgo.pgo_node]: LOOP ACCEPTED source=266 target=36 score=0.013838 | constraint residual: 0.029 m / 0.12 deg -> 0.020 m / 0.11 deg | source correction: 0.009 m / 0.01 deg | loops=5
+[pgo_node-2] [WARN] [1794581365.968019668] [pgo.pgo_node]: LOOP ACCEPTED source=284 target=32 score=0.136609 | constraint residual: 0.244 m / 4.10 deg -> 0.241 m / 4.08 deg | source correction: 0.004 m / 0.02 deg | loops=6
+[pgo_node-2] [WARN] [1794581371.273310996] [pgo.pgo_node]: LOOP ACCEPTED source=302 target=88 score=0.017280 | constraint residual: 0.014 m / 0.13 deg -> 0.012 m / 0.13 deg | source correction: 0.002 m / 0.00 deg | loops=7
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1794581378.852326379] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794581378.852327822] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794581378.853357923] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794581378.853519142] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [pgo_node-2]: process has finished cleanly [pid 79706]
+[INFO] [lio_node-1]: process has finished cleanly [pid 79705]

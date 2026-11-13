@@ -1,0 +1,40 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-13-22-37-54-030647-thunder-70114
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [70193]
+[INFO] [pgo_node-2]: process started with pid [70194]
+[lio_node-1] [INFO] [1794580674.095242517] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1794580674.095454220] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1794580674.118568256] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1794580674.118728364] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] Multi thread started 
+[lio_node-1] [WARN] [1794580684.383077666] [fastlio2.lio_node]: Dropping lidar scan without preceding IMU coverage
+[lio_node-1] [WARN] [1794580739.503053510] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] [WARN] [1794580758.123053020] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794580759.672157402] [pgo.pgo_node]: LOOP ACCEPTED source=197 target=5 score=0.015189 | constraint residual: 0.097 m / 0.29 deg -> 0.088 m / 0.28 deg | source correction: 0.015 m / 0.01 deg | loops=1
+[pgo_node-2] [WARN] [1794580764.708673194] [pgo.pgo_node]: LOOP ACCEPTED source=211 target=11 score=0.011692 | constraint residual: 0.030 m / 0.27 deg -> 0.024 m / 0.27 deg | source correction: 0.009 m / 0.00 deg | loops=2
+[pgo_node-2] [WARN] [1794580769.829061190] [pgo.pgo_node]: LOOP ACCEPTED source=227 target=22 score=0.022567 | constraint residual: 0.052 m / 0.56 deg -> 0.046 m / 0.54 deg | source correction: 0.007 m / 0.02 deg | loops=3
+[lio_node-1] [WARN] [1794580772.543056644] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794580774.894323872] [pgo.pgo_node]: LOOP ACCEPTED source=246 target=11 score=0.065584 | constraint residual: 0.125 m / 1.08 deg -> 0.119 m / 1.06 deg | source correction: 0.008 m / 0.01 deg | loops=4
+[lio_node-1] [WARN] [1794580777.403075640] [fastlio2.lio_node]: Dropping lidar scan without preceding IMU coverage
+[pgo_node-2] [WARN] [1794580780.060474471] [pgo.pgo_node]: LOOP ACCEPTED source=264 target=57 score=0.022582 | constraint residual: 0.019 m / 0.21 deg -> 0.014 m / 0.21 deg | source correction: 0.004 m / 0.00 deg | loops=5
+[pgo_node-2] [WARN] [1794580785.407092443] [pgo.pgo_node]: LOOP ACCEPTED source=278 target=42 score=0.020557 | constraint residual: 0.028 m / 0.21 deg -> 0.023 m / 0.20 deg | source correction: 0.005 m / 0.01 deg | loops=6
+[pgo_node-2] [WARN] [1794580790.452282899] [pgo.pgo_node]: LOOP ACCEPTED source=292 target=16 score=0.016998 | constraint residual: 0.052 m / 0.70 deg -> 0.038 m / 0.69 deg | source correction: 0.014 m / 0.01 deg | loops=7
+[lio_node-1] [WARN] [1794580791.823050314] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794580795.703123498] [pgo.pgo_node]: LOOP ACCEPTED source=309 target=89 score=0.011988 | constraint residual: 0.011 m / 0.20 deg -> 0.006 m / 0.19 deg | source correction: 0.003 m / 0.00 deg | loops=8
+[pgo_node-2] [WARN] [1794580800.918672254] [pgo.pgo_node]: LOOP ACCEPTED source=325 target=107 score=0.013617 | constraint residual: 0.025 m / 0.24 deg -> 0.021 m / 0.23 deg | source correction: 0.003 m / 0.01 deg | loops=9
+[lio_node-1] [WARN] [1794580803.923059501] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794580806.343555825] [pgo.pgo_node]: LOOP ACCEPTED source=338 target=130 score=0.028079 | constraint residual: 0.137 m / 1.46 deg -> 0.114 m / 1.44 deg | source correction: 0.016 m / 0.02 deg | loops=10
+[lio_node-1] [WARN] [1794580825.163051973] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] [WARN] [1794580837.223050376] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] [WARN] [1794580853.243051399] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1794580856.400822900] [pgo.pgo_node]: LOOP ACCEPTED source=343 target=47 score=0.009162 | constraint residual: 0.063 m / 0.78 deg -> 0.054 m / 0.74 deg | source correction: 0.010 m / 0.03 deg | loops=11
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[pgo_node-2] [INFO] [1794580865.937751492] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794580865.937751372] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1794580865.938830497] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1794580865.939016883] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 70193]
+[INFO] [pgo_node-2]: process has finished cleanly [pid 70194]

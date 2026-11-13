@@ -1,0 +1,58 @@
+{
+  "name": "P05_2_0_1p5",
+  "goal_lidar_m": [
+    2.0,
+    0.0,
+    1.5
+  ],
+  "outcome": "arrived",
+  "takeoff_exit_code": 0,
+  "hover_confirmed_before_goal": true,
+  "goal_command_exit_code": 0,
+  "goal_retry_exit_codes": [
+    0
+  ],
+  "goal_retry_count": 1,
+  "observer_exit_code": 0,
+  "result": "arrived",
+  "trial_valid": true,
+  "metric_frame": "px4_local_ned",
+  "metric_definition": "3D Euclidean norm of PX4 local-NED DesiredState position minus PX4 VehicleLocalPosition; sampled at 20 Hz during active reference motion through settled arrival, requiring valid fresh PX4 local state and armed/offboard non-failsafe status.",
+  "hover_start_ned_m": [
+    -0.046369653195142746,
+    0.0003148842661175877,
+    -0.538651168346405
+  ],
+  "trajectory_start_trigger": "PX4 NED DesiredState moved from the captured hover position by the displacement threshold or its speed exceeded the threshold",
+  "arrival_time_s": 5.150000000000006,
+  "samples": 103,
+  "tracking_duration_s": 5.150000000000006,
+  "sample_rate_hz": 19.99999999999998,
+  "px4_ned_tracking_error_rmse_m": 0.14285622577350415,
+  "px4_ned_tracking_error_p95_m": 0.1834605345169666,
+  "px4_ned_tracking_error_max_m": 0.19054723538985513,
+  "px4_ned_tracking_error_xy_rmse_m": 0.13559270293220685,
+  "px4_ned_final_tracking_error_m": 0.15644506444906786,
+  "px4_ned_goal_error_final_m": 0.15644506444906786,
+  "terminal_reference_ned_m": [
+    -0.00031246165923241035,
+    1.9856841229091375,
+    -1.5223728812275366
+  ],
+  "arrival_radius_m": 0.2,
+  "arrival_speed_mps": 0.2,
+  "terminal_reference_speed_mps": 0.08,
+  "settle_duration_s": 1.0,
+  "failsafe_samples": 0,
+  "invalid_state_sample_ticks_skipped": 0,
+  "invalid_state_skip_reasons": {
+    "local_invalid_or_stale": 0,
+    "vehicle_status_stale": 0,
+    "not_armed": 0,
+    "not_offboard": 0,
+    "failsafe": 0
+  },
+  "landing_exit_code": 0,
+  "landing_confirmed": true,
+  "stack_shutdown_confirmed": true
+}
