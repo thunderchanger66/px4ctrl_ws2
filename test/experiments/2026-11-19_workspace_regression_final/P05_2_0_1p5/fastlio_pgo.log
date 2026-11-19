@@ -1,0 +1,23 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-19-18-37-45-079915-thunder-39784
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [39854]
+[INFO] [pgo_node-2]: process started with pid [39855]
+[lio_node-1] [INFO] [1795084665.162321107] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1795084665.162526525] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1795084665.172558329] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1795084665.172757785] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] [WARN] [1795084665.690074825] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[pgo_node-2] [WARN] [1795084668.976815313] []: Messages of type 0 arrived out of order (will print only once)
+[lio_node-1] Multi thread started 
+[pgo_node-2] [WARN] [1795084698.556014821] []: Messages of type 1 arrived out of order (will print only once)
+[pgo_node-2] [WARN] [1795084722.637616876] [pgo.pgo_node]: Received out of order message
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1795084723.228696974] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1795084723.228697936] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1795084723.229925000] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1795084723.230191739] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 39855]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 39854]

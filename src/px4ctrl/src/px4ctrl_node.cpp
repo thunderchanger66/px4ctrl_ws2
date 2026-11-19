@@ -389,7 +389,7 @@ private:
       (position_jump > max_command_position_jump_m_ ||
        velocity_jump > max_command_velocity_jump_mps_))
     {
-      reference_blend_from_ = desired_.value_or(previous_target);
+      reference_blend_from_ = last_blended_reference_.value_or(previous_target);
       reference_blend_start_ = get_clock()->now();
       reference_blending_ = command_blend_sec_ > 1e-6;
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000,
@@ -401,7 +401,6 @@ private:
     pending_desired_ = candidate;
     desired_command_time_ = get_clock()->now();
     command_seen_ = true;
-    if (!first_command_time_) first_command_time_ = desired_command_time_;
   }
 
   void vehicle_status_callback(const px4_msgs::msg::VehicleStatus::SharedPtr msg)
@@ -444,12 +443,15 @@ private:
 
   void local_position_callback(const px4_msgs::msg::VehicleLocalPosition::SharedPtr msg)
   {
-    if (!msg) return;
+    if (!msg || msg->timestamp == 0 ||
+      (local_position_ && msg->timestamp <= local_position_->timestamp)) return;
     const bool local_frame_reset = local_position_ &&
       (msg->xy_reset_counter != local_position_->xy_reset_counter ||
       msg->z_reset_counter != local_position_->z_reset_counter ||
       msg->heading_reset_counter != local_position_->heading_reset_counter);
-    if (local_frame_reset) {
+    // Before takeoff there are no active hold targets in the old EKF frame.
+    // Accept the new starting frame, but retain reset checks while in flight.
+    if (local_frame_reset && (state_ != ControlState::waiting_for_command || vehicle_armed())) {
       const bool xy_reset = msg->xy_reset_counter != local_position_->xy_reset_counter;
       const bool z_reset = msg->z_reset_counter != local_position_->z_reset_counter;
       const bool heading_reset =
@@ -598,6 +600,7 @@ private:
       d.yaw_rate = (1.0 - blend) * from.yaw_rate + blend * d.yaw_rate;
       if (u >= 1.0) reference_blending_ = false;
     }
+    last_blended_reference_ = d;
 
     if (entry_mode_ != "airborne_takeover" && state_ == ControlState::tracking &&
         takeoff_origin_z_) {
@@ -829,7 +832,7 @@ private:
     if (state_ == ControlState::waiting_for_command) {
       if (entry_mode_ == "airborne_takeover") {
         begin_airborne_takeover();
-      } else if (command_seen_) {
+      } else if (command_fresh()) {
         begin_takeoff();
       }
     }
@@ -878,6 +881,11 @@ private:
 
   void timer_callback()
   {
+    const auto tick_time = get_clock()->now();
+    if (last_stream_time_) {
+      const double gap = (tick_time - *last_stream_time_).seconds();
+      if (gap < 0.0 || gap >= 0.5) prestream_started_at_.reset();
+    }
     if (safety_latched_) {
       publish_status("safety_latched_no_setpoint");
       return;
@@ -997,6 +1005,8 @@ private:
     setpoint.thrust_body = {0.0F, 0.0F, static_cast<float>(-output.thrust)};
     setpoint.yaw_sp_move_rate = static_cast<float>(output.yaw_rate);
     setpoint_pub_->publish(setpoint);
+    if (!prestream_started_at_) prestream_started_at_ = tick_time;
+    last_stream_time_ = tick_time;
     publish_debug(output);
     if (entry_mode_ == "airborne_takeover") {
       if (!vehicle_offboard()) {
@@ -1015,17 +1025,17 @@ private:
       return;
     }
     if (!command_seen_ || !start_offboard_ || !vehicle_status_) return;
-    const double elapsed = seconds_since(*first_command_time_);
+    const double elapsed = seconds_since(*prestream_started_at_);
     if (elapsed < prestream_seconds_) return;
     if (vehicle_status_->nav_state != px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_OFFBOARD) {
-      if (retry_due()) {
+      if (command_fresh() && retry_due()) {
         publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1.0F, 6.0F);
         last_command_time_ = get_clock()->now();
         publish_status("attitude_offboard_requested");
       }
       return;
     }
-    if (arm_on_first_ && vehicle_status_->arming_state ==
+    if (arm_on_first_ && command_fresh() && vehicle_status_->arming_state ==
         px4_msgs::msg::VehicleStatus::ARMING_STATE_DISARMED &&
         vehicle_status_->pre_flight_checks_pass && retry_due()) {
       publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0F, 0.0F);
@@ -1161,11 +1171,13 @@ private:
   std::optional<DesiredState> desired_;
   std::optional<DesiredState> reference_target_;
   DesiredState reference_blend_from_;
+  std::optional<DesiredState> last_blended_reference_;
   std::optional<rclcpp::Time> reference_blend_start_;
   bool reference_blending_{false};
   std::optional<DesiredState> pending_desired_;
   std::optional<rclcpp::Time> desired_command_time_;
-  std::optional<rclcpp::Time> first_command_time_;
+  std::optional<rclcpp::Time> prestream_started_at_;
+  std::optional<rclcpp::Time> last_stream_time_;
   std::optional<rclcpp::Time> last_desired_stamp_;
   std::optional<rclcpp::Time> last_command_time_;
   std::optional<double> manual_yaw_;

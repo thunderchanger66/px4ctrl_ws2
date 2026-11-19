@@ -1,0 +1,17 @@
+[INFO] [1795085509.923485923] [px4_ned_hover_benchmark]: Waiting for valid PX4 NED hover and goal
+[INFO] [1795085519.994187486] [px4_ned_hover_benchmark]: Hover baseline captured in PX4 local NED: [-0.041577186435461044, -0.003780065570026636, -0.6161741018295288]
+[INFO] [1795085522.564684552] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085522.655840477] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085522.705951799] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085522.756266644] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085522.806561069] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085530.110998906] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085530.573388461] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085530.723742446] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085530.874130459] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085531.024469655] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085540.573990652] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085540.655811385] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085540.706119055] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085540.757063367] [px4_ned_hover_benchmark]: Matching planner goal observed
+[INFO] [1795085540.807489643] [px4_ned_hover_benchmark]: Matching planner goal observed

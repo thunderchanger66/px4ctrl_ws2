@@ -91,7 +91,7 @@ public:
     translation_ = vector3_parameter("transform_translation");
     world_rotation_ = rotation_parameter("world_rotation_row_major");
     body_to_frd_ = rotation_parameter("body_to_frd_row_major");
-    if (!std::isfinite(position_floor_) || !std::isfinite(orientation_floor_) ||
+    if (!translation_.allFinite() || !std::isfinite(position_floor_) || !std::isfinite(orientation_floor_) ||
       !std::isfinite(velocity_floor_) || position_floor_ < 0.0 ||
       orientation_floor_ < 0.0 || velocity_floor_ < 0.0 ||
       !std::isfinite(max_linear_speed_mps_) || max_linear_speed_mps_ <= 0.0 ||
@@ -106,7 +106,7 @@ public:
       !std::isfinite(max_attitude_step_rad_) || max_attitude_step_rad_ <= 0.0 ||
       max_attitude_step_rad_ > 3.141592653589793)
     {
-      throw std::runtime_error("variance floors must be finite and non-negative");
+      throw std::runtime_error("invalid external odometry bridge limits or translation");
     }
 
     const auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
@@ -120,6 +120,7 @@ public:
     local_position_sub_ = create_subscription<px4_msgs::msg::VehicleLocalPosition>(
       get_parameter("px4_local_position_topic").as_string(), qos,
       [this](const px4_msgs::msg::VehicleLocalPosition::SharedPtr msg) {
+        if (msg->timestamp <= px4_timestamp_us_) return;
         px4_timestamp_us_ = msg->timestamp;
         px4_local_position_ = Vector3(msg->x, msg->y, msg->z);
         // During EKF startup xy_valid can be false even though PX4 has
@@ -223,6 +224,22 @@ private:
     }
     q_in.normalize();
 
+    const int64_t stamp_ns = static_cast<int64_t>(msg->header.stamp.sec) * 1000000000LL +
+      msg->header.stamp.nanosec;
+    const int64_t ros_now_ns = get_clock()->now().nanoseconds();
+    if (stamp_ns <= 0 || ros_now_ns <= 0 || (last_stamp_ns_ && stamp_ns <= *last_stamp_ns_)) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Skipping unstamped, duplicate or out-of-order FAST-LIO sample");
+      return;
+    }
+    const double sample_age_sec = static_cast<double>(ros_now_ns - stamp_ns) / 1e9;
+    if (sample_age_sec > max_sample_age_sec_ || sample_age_sec < -0.05) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Skipping FAST-LIO sample outside the time window: age %.3f s", sample_age_sec);
+      return;
+    }
+    if (px4_timestamp_us_ == 0) return;
+
     // q_in maps FAST-LIO child/body axes into the lidar world. The output
     // quaternion must map PX4 FRD body axes into PX4 NED world axes.
     const Matrix3 body_to_lidar = q_in.toRotationMatrix();
@@ -237,8 +254,6 @@ private:
       }
       if (align_to_px4_local_origin_ && px4_local_position_valid_) {
         translation_ = px4_local_position_ - raw_position_ned;
-      } else {
-        translation_ = -raw_position_ned;
       }
       origin_aligned_ = true;
       RCLCPP_INFO(get_logger(), "Aligned FAST-LIO origin: translation NED [%.3f %.3f %.3f]",
@@ -260,30 +275,6 @@ private:
       latch_fault("odometry position exceeded configured local-flight bounds");
       return;
     }
-    const int64_t stamp_ns = static_cast<int64_t>(msg->header.stamp.sec) * 1000000000LL +
-      msg->header.stamp.nanosec;
-    if (stamp_ns <= 0) {
-      latch_fault("odometry timestamp is zero or negative");
-      return;
-    }
-    const int64_t ros_now_ns = get_clock()->now().nanoseconds();
-    if (ros_now_ns <= 0) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Waiting for ROS simulation clock before timestamping external odometry");
-      return;
-    }
-    const double sample_age_sec = static_cast<double>(ros_now_ns - stamp_ns) / 1e9;
-    if (sample_age_sec > max_sample_age_sec_) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Skipping stale FAST-LIO sample: age %.3f s exceeds %.3f s",
-        sample_age_sec, max_sample_age_sec_);
-      return;
-    }
-    if (sample_age_sec < -0.05) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Skipping FAST-LIO sample %.3f s ahead of ROS simulation clock", -sample_age_sec);
-      return;
-    }
     const double speed = velocity_ned.norm();
     if (!std::isfinite(speed) || speed > max_linear_speed_mps_) {
       latch_fault("odometry velocity exceeded max_linear_speed_mps");
@@ -293,10 +284,6 @@ private:
     bool pose_reset = false;
     if (last_stamp_ns_) {
       const double dt = static_cast<double>(stamp_ns - *last_stamp_ns_) / 1e9;
-      if (dt <= 0.0) {
-        latch_fault("odometry timestamp repeated or moved backwards");
-        return;
-      }
       const double allowed_step = max_position_step_slack_m_ + max_linear_speed_mps_ * dt;
       const double position_step = (position_ned - *last_position_ned_).norm();
       if (position_step > allowed_step) {
@@ -336,23 +323,13 @@ private:
     if (attitude_jump || pose_reset) {
       velocity_ned.setZero();
       if (pose_reset) {
-        ++reset_counter_;
-      }
-      if (pose_reset) {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-          "Publishing bounded FAST-LIO pose reset %u with zero velocity",
-          static_cast<unsigned>(reset_counter_));
+          "Accepted bounded FAST-LIO pose reset; suppressing velocity for this sample");
       } else {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
           "FAST-LIO attitude jumped; publishing position while suppressing velocity for this sample");
       }
     }
-    if (px4_timestamp_us_ == 0) {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
-        "Waiting for PX4 local-position timestamp before publishing external odometry");
-      return;
-    }
-
     px4_msgs::msg::VehicleOdometry out;
     // FAST-LIO stamps use ROS simulation time and PX4 uses its own clock.
     // Continuously estimate their rate and offset so clock drift does not make
@@ -410,6 +387,7 @@ private:
       variance(msg->twist.covariance, 0, velocity_floor_),
       variance(msg->twist.covariance, 7, velocity_floor_),
       variance(msg->twist.covariance, 14, velocity_floor_)};
+    if (pose_reset) ++reset_counter_;
     out.reset_counter = reset_counter_;
     out.quality = 100;
     odom_pub_->publish(out);

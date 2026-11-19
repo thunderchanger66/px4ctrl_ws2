@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include <traj_utils/polynomial_traj.h>
 
 PolynomialTraj PolynomialTraj::minSnapTraj(const Eigen::MatrixXd &Pos, const Eigen::Vector3d &start_vel,
@@ -6,6 +7,14 @@ PolynomialTraj PolynomialTraj::minSnapTraj(const Eigen::MatrixXd &Pos, const Eig
                                            const Eigen::Vector3d &end_acc, const Eigen::VectorXd &Time)
 {
   int seg_num = Time.size();
+  if (seg_num < 1 || Pos.rows() != 3 || Pos.cols() != Time.size() + 1 ||
+      !Pos.allFinite() || !Time.allFinite() || (Time.array() <= 0.0).any() ||
+      !start_vel.allFinite() || !end_vel.allFinite() ||
+      !start_acc.allFinite() || !end_acc.allFinite())
+    throw std::invalid_argument("invalid polynomial trajectory boundary conditions");
+  if (seg_num == 1)
+    return one_segment_traj_gen(Pos.col(0), start_vel, start_acc,
+                                Pos.col(1), end_vel, end_acc, Time(0));
   Eigen::MatrixXd poly_coeff(seg_num, 3 * 6);
   Eigen::VectorXd Px(6 * seg_num), Py(6 * seg_num), Pz(6 * seg_num);
 

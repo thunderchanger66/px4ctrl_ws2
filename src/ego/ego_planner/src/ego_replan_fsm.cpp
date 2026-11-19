@@ -323,14 +323,6 @@ namespace ego_planner
         if (msg->pose.position.z < -0.1)
             return;
 
-        if (wait_for_stable_px4_ && !px4_stable_seen_)
-        {
-            pending_waypoint_ = msg;
-            RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-                                 "Holding EGO goal until PX4 takeoff and hover settling complete");
-            return;
-        }
-
         cout << "Triggered!" << endl;
 
         init_pt_ = odom_pos_;
@@ -348,6 +340,14 @@ namespace ego_planner
                          end_wp.x(), end_wp.y(), end_wp.z());
             return;
         }
+        if (!odometryFresh() || (wait_for_stable_px4_ && !px4_stable_seen_))
+        {
+            pending_waypoint_ = msg;
+            RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+                                 "Holding goal until both EGO odometry and PX4 are ready");
+            return;
+        }
+        pending_waypoint_.reset();
         if (planner_manager_->grid_map_->getInflateOccupancy(end_wp) != 0)
         {
             RCLCPP_ERROR(node_->get_logger(),
@@ -369,11 +369,6 @@ namespace ego_planner
         px4_stable_seen_ = true;
         RCLCPP_INFO(node_->get_logger(),
                     "PX4Ctrl is stable; EGO may now plan and execute the pending goal");
-        if (pending_waypoint_)
-        {
-            auto goal = std::move(pending_waypoint_);
-            waypointCallback(goal);
-        }
     }
 
     void EGOReplanFSM::odometryCallback(const std::shared_ptr<const nav_msgs::msg::Odometry>& msg)
@@ -710,6 +705,13 @@ namespace ego_planner
     {
         exec_timer_->cancel(); // To avoid blockage
 
+        if (pending_waypoint_ && odometryFresh() &&
+            (!wait_for_stable_px4_ || px4_stable_seen_))
+        {
+            auto goal = std::move(pending_waypoint_);
+            waypointCallback(goal);
+        }
+
         static int fsm_num = 0;
         fsm_num++;
         if (fsm_num == 100)
@@ -873,7 +875,7 @@ namespace ego_planner
                                     goal_error, goal_tolerance_);
                         replan_from_odom_ = true;
                         planNextWaypoint(end_pt_);
-                        if (planFromGlobalTraj(1))
+                        if (have_target_ && planFromGlobalTraj(2))
                         {
                             replan_from_odom_ = false;
                             changeFSMExecState(EXEC_TRAJ, "FSM");
@@ -963,7 +965,11 @@ namespace ego_planner
 
         for (int i = 0; i < trial_times; i++)
         {
-            if (callReboundReplan(true, flag_random_poly_init))
+            // If an initial guess stalls in the optimizer, try the other
+            // initializer before repeating the same strategy.
+            const bool random_init = i == 1 ? !flag_random_poly_init :
+                (i == 0 ? flag_random_poly_init : true);
+            if (callReboundReplan(true, random_init))
             {
                 return true;
             }

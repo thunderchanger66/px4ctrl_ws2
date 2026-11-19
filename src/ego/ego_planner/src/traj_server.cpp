@@ -61,9 +61,12 @@ void bsplineCallback(traj_utils::msg::Bspline::ConstPtr msg)
                      static_cast<long>(msg->traj_id), traj_id_);
         return;
     }
-    for (size_t i = 0; i < msg->pos_pts.size(); ++i)
+    for (size_t i = 0; i + 2 < msg->pos_pts.size(); ++i)
     {
-        if (msg->knots[i + msg->order + 1] <= msg->knots[i + 1])
+        // The acceleration spline divides by these spans after trimming the
+        // outer knots for the first derivative. Checking only velocity spans
+        // misses repeated interior knots that make acceleration undefined.
+        if (msg->knots[i + kOrder + 1] <= msg->knots[i + 2])
         {
             RCLCPP_WARN(rclcpp::get_logger("traj_server"), "Ignoring B-spline with degenerate derivative knot span");
             return;
@@ -73,6 +76,7 @@ void bsplineCallback(traj_utils::msg::Bspline::ConstPtr msg)
     try
     {
     const rclcpp::Time candidate_start_time(msg->start_time, trajectory_clock_->get_clock_type());
+    if (candidate_start_time.nanoseconds() <= 0) return;
     Eigen::MatrixXd pos_pts(3, msg->pos_pts.size());
 
     Eigen::VectorXd knots(msg->knots.size());

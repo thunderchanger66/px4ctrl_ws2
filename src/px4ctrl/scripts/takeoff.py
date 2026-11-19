@@ -15,14 +15,16 @@ from px4ctrl.msg import DesiredState
 
 
 class Takeoff(Node):
-    def __init__(self, altitude, velocity_tolerance, require_ev_fusion=False, ev_ready_seconds=1.0):
+    def __init__(self, altitude, velocity_tolerance, require_ev_fusion=False,
+                 ev_ready_seconds=1.0, use_sim_time=True):
         super().__init__('px4ctrl_takeoff', parameter_overrides=[
-            rclpy.parameter.Parameter('use_sim_time', value=True)])
+            rclpy.parameter.Parameter('use_sim_time', value=use_sim_time)])
         self.altitude = altitude
         self.velocity_tolerance = velocity_tolerance
         self.require_ev_fusion = require_ev_fusion
         self.ev_ready_seconds = ev_ready_seconds
         self.local_position = None
+        self.position_received_at = None
         self.takeoff_reference = None
         self.status = 'waiting_for_controller'
         self.stable_since = None
@@ -47,14 +49,20 @@ class Takeoff(Node):
                 msg.v_z_valid and not msg.dead_reckoning and
                 all(math.isfinite(value) for value in values)):
             self.local_position = msg
-            if self.takeoff_reference is None:
-                self.takeoff_reference = (msg.x, msg.y, msg.z - self.altitude, msg.heading)
+            self.position_received_at = self.get_clock().now()
+        else:
+            self.local_position = None
+            self.stable_since = None
 
     def status_callback(self, msg):
         self.status = msg.data
 
     def estimator_status_callback(self, msg):
-        self.ev_flags_received_at = self.get_clock().now()
+        now = self.get_clock().now()
+        if self.ev_flags_received_at is not None and not (
+                0 <= (now - self.ev_flags_received_at).nanoseconds <= 2_000_000_000):
+            self.ev_fusion_ready_since = None
+        self.ev_flags_received_at = now
         self.ev_fusion_active = msg.cs_ev_pos and msg.cs_ev_hgt and msg.cs_ev_vel
         if self.ev_fusion_active:
             if self.ev_fusion_ready_since is None:
@@ -69,13 +77,15 @@ class Takeoff(Node):
                 self.ev_fusion_ready_since is None:
             return False
         now = self.get_clock().now()
-        return ((now - self.ev_flags_received_at).seconds() <= 0.5 and
-                (now - self.ev_fusion_ready_since).seconds() >= self.ev_ready_seconds)
+        return (0 <= (now - self.ev_flags_received_at).nanoseconds <= 2_000_000_000 and
+                (now - self.ev_fusion_ready_since).nanoseconds >= self.ev_ready_seconds * 1e9)
 
     def publish_reference(self):
         p = self.local_position
         reference = self.takeoff_reference
-        if p is None:
+        now = self.get_clock().now()
+        if p is None or not 0 <= (now - self.position_received_at).nanoseconds <= 500_000_000:
+            self.stable_since = None
             return
         if reference is None:
             if not self.ev_fusion_ready():
@@ -84,7 +94,7 @@ class Takeoff(Node):
             self.takeoff_reference = (p.x, p.y, p.z - self.altitude, p.heading)
             reference = self.takeoff_reference
         msg = DesiredState()
-        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.stamp = now.to_msg()
         msg.header.frame_id = 'px4_local_ned'
         msg.position.x, msg.position.y, msg.position.z, msg.yaw = reference
         self.publisher.publish(msg)
@@ -111,6 +121,7 @@ def main(args=None):
                         help='wait for PX4 external-vision position, height, and velocity fusion')
     parser.add_argument('--ev-ready-seconds', type=float, default=1.0,
                         help='required continuous EV fusion time before takeoff')
+    parser.add_argument('--use-sim-time', choices=('true', 'false'), default='true')
     options = parser.parse_args(args)
     if (not all(math.isfinite(value) for value in
                 (options.altitude, options.velocity_tolerance, options.wait_timeout,
@@ -121,7 +132,8 @@ def main(args=None):
 
     rclpy.init()
     node = Takeoff(options.altitude, options.velocity_tolerance,
-                   options.require_ev_fusion, options.ev_ready_seconds)
+                   options.require_ev_fusion, options.ev_ready_seconds,
+                   options.use_sim_time == 'true')
     deadline = time.monotonic() + options.wait_timeout
     try:
         while rclpy.ok() and time.monotonic() < deadline:

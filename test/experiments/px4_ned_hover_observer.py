@@ -2,6 +2,7 @@
 """Measure PX4 local-NED trajectory tracking after a settled hover takeoff."""
 
 import argparse
+from collections import OrderedDict
 import csv
 import json
 import math
@@ -13,6 +14,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped
 from px4_msgs.msg import VehicleLocalPosition, VehicleStatus
 from px4ctrl.msg import DesiredState
+from quadrotor_msgs.msg import PositionCommand
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
@@ -23,11 +25,20 @@ FIELDS = [
     "ref_vx_n", "ref_vy_e", "ref_vz_d", "error_n", "error_e", "error_d",
     "tracking_error_3d_m", "tracking_error_xy_m", "actual_speed_mps",
     "reference_speed_mps", "armed", "offboard", "failsafe",
+    "goal_x_n", "goal_y_e", "goal_z_d", "goal_error_3d_m", "ref_goal_error_3d_m",
 ]
 
 
 def norm3(x, y, z):
     return math.sqrt(x*x + y*y + z*z)
+
+
+def lidar_to_ned_delta(delta):
+    return np.array([delta[1], delta[0], -delta[2]])
+
+
+def stamp_key(header):
+    return header.stamp.sec, header.stamp.nanosec
 
 
 class PX4NedObserver(Node):
@@ -40,6 +51,8 @@ class PX4NedObserver(Node):
         self.px4_received = None
         self.reference = None
         self.reference_received = None
+        self.reference_stamp = None
+        self.ego_references = OrderedDict()
         self.vehicle_failsafe = False
         self.hover_position = None
         self.hover_since = None
@@ -50,7 +63,8 @@ class PX4NedObserver(Node):
         self.invalid_since = None
         self.invalid_sample_ticks = 0
         self.skip_reasons = {"local_invalid_or_stale": 0, "vehicle_status_stale": 0,
-                             "not_armed": 0, "not_offboard": 0, "failsafe": 0}
+                             "not_armed": 0, "not_offboard": 0, "failsafe": 0,
+                             "reference_invalid_or_stale": 0}
         self.terminal_reference = None
         self.rows = []
         self.result = "waiting_for_hover"
@@ -70,6 +84,8 @@ class PX4NedObserver(Node):
             "/fmu/out/vehicle_status_v4", self.status_cb, qos)
         self.create_subscription(DesiredState,
             "/px4ctrl/desired_state", self.reference_cb, 20)
+        self.create_subscription(PositionCommand,
+            "/drone_0_planning/pos_cmd", self.ego_reference_cb, 20)
         self.create_subscription(PoseStamped, "/goal_pose", self.goal_cb, 10)
         self.timer = self.create_timer(0.05, self.tick)
         self.get_logger().info("Waiting for valid PX4 NED hover and goal")
@@ -78,6 +94,8 @@ class PX4NedObserver(Node):
         return self.get_clock().now().nanoseconds * 1e-9
 
     def position_cb(self, msg):
+        if msg.timestamp == 0 or (self.px4 and msg.timestamp <= self.px4.timestamp):
+            return
         self.px4 = msg
         self.px4_received = self.now()
 
@@ -94,7 +112,11 @@ class PX4NedObserver(Node):
                   msg.velocity.x, msg.velocity.y, msg.velocity.z)
         if not all(math.isfinite(v) for v in values):
             return
+        stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+        if stamp <= 0 or (self.reference_stamp is not None and stamp <= self.reference_stamp):
+            return
         self.reference = msg
+        self.reference_stamp = stamp
         self.reference_received = self.now()
 
     def goal_cb(self, msg):
@@ -102,10 +124,21 @@ class PX4NedObserver(Node):
         if norm3(p.x-self.goal[0], p.y-self.goal[1], p.z-self.goal[2]) <= 0.05:
             self.get_logger().info("Matching planner goal observed")
 
+    def ego_reference_cb(self, msg):
+        if (msg.header.frame_id != 'lidar' or
+                msg.trajectory_flag != PositionCommand.TRAJECTORY_STATUS_READY):
+            return
+        p = msg.position
+        if not all(math.isfinite(v) for v in (p.x, p.y, p.z)):
+            return
+        self.ego_references[stamp_key(msg.header)] = np.array([p.x, p.y, p.z])
+        if len(self.ego_references) > 128:
+            self.ego_references.popitem(last=False)
+
     def local_valid(self, now):
         p = self.px4
         return (p is not None and self.px4_received is not None and
-                now-self.px4_received <= self.args.max_data_age and
+                0 <= now-self.px4_received <= self.args.max_data_age and
                 p.timestamp > 0 and p.xy_valid and p.z_valid and
                 p.v_xy_valid and p.v_z_valid and not p.dead_reckoning and
                 all(math.isfinite(v) for v in (p.x, p.y, p.z, p.vx, p.vy, p.vz)))
@@ -126,6 +159,9 @@ class PX4NedObserver(Node):
             self.finish("trajectory_timeout")
             return
         if not self.local_valid(now) or not self.controller_ready(now):
+            self.hover_since = None
+            self.arrival_since = None
+            self.terminal_reference = None
             if self.trajectory_start is not None:
                 self.invalid_sample_ticks += 1
                 if not self.local_valid(now):
@@ -164,11 +200,20 @@ class PX4NedObserver(Node):
             return
 
         ref = self.reference
-        if ref is None or now-self.reference_received > self.args.max_data_age:
+        if (ref is None or not 0 <= now-self.reference_received <= self.args.max_data_age
+                or not -0.05 <= now-self.reference_stamp <= self.args.max_data_age):
+            self.arrival_since = None
+            self.terminal_reference = None
+            if self.trajectory_start is not None:
+                self.invalid_sample_ticks += 1
+                self.skip_reasons['reference_invalid_or_stale'] += 1
             return
         ref_pos = np.array([ref.position.x, ref.position.y, ref.position.z], dtype=float)
         ref_vel = np.array([ref.velocity.x, ref.velocity.y, ref.velocity.z], dtype=float)
+        ego_position = self.ego_references.get(stamp_key(ref.header))
         if self.trajectory_start is None:
+            if ego_position is None:
+                return
             displacement = np.linalg.norm(ref_pos-self.hover_position)
             if displacement >= self.args.start_displacement or \
                     np.linalg.norm(ref_vel) >= self.args.start_reference_speed:
@@ -182,6 +227,12 @@ class PX4NedObserver(Node):
         vel = np.array([p.vx, p.vy, p.vz], dtype=float)
         error = ref_pos-px
         ref_speed = float(np.linalg.norm(ref_vel))
+        # Matching stamps establish the translation actually applied by the adapter.
+        goal_ned = (ref_pos + lidar_to_ned_delta(self.goal - ego_position)
+                    if ego_position is not None else None)
+        goal_error = float(np.linalg.norm(goal_ned - px)) if goal_ned is not None else None
+        ref_goal_error = (float(np.linalg.norm(goal_ned - ref_pos))
+                          if goal_ned is not None else None)
         elapsed = now-self.trajectory_start
         row = {
             "t_from_trajectory_start_s": elapsed,
@@ -195,6 +246,10 @@ class PX4NedObserver(Node):
             "actual_speed_mps": speed, "reference_speed_mps": ref_speed,
             "armed": self.armed, "offboard": self.offboard,
             "failsafe": self.vehicle_failsafe,
+            "goal_x_n": goal_ned[0] if goal_ned is not None else None,
+            "goal_y_e": goal_ned[1] if goal_ned is not None else None,
+            "goal_z_d": goal_ned[2] if goal_ned is not None else None,
+            "goal_error_3d_m": goal_error, "ref_goal_error_3d_m": ref_goal_error,
         }
         self.rows.append(row)
         self.writer.writerow(row)
@@ -207,8 +262,9 @@ class PX4NedObserver(Node):
                       self.args.terminal_reference_drift)
         if not ref_stable:
             self.terminal_reference = ref_pos.copy()
-        arrived = (ref_stable and np.linalg.norm(error) <= self.args.arrival_radius and
-                   speed <= self.args.arrival_speed)
+        arrived = (ref_stable and goal_error is not None and
+                   ref_goal_error <= self.args.reference_goal_radius and
+                   goal_error <= self.args.arrival_radius and speed <= self.args.arrival_speed)
         if arrived:
             if self.arrival_since is None:
                 self.arrival_since = now
@@ -241,11 +297,12 @@ class PX4NedObserver(Node):
             "px4_ned_tracking_error_xy_rmse_m": float(np.sqrt(np.mean(xy**2))) if xy.size else None,
             "px4_ned_final_tracking_error_m": float(np.linalg.norm([
                 final["error_n"], final["error_e"], final["error_d"]])) if final else None,
-            "px4_ned_goal_error_final_m": (float(np.linalg.norm([
-                final["error_n"], final["error_e"], final["error_d"]]))
-                if final and self.result == "arrived" else None),
+            "px4_ned_goal_error_final_m": final["goal_error_3d_m"] if final else None,
+            "requested_goal_ned_m": [final["goal_x_n"], final["goal_y_e"], final["goal_z_d"]]
+                if final and final["goal_error_3d_m"] is not None else None,
             "terminal_reference_ned_m": [final["ref_x_n"], final["ref_y_e"], final["ref_z_d"]] if final else None,
             "arrival_radius_m": self.args.arrival_radius,
+            "reference_goal_radius_m": self.args.reference_goal_radius,
             "arrival_speed_mps": self.args.arrival_speed,
             "terminal_reference_speed_mps": self.args.terminal_reference_speed,
             "settle_duration_s": self.args.settle_duration,
@@ -286,6 +343,7 @@ def main():
     parser.add_argument("--terminal-reference-speed", type=float, default=0.08)
     parser.add_argument("--terminal-reference-drift", type=float, default=0.03)
     parser.add_argument("--arrival-radius", type=float, default=0.20)
+    parser.add_argument("--reference-goal-radius", type=float, default=0.08)
     parser.add_argument("--arrival-speed", type=float, default=0.20)
     parser.add_argument("--settle-duration", type=float, default=1.0)
     args = parser.parse_args()

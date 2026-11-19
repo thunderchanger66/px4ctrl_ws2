@@ -37,8 +37,8 @@ class EgoPositionCommandAdapter(Node):
         self.px4_velocity = None
         self.px4_received_at = None
         self.translation = None
-        self.heading_offset = 0.0
         self.last_reset_counters = None
+        self.last_px4_stamp = 0
         self.last_command_stamp_ns = 0
 
         self.publisher = self.create_publisher(
@@ -70,33 +70,39 @@ class EgoPositionCommandAdapter(Node):
             self.publish_status(f'frame_mismatch:{msg.header.frame_id}')
             return
         p = msg.pose.pose.position
-        self.odom_position = (p.x, p.y, p.z)
+        position = (p.x, p.y, p.z)
         q = msg.pose.pose.orientation
         v = msg.twist.twist.linear
         rotated_velocity = self.rotate_body_velocity((v.x, v.y, v.z), (q.x, q.y, q.z, q.w))
-        if rotated_velocity is None:
+        if (rotated_velocity is None or
+                not all(math.isfinite(value) for value in position + rotated_velocity)):
             return
+        self.odom_position = position
         self.odom_velocity = rotated_velocity
         self.odom_received_at = self.get_clock().now()
         self.try_align()
 
     def local_position_callback(self, msg):
-        counters = (msg.xy_reset_counter, msg.z_reset_counter, msg.heading_reset_counter)
+        if msg.timestamp <= self.last_px4_stamp:
+            return
+        self.last_px4_stamp = msg.timestamp
+        counters = (msg.xy_reset_counter, msg.z_reset_counter)
         if self.translation is not None and self.last_reset_counters is not None:
-            old_xy, old_z, old_heading = self.last_reset_counters
-            if msg.xy_reset_counter != old_xy:
-                self.translation = (self.translation[0] + msg.delta_xy[0],
-                                    self.translation[1] + msg.delta_xy[1],
-                                    self.translation[2])
-            if msg.z_reset_counter != old_z:
-                self.translation = (self.translation[0], self.translation[1],
-                                    self.translation[2] + msg.delta_z)
-            if msg.heading_reset_counter != old_heading:
-                self.heading_offset += msg.delta_heading
+            old_xy, old_z = self.last_reset_counters
+            xy = tuple(msg.delta_xy) if msg.xy_reset_counter != old_xy else (0.0, 0.0)
+            delta = (*xy, msg.delta_z if msg.z_reset_counter != old_z else 0.0)
+            if all(math.isfinite(value) for value in delta):
+                self.translation = tuple(a + b for a, b in zip(self.translation, delta))
+            else:
+                self.translation = None
+                self.px4_position = None
+                self.px4_received_at = None
+                self.get_logger().warning('Invalid PX4 origin reset; waiting to realign')
         self.last_reset_counters = counters
         if not (msg.timestamp and msg.xy_valid and msg.z_valid and msg.v_xy_valid and
                 msg.v_z_valid and not msg.dead_reckoning and
-                math.isfinite(msg.x) and math.isfinite(msg.y) and math.isfinite(msg.z)):
+                all(math.isfinite(v) for v in (msg.x, msg.y, msg.z, msg.vx, msg.vy, msg.vz))):
+            self.px4_received_at = None
             return
         self.px4_position = (msg.x, msg.y, msg.z)
         self.px4_velocity = (msg.vx, msg.vy, msg.vz)
@@ -157,7 +163,6 @@ class EgoPositionCommandAdapter(Node):
         stamp_ns = (msg.header.stamp.sec * 1_000_000_000 + msg.header.stamp.nanosec)
         if stamp_ns <= self.last_command_stamp_ns:
             return
-        self.last_command_stamp_ns = stamp_ns
 
         position = self.transform_vector(msg.position)
         velocity = self.transform_vector(msg.velocity)
@@ -169,7 +174,8 @@ class EgoPositionCommandAdapter(Node):
 
         # EGO yaw is CCW about lidar +Z. The configured proper rotation maps
         # it to PX4 NED heading (clockwise from North): yaw_NED = pi/2 - yaw_lidar.
-        yaw = math.atan2(math.cos(msg.yaw), math.sin(msg.yaw)) + self.heading_offset
+        # The controller owns PX4 heading-reset compensation for every reference source.
+        yaw = math.atan2(math.cos(msg.yaw), math.sin(msg.yaw))
         yaw_rate = -msg.yaw_dot
         out = DesiredState()
         out.header.stamp = msg.header.stamp
@@ -180,6 +186,7 @@ class EgoPositionCommandAdapter(Node):
         out.yaw = yaw
         out.yaw_rate = yaw_rate
         self.publisher.publish(out)
+        self.last_command_stamp_ns = stamp_ns
         self.publish_status('publishing_px4_local_ned_reference')
 
     def publish_status(self, value):

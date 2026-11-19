@@ -1,0 +1,63 @@
+{
+  "name": "P05_2_0_1p5",
+  "goal_lidar_m": [
+    2.0,
+    0.0,
+    1.5
+  ],
+  "outcome": "arrived",
+  "takeoff_exit_code": 0,
+  "hover_confirmed_before_goal": true,
+  "goal_command_exit_code": 0,
+  "goal_retry_exit_codes": [],
+  "goal_retry_count": 0,
+  "observer_exit_code": 0,
+  "result": "arrived",
+  "trial_valid": true,
+  "metric_frame": "px4_local_ned",
+  "metric_definition": "3D Euclidean norm of PX4 local-NED DesiredState position minus PX4 VehicleLocalPosition; sampled at 20 Hz during active reference motion through settled arrival, requiring valid fresh PX4 local state and armed/offboard non-failsafe status.",
+  "hover_start_ned_m": [
+    -0.048981886357069016,
+    0.010725747793912888,
+    -0.4580461382865906
+  ],
+  "trajectory_start_trigger": "PX4 NED DesiredState moved from the captured hover position by the displacement threshold or its speed exceeded the threshold",
+  "arrival_time_s": 7.699999999999999,
+  "samples": 154,
+  "tracking_duration_s": 7.699999999999999,
+  "sample_rate_hz": 20.000000000000004,
+  "px4_ned_tracking_error_rmse_m": 0.12307834905304252,
+  "px4_ned_tracking_error_p95_m": 0.1838638028668314,
+  "px4_ned_tracking_error_max_m": 0.18918292906544926,
+  "px4_ned_tracking_error_xy_rmse_m": 0.11656601246423266,
+  "px4_ned_final_tracking_error_m": 0.017626940002613677,
+  "px4_ned_goal_error_final_m": 0.01763764577463911,
+  "requested_goal_ned_m": [
+    -8.424082572808743e-05,
+    1.9914291681743181,
+    -1.4401380195918798
+  ],
+  "terminal_reference_ned_m": [
+    -0.001130860717097956,
+    1.9899903918280597,
+    -1.4401248139656064
+  ],
+  "arrival_radius_m": 0.2,
+  "reference_goal_radius_m": 0.08,
+  "arrival_speed_mps": 0.2,
+  "terminal_reference_speed_mps": 0.08,
+  "settle_duration_s": 1.0,
+  "failsafe_samples": 0,
+  "invalid_state_sample_ticks_skipped": 0,
+  "invalid_state_skip_reasons": {
+    "local_invalid_or_stale": 0,
+    "vehicle_status_stale": 0,
+    "not_armed": 0,
+    "not_offboard": 0,
+    "failsafe": 0,
+    "reference_invalid_or_stale": 0
+  },
+  "landing_exit_code": 0,
+  "landing_confirmed": true,
+  "stack_shutdown_confirmed": true
+}

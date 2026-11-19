@@ -56,9 +56,9 @@ Important assumptions and follow-up work:
   `timestamp_sample` preserves the mapped FAST-LIO sensor sample time. Keep the
   PX4 time source alive and verify the resulting delay and EV innovations for
   the target firmware.
-* `transform_translation` is zero by default. This assumes the FAST-LIO local
-  origin and PX4 local NED origin have been aligned. A nonzero calibrated
-  translation is required when they are not aligned.
+* With `align_to_px4_local_origin: true` the bridge estimates translation once
+  at startup. With `false` it uses `transform_translation` verbatim, so supply
+  the calibrated NED offset when the origins differ.
 * Configure PX4 EKF2 external-vision fusion separately (`EKF2_EV_CTRL`, delay,
   sensor position, and height reference as appropriate for the PX4 version).
   Check `EstimatorStatus` flags `CS_EV_POS`, `CS_EV_VEL`, `CS_EV_HGT`, and

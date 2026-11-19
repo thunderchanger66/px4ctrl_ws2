@@ -1,0 +1,458 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-19-18-30-10-428376-thunder-26962
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [micro_xrce_agent-1]: process started with pid [27087]
+[INFO] [ego_planner_node-2]: process started with pid [27088]
+[INFO] [static_transform_publisher-3]: process started with pid [27089]
+[INFO] [static_transform_publisher-4]: process started with pid [27090]
+[INFO] [traj_server-5]: process started with pid [27097]
+[INFO] [fastlio2_px4_odom_bridge_node-6]: process started with pid [27100]
+[INFO] [ego_position_command_adapter-7]: process started with pid [27101]
+[INFO] [px4ctrl_node-8]: process started with pid [27102]
+[micro_xrce_agent-1] [35m[1795084210.502657][m info     | [34mUDPv4AgentLinux.cpp[m | [37minit                    [m | [32mrunning...[m             | port: 8888
+[micro_xrce_agent-1] [35m[1795084210.502824][m info     | [34mRoot.cpp          [m | [37mset_verbose_level       [m | [32mlogger setup[m           | verbose_level: 4
+[static_transform_publisher-3] [INFO] [1795084210.543545997] [mid360_body_to_base_link]: Spinning until stopped - publishing transform
+[static_transform_publisher-3] translation: ('0.000000', '0.000000', '-0.080000')
+[static_transform_publisher-3] rotation: ('0.000000', '0.000000', '1.000000', '0.000000')
+[static_transform_publisher-3] from 'body' to 'base_link'
+[static_transform_publisher-4] [INFO] [1795084210.544417882] [mid360_body_to_livox_frame]: Spinning until stopped - publishing transform
+[static_transform_publisher-4] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-4] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-4] from 'body' to 'livox_frame'
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795084210.546736151] [fastlio2_px4_odom_bridge]: FAST-LIO odometry bridge: /fastlio2/lio_odom -> /fmu/in/vehicle_visual_odometry
+[ego_planner_node-2] [INFO] [1795084210.987981097] [drone_0_ego_planner_node]: EGO goal execution is gated until px4ctrl reports stable tracking
+[ego_planner_node-2] [ERROR] [1795084210.994319261] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [FSM]: from INIT to WAIT_TARGET
+[ego_position_command_adapter-7] [INFO] [1795084211.065887135] [ego_position_command_adapter]: Waiting for FAST-LIO odometry and valid PX4 local position to align lidar origin
+[traj_server-5] [WARN] [1795084211.545743150] [drone_0_traj_server]: [Traj server]: ready.
+[micro_xrce_agent-1] [35m[1795084211.676753][m info     | [34mRoot.cpp          [m | [37mcreate_client           [m | [32mcreate[m                 | client_key: 0x00000001, session_id: 0x81
+[micro_xrce_agent-1] [35m[1795084211.676790][m info     | [34mSessionManager.hpp[m | [37mestablish_session       [m | [32msession established[m    | client_key: 0x00000001, address: 127.0.0.1:64136
+[micro_xrce_agent-1] [35m[1795084211.679701][m info     | [34mProxyClient.cpp   [m | [37mcreate_participant      [m | [32mparticipant created[m    | client_key: 0x00000001, participant_id: 0x001(1)
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795084213.707182353] [drone_0_ego_planner_node]: Rejecting stale/invalid odometry: age -1795084205.276 s, speed 0.02 m/s
+[fastlio2_px4_odom_bridge_node-6] [WARN] [1795084214.061374082] [fastlio2_px4_odom_bridge]: Skipping FAST-LIO sample outside the time window: age -1795084205.369 s
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_position_command_adapter-7] [INFO] [1795084214.422467586] [ego_position_command_adapter]: Latched lidar-to-PX4 origin translation NED [-0.036, 0.108, 0.021] m
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795084214.423281415] [fastlio2_px4_odom_bridge]: Aligned FAST-LIO origin: translation NED [-0.034 0.010 0.021]
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795084214.423325243] [fastlio2_px4_odom_bridge]: Started FAST-LIO to PX4 clock mapping: rate 1.0000000, offset 1795084205377.581 ms
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[fastlio2_px4_odom_bridge_node-6] [WARN] [1795084215.548274066] [fastlio2_px4_odom_bridge]: Skipping non-monotonic mapped FAST-LIO timestamp
+[ego_planner_node-2] [ERROR] [1795084215.866461507] [drone_0_ego_planner_node]: Rejecting stale/invalid odometry: age -1795084205.491 s, speed 0.02 m/s
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [37;1m2026-11-19 18:30:16.615 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[micro_xrce_agent-1] [35m[1795084216.866934][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x800(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.866986][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x800(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868062][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x800(6), subscriber_id: 0x800(4)
+[micro_xrce_agent-1] [35m[1795084216.868174][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x801(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868186][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x801(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868507][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x801(6), subscriber_id: 0x801(4)
+[micro_xrce_agent-1] [35m[1795084216.868600][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x802(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868610][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x802(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868901][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x802(6), subscriber_id: 0x802(4)
+[micro_xrce_agent-1] [35m[1795084216.868985][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x803(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.868994][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x803(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.869265][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x803(6), subscriber_id: 0x803(4)
+[micro_xrce_agent-1] [35m[1795084216.869346][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x804(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.869363][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x804(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.869629][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x804(6), subscriber_id: 0x804(4)
+[micro_xrce_agent-1] [35m[1795084216.869722][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x805(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.869735][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x805(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.870023][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x805(6), subscriber_id: 0x805(4)
+[micro_xrce_agent-1] [35m[1795084216.870123][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x806(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.870132][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x806(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.870399][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x806(6), subscriber_id: 0x806(4)
+[micro_xrce_agent-1] [35m[1795084216.870792][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x807(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.870806][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x807(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.871168][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x807(6), subscriber_id: 0x807(4)
+[micro_xrce_agent-1] [35m[1795084216.871255][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x808(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.871269][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x808(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.871553][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x808(6), subscriber_id: 0x808(4)
+[micro_xrce_agent-1] [35m[1795084216.871648][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x809(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.871662][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x809(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.871959][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x809(6), subscriber_id: 0x809(4)
+[micro_xrce_agent-1] [35m[1795084216.872038][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.872051][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80A(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.872331][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80A(6), subscriber_id: 0x80A(4)
+[micro_xrce_agent-1] [35m[1795084216.872410][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.872419][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80B(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.872702][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80B(6), subscriber_id: 0x80B(4)
+[micro_xrce_agent-1] [35m[1795084216.872786][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.872799][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80C(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873069][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80C(6), subscriber_id: 0x80C(4)
+[micro_xrce_agent-1] [35m[1795084216.873166][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873176][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80D(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873451][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80D(6), subscriber_id: 0x80D(4)
+[micro_xrce_agent-1] [35m[1795084216.873536][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873545][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80E(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873815][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80E(6), subscriber_id: 0x80E(4)
+[micro_xrce_agent-1] [35m[1795084216.873898][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.873913][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80F(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.874195][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80F(6), subscriber_id: 0x80F(4)
+[micro_xrce_agent-1] [35m[1795084216.874280][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x810(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.874293][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x810(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.874581][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x810(6), subscriber_id: 0x810(4)
+[micro_xrce_agent-1] [35m[1795084216.874662][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x811(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.874676][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x811(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.874953][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x811(6), subscriber_id: 0x811(4)
+[micro_xrce_agent-1] [35m[1795084216.875039][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x812(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.875052][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x812(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.875320][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x812(6), subscriber_id: 0x812(4)
+[micro_xrce_agent-1] [35m[1795084216.875415][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x813(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.875430][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x813(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.875720][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x813(6), subscriber_id: 0x813(4)
+[micro_xrce_agent-1] [35m[1795084216.875801][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x814(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.875815][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x814(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876116][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x814(6), subscriber_id: 0x814(4)
+[micro_xrce_agent-1] [35m[1795084216.876204][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x815(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876218][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x815(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876502][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x815(6), subscriber_id: 0x815(4)
+[micro_xrce_agent-1] [35m[1795084216.876580][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x816(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876595][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x816(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876875][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x816(6), subscriber_id: 0x816(4)
+[micro_xrce_agent-1] [35m[1795084216.876956][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x817(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.876970][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x817(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.877247][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x817(6), subscriber_id: 0x817(4)
+[micro_xrce_agent-1] [35m[1795084216.877322][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x818(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.877331][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x818(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.877615][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x818(6), subscriber_id: 0x818(4)
+[micro_xrce_agent-1] [35m[1795084216.877702][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x819(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.877712][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x819(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878007][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x819(6), subscriber_id: 0x819(4)
+[micro_xrce_agent-1] [35m[1795084216.878103][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878113][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81A(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878442][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81A(6), subscriber_id: 0x81A(4)
+[micro_xrce_agent-1] [35m[1795084216.878545][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878556][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81B(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878875][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81B(6), subscriber_id: 0x81B(4)
+[micro_xrce_agent-1] [35m[1795084216.878962][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.878971][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81C(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.879280][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81C(6), subscriber_id: 0x81C(4)
+[micro_xrce_agent-1] [35m[1795084216.879375][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.879389][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81D(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.879734][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81D(6), subscriber_id: 0x81D(4)
+[micro_xrce_agent-1] [35m[1795084216.879840][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.879853][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81E(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.880167][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81E(6), subscriber_id: 0x81E(4)
+[micro_xrce_agent-1] [35m[1795084216.880266][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.880276][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81F(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.880572][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81F(6), subscriber_id: 0x81F(4)
+[micro_xrce_agent-1] [35m[1795084216.880679][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x820(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.880691][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x820(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881030][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x820(6), subscriber_id: 0x820(4)
+[micro_xrce_agent-1] [35m[1795084216.881122][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x821(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881133][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x821(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881438][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x821(6), subscriber_id: 0x821(4)
+[micro_xrce_agent-1] [35m[1795084216.881537][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x822(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881546][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x822(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881840][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x822(6), subscriber_id: 0x822(4)
+[micro_xrce_agent-1] [35m[1795084216.881949][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x823(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.881961][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x823(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.882253][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x823(6), subscriber_id: 0x823(4)
+[micro_xrce_agent-1] [35m[1795084216.882337][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x824(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.882348][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x824(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.882653][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x824(6), subscriber_id: 0x824(4)
+[micro_xrce_agent-1] [35m[1795084216.882799][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x825(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.882811][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x825(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.883145][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x825(6), subscriber_id: 0x825(4)
+[micro_xrce_agent-1] [35m[1795084216.883242][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0DE(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.883271][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0DE(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.883645][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0DE(5), publisher_id: 0x0DE(3)
+[micro_xrce_agent-1] [35m[1795084216.883714][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x010(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.883735][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x010(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.883987][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x010(5), publisher_id: 0x010(3)
+[micro_xrce_agent-1] [35m[1795084216.884066][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x107(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884078][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x107(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884319][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x107(5), publisher_id: 0x107(3)
+[micro_xrce_agent-1] [35m[1795084216.884385][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0A8(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884398][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0A8(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884623][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0A8(5), publisher_id: 0x0A8(3)
+[micro_xrce_agent-1] [35m[1795084216.884695][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x014(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884707][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x014(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.884937][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x014(5), publisher_id: 0x014(3)
+[micro_xrce_agent-1] [35m[1795084216.885004][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x01B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885013][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x01B(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885232][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x01B(5), publisher_id: 0x01B(3)
+[micro_xrce_agent-1] [35m[1795084216.885289][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x05C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885298][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x05C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885535][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x05C(5), publisher_id: 0x05C(3)
+[micro_xrce_agent-1] [35m[1795084216.885585][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x062(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885593][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x062(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885816][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x062(5), publisher_id: 0x062(3)
+[micro_xrce_agent-1] [35m[1795084216.885876][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x09F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.885890][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x09F(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886128][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x09F(5), publisher_id: 0x09F(3)
+[micro_xrce_agent-1] [35m[1795084216.886195][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0A5(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886203][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0A5(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886405][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0A5(5), publisher_id: 0x0A5(3)
+[micro_xrce_agent-1] [35m[1795084216.886464][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0CD(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886478][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0CD(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886687][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0CD(5), publisher_id: 0x0CD(3)
+[micro_xrce_agent-1] [35m[1795084216.886743][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0F4(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886751][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0F4(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.886963][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0F4(5), publisher_id: 0x0F4(3)
+[micro_xrce_agent-1] [35m[1795084216.887026][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x110(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887040][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x110(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887238][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x110(5), publisher_id: 0x110(3)
+[micro_xrce_agent-1] [35m[1795084216.887290][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x113(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887297][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x113(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887513][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x113(5), publisher_id: 0x113(3)
+[micro_xrce_agent-1] [35m[1795084216.887576][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x12B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887583][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x12B(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887808][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x12B(5), publisher_id: 0x12B(3)
+[micro_xrce_agent-1] [35m[1795084216.887882][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x11E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.887892][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x11E(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888112][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x11E(5), publisher_id: 0x11E(3)
+[micro_xrce_agent-1] [35m[1795084216.888175][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x125(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888189][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x125(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888423][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x125(5), publisher_id: 0x125(3)
+[micro_xrce_agent-1] [35m[1795084216.888485][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x122(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888501][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x122(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888728][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x122(5), publisher_id: 0x122(3)
+[micro_xrce_agent-1] [35m[1795084216.888792][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x126(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.888808][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x126(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889050][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x126(5), publisher_id: 0x126(3)
+[micro_xrce_agent-1] [35m[1795084216.889112][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x128(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889130][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x128(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889367][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x128(5), publisher_id: 0x128(3)
+[micro_xrce_agent-1] [35m[1795084216.889434][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x12C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889458][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x12C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889726][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x12C(5), publisher_id: 0x12C(3)
+[micro_xrce_agent-1] [35m[1795084216.889797][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x131(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.889810][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x131(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.890087][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x131(5), publisher_id: 0x131(3)
+[micro_xrce_agent-1] [35m[1795084216.890358][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x136(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.890376][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x136(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.890606][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x136(5), publisher_id: 0x136(3)
+[micro_xrce_agent-1] [35m[1795084216.890670][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x00D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.890681][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x00D(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.890933][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x00D(5), publisher_id: 0x00D(3)
+[micro_xrce_agent-1] [35m[1795084216.891003][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x149(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.891015][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x149(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.891275][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x149(5), publisher_id: 0x149(3)
+[micro_xrce_agent-1] [35m[1795084216.891419][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x08A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.891454][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x08A(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.891844][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x08A(5), publisher_id: 0x08A(3)
+[micro_xrce_agent-1] [35m[1795084216.891933][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x14C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.891946][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x14C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892251][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x14C(5), publisher_id: 0x14C(3)
+[micro_xrce_agent-1] [35m[1795084216.892318][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x079(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892329][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x079(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892576][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x079(5), publisher_id: 0x079(3)
+[micro_xrce_agent-1] [35m[1795084216.892638][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x01D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892647][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x01D(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892890][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x01D(5), publisher_id: 0x01D(3)
+[micro_xrce_agent-1] [35m[1795084216.892954][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x14A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.892964][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x14A(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.893190][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x14A(5), publisher_id: 0x14A(3)
+[micro_xrce_agent-1] [35m[1795084216.893244][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x08C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.893254][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x08C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795084216.893492][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x08C(5), publisher_id: 0x08C(3)
+[micro_xrce_agent-1] [35m[1795084216.894149][m info     | [34mProxyClient.cpp   [m | [37mcreate_replier          [m | [32mreplier created[m        | client_key: 0x00000001, requester_id: 0x800(7), participant_id: 0x001(1)
+[px4ctrl_node-8] [WARN] [1795084216.894498165] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [ERROR] [1795084216.947136839] [px4ctrl]: PX4 control latched safety fault: px4_local_position_reset_too_large
+[px4ctrl_node-8] [WARN] [1795084216.953844069] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.013927216] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.133861087] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.193864271] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.253892645] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084217.313877411] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.393855086] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.433863327] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.453917057] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.513879218] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.593873656] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.773889830] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.813885987] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.853866312] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.913853714] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.001] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084217.929212491] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [ERROR] [1795084217.929233142] [drone_0_ego_planner_node]: Rejecting stale/invalid odometry: age -1795084205.449 s, speed 0.00 m/s
+[px4ctrl_node-8] [WARN] [1795084217.933850901] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.024193780] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.033862182] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.073924338] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.093883287] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.141352842] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.153881356] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.211845936] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.213862751] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.261369400] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.273852933] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084218.333093326] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.333898116] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.401403042] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.413881807] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.491639815] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.493839686] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [37;1m2026-11-19 18:30:18.748 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[px4ctrl_node-8] [WARN] [1795084218.748347027] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.753867431] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.826811940] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.833864939] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.894643840] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.913858440] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.945163857] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084218.953853040] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.075506106] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.093883520] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.189798354] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.193885059] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.225955084] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.235628806] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.279509688] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.284042455] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084219.420116476] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.432723546] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[fastlio2_px4_odom_bridge_node-6] [WARN] [1795084219.456355641] [fastlio2_px4_odom_bridge]: Skipping FAST-LIO sample outside the time window: age -1795084205.412 s
+[px4ctrl_node-8] [WARN] [1795084219.456990071] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.472713895] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.492068013] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.492777221] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.537122122] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.552705155] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.612820303] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [37;1m2026-11-19 18:30:19.613 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[px4ctrl_node-8] [WARN] [1795084219.632698489] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.787265494] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.792705226] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.870393989] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.872703499] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.918072739] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.932690822] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084219.995360270] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.012683363] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.040650708] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [ERROR] [1795084220.040977482] [drone_0_ego_planner_node]: Rejecting stale/invalid odometry: age -1795084205.442 s, speed 0.01 m/s
+[px4ctrl_node-8] [WARN] [1795084220.052720523] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.140132991] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.152724529] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.200820129] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.212694532] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.286352336] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.292721727] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.389290071] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084220.392692537] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.440267856] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.452891488] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.480770597] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.492698297] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.557357290] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.572672647] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.607850827] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.612674957] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.653361155] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.672722816] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.699924760] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.712738953] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.760935425] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.772695500] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.803824880] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.812717890] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.857598849] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.872692262] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.895619144] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.912706095] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.961202446] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084220.972689304] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.047082916] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.052746525] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.120721276] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.132691891] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.250261977] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.252697509] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084221.427592433] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.432720851] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.548465055] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.552711950] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.631198468] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.632685482] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.781207051] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.792678487] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.882505920] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084221.892693849] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.061509818] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.072702817] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.160748018] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.172709974] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.217960786] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.232727132] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.263614735] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.272750047] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.331374841] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.332708619] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.400948865] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795084222.412700210] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.441694115] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 0.000] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795084222.452707765] [px4ctrl]: Compensating PX4 local reset: delta [-0.033 0.025 0.000] m, heading 0.000 rad
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[px4ctrl_node-8] [INFO] [1795084222.532433545] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [micro_xrce_agent-1]: process has died [pid 27087, exit code -2, cmd 'MicroXRCEAgent udp4 -p 8888'].
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795084222.532433495] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[traj_server-5] [INFO] [1795084222.532434326] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-4] [INFO] [1795084222.532440709] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-3] [INFO] [1795084222.532446771] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [px4ctrl_node-8]: sending signal 'SIGINT' to process[px4ctrl_node-8]
+[INFO] [ego_position_command_adapter-7]: sending signal 'SIGINT' to process[ego_position_command_adapter-7]
+[INFO] [fastlio2_px4_odom_bridge_node-6]: sending signal 'SIGINT' to process[fastlio2_px4_odom_bridge_node-6]
+[INFO] [traj_server-5]: sending signal 'SIGINT' to process[traj_server-5]
+[INFO] [static_transform_publisher-4]: sending signal 'SIGINT' to process[static_transform_publisher-4]
+[INFO] [static_transform_publisher-3]: sending signal 'SIGINT' to process[static_transform_publisher-3]
+[INFO] [ego_planner_node-2]: sending signal 'SIGINT' to process[ego_planner_node-2]
+[ego_planner_node-2] [INFO] [1795084222.532643404] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [static_transform_publisher-4]: process has died [pid 27090, exit code -2, cmd '/opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --frame-id body --child-frame-id livox_frame --ros-args -r __node:=mid360_body_to_livox_frame --params-file /tmp/launch_params_4vscv587'].
+[ERROR] [traj_server-5]: process has died [pid 27097, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/ego_planner/lib/ego_planner/traj_server --ros-args -r __node:=drone_0_traj_server --params-file /tmp/launch_params_4iemln12 -r position_cmd:=drone_0_planning/pos_cmd -r planning/bspline:=drone_0_planning/bspline'].
+[px4ctrl_node-8] [INFO] [1795084222.535705980] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ego_position_command_adapter-7] Traceback (most recent call last):
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 202, in main
+[ego_position_command_adapter-7]     rclpy.spin(node)
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[ego_position_command_adapter-7]     executor.spin_once()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795084222.536464768] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ego_position_command_adapter-7]     self._spin_once_impl(timeout_sec)
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[ego_position_command_adapter-7]     handler, entity, node = self.wait_for_ready_callbacks(
+[ego_position_command_adapter-7]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[ego_position_command_adapter-7]     return next(self._cb_iter)
+[ego_position_command_adapter-7]            ^^^^^^^^^^^^^^^^^^^
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[ego_position_command_adapter-7]     wait_set.wait(timeout_nsec)
+[ego_position_command_adapter-7] KeyboardInterrupt
+[ego_position_command_adapter-7] 
+[ego_position_command_adapter-7] During handling of the above exception, another exception occurred:
+[ego_position_command_adapter-7] 
+[ego_position_command_adapter-7] Traceback (most recent call last):
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 209, in <module>
+[ego_position_command_adapter-7]     main()
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 204, in main
+[ego_position_command_adapter-7]     node.destroy_node()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1958, in destroy_node
+[ego_position_command_adapter-7]     self.destroy_subscription(self._subscriptions[0])
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1854, in destroy_subscription
+[ERROR] [static_transform_publisher-3]: process has died [pid 27089, exit code -2, cmd '/opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --x 0 --y 0 --z -0.08 --yaw 3.141592653589793 --pitch 0 --roll 0 --frame-id body --child-frame-id base_link --ros-args -r __node:=mid360_body_to_base_link --params-file /tmp/launch_params_yzm9cni2'].
+[ego_position_command_adapter-7]     subscription.destroy()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/subscription.py", line 101, in destroy
+[ego_position_command_adapter-7]     self.handle.destroy_when_not_in_use()
+[ego_position_command_adapter-7] KeyboardInterrupt
+[ERROR] [ego_position_command_adapter-7]: process has died [pid 27101, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter --ros-args -r __node:=ego_position_command_adapter --params-file /tmp/launch_params_f2qmrgyw'].
+[ERROR] [ego_planner_node-2]: process has died [pid 27088, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/ego_planner/lib/ego_planner/ego_planner_node --ros-args -r __node:=drone_0_ego_planner_node --params-file /tmp/launch_params_b1yzv_zh --params-file /tmp/launch_params_6_x3mgzl --params-file /tmp/launch_params_oxoxifts --params-file /tmp/launch_params_xc9c2q_h --params-file /tmp/launch_params_9ktlnx_4 --params-file /tmp/launch_params_3v07qodt --params-file /tmp/launch_params_zd9aqj7t --params-file /tmp/launch_params_pkfr0rih --params-file /tmp/launch_params_tpbyk23j --params-file /tmp/launch_params_hs29cx_q --params-file /tmp/launch_params_jx5_qey9 --params-file /tmp/launch_params_k0ojmmwd --params-file /tmp/launch_params_iu17pu5d --params-file /tmp/launch_params_8_3ee2ap --params-file /tmp/launch_params_yskb2d4_ --params-file /tmp/launch_params_kxz89yd1 --params-file /tmp/launch_params_q_mblds7 --params-file /tmp/launch_params_q08zvd0l --params-file /tmp/launch_params_do79vh2l --params-file /tmp/launch_params_htn4au4_ --params-file /tmp/launch_params_9z2bg3ep --params-file /tmp/launch_params_jwkuhg2t --params-file /tmp/launch_params_mlumc2_4 --params-file /tmp/launch_params__og1i9la --params-file /tmp/launch_params_3x8wmnrw --params-file /tmp/launch_params_fi6vemzs --params-file /tmp/launch_params_5w91qy4r --params-file /tmp/launch_params_xuulrbx9 --params-file /tmp/launch_params__vefp1rg --params-file /tmp/launch_params_dvhlsrn3 --params-file /tmp/launch_params_fs4iwc8l --params-file /tmp/launch_params_uk2myvea --params-file /tmp/launch_params_xfbe_pbn --params-file /tmp/launch_params_3gakuf_l --params-file /tmp/launch_params_s3_5jr7f --params-file /tmp/launch_params_2vwdu5fd --params-file /tmp/launch_params_rn4gv3i2 --params-file /tmp/launch_params_55otedru --params-file /tmp/launch_params_dx18fzlz --params-file /tmp/launch_params_orzez317 --params-file /tmp/launch_params_f3lftvsv --params-file /tmp/launch_params_ophgnc_d --params-file /tmp/launch_params_t6op5cvq --params-file /tmp/launch_params__bnu9k8y --params-file /tmp/launch_params_slavjdtd --params-file /tmp/launch_params_7p2hkdj_ --params-file /tmp/launch_params_tb6k8glz --params-file /tmp/launch_params_9qshkdvz --params-file /tmp/launch_params_qd54msjo --params-file /tmp/launch_params_4pw0lq0f --params-file /tmp/launch_params_d5kavw4h --params-file /tmp/launch_params_kmkhkyop --params-file /tmp/launch_params_b50h41dw --params-file /tmp/launch_params_iulha8l7 --params-file /tmp/launch_params_shjzi5ey --params-file /tmp/launch_params_7_s56l45 --params-file /tmp/launch_params_cleoljvl --params-file /tmp/launch_params_txzgyo3f --params-file /tmp/launch_params_opvs0727 --params-file /tmp/launch_params_j4ttct3m --params-file /tmp/launch_params_b5i3exo9 --params-file /tmp/launch_params_y5psybwf --params-file /tmp/launch_params_0a3_4i2i --params-file /tmp/launch_params_j1y2zxvc --params-file /tmp/launch_params_4zthcto1 --params-file /tmp/launch_params_6gdxbmdy --params-file /tmp/launch_params_melmpa_m --params-file /tmp/launch_params_shvhqed2 --params-file /tmp/launch_params_mkkj_992 --params-file /tmp/launch_params_4h_lbf3x --params-file /tmp/launch_params_bgpn7ky4 --params-file /tmp/launch_params_p_0al1tw -r odom_world:=/fastlio2/lio_odom -r planning/bspline:=drone_0_planning/bspline -r planning/data_display:=drone_0_planning/data_display -r planning/broadcast_bspline_from_planner:=/broadcast_bspline -r planning/broadcast_bspline_to_planner:=/broadcast_bspline -r goal_point:=drone_0_plan_vis/goal_point -r global_list:=drone_0_plan_vis/global_list -r init_list:=drone_0_plan_vis/init_list -r optimal_list:=drone_0_plan_vis/optimal_list -r a_star_list:=drone_0_plan_vis/a_star_list -r grid_map/odom:=/fastlio2/lio_odom -r grid_map/cloud:=/fastlio2/world_cloud -r grid_map/occupancy_inflate:=drone_0_grid/grid_map/occupancy_inflate'].
+[INFO] [fastlio2_px4_odom_bridge_node-6]: process has finished cleanly [pid 27100]
+[INFO] [px4ctrl_node-8]: process has finished cleanly [pid 27102]

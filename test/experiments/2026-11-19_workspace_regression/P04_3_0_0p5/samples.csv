@@ -1,0 +1,1 @@
+t_from_trajectory_start_s,px4_x_n,px4_y_e,px4_z_d,px4_vx_n,px4_vy_e,px4_vz_d,ref_x_n,ref_y_e,ref_z_d,ref_vx_n,ref_vy_e,ref_vz_d,error_n,error_e,error_d,tracking_error_3d_m,tracking_error_xy_m,actual_speed_mps,reference_speed_mps,armed,offboard,failsafe

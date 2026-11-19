@@ -157,7 +157,7 @@ ros2 run px4ctrl px4ctrl_node --ros-args --params-file /path/to/your.yaml
 
 # 或用现成的裸 X500 SITL 配置
 ros2 run px4ctrl px4ctrl_node --ros-args \
-  --params-file /home/zone/px4ctrl_ws-main/src/px4ctrl/config/px4ctrl_x500.yaml
+  --params-file "$(ros2 pkg prefix --share px4ctrl)/config/px4ctrl_airborne_takeover.yaml"
 ```
 
 也可以用 launch（会顺带起 Gazebo `/clock` 桥接）：
@@ -626,7 +626,7 @@ yaw_setpoint     += yaw_rate_setpoint · dt
 | 文件 | 用途 |
 |---|---|
 | `config/px4ctrl_default.yaml` | **通用模板**。新机型从这里改 |
-| `config/px4ctrl_x500.yaml` | 裸 Gazebo X500 的 SITL 配置，被 `eight` 包引用 |
+| `config/px4ctrl_airborne_takeover.yaml` | 裸 Gazebo X500 的 SITL 配置，供 `controller_only.launch.py` 使用 |
 
 ### `px4ctrl_default.yaml` 的关键项
 
@@ -641,12 +641,13 @@ auto_takeoff_altitude_m: 0.50
 hover_thrust: 0.60                # ← 占位值！必须实测标定
 ```
 
-### `px4ctrl_x500.yaml` 的关键项
+### `px4ctrl_airborne_takeover.yaml` 的关键项
 
 ```yaml
 use_sim_time: true
 entry_mode: airborne_takeover    # 接管已在空中的机子
 auto_takeoff_altitude_m: 0.0     # 不自己起飞
+minimum_takeoff_altitude_m: 0.0
 start_offboard_on_first_command: false   # 不抢外部的控制权
 arm_on_first_command: false
 require_takeover_permission: true        # 等 eight 包批准

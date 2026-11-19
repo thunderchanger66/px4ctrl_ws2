@@ -7,6 +7,7 @@ import time
 
 import rclpy
 from geometry_msgs.msg import PoseStamped
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from std_msgs.msg import Empty, Float64
@@ -26,6 +27,8 @@ def main(args=None):
     parser.add_argument('--manual-yaw-topic', default='/px4ctrl/manual_yaw')
     parser.add_argument('--clear-manual-yaw-topic', default='/px4ctrl/clear_manual_yaw')
     parser.add_argument('--wait-timeout', type=float, default=30.0)
+    parser.add_argument('--require-subscriber-node',
+                        help='wait for this planner node on the goal topic')
     options = parser.parse_args(args)
     if options.auto_yaw and options.yaw_deg is not None:
         parser.error('use either yaw_deg or --auto-yaw, not both')
@@ -45,9 +48,16 @@ def main(args=None):
     clear_yaw_publisher = node.create_publisher(Empty, options.clear_manual_yaw_topic, 10)
     deadline = time.monotonic() + options.wait_timeout
     try:
-        while rclpy.ok() and publisher.get_subscription_count() == 0:
+        while rclpy.ok():
+            endpoints = node.get_subscriptions_info_by_topic(options.topic)
+            matching_planner = (not options.require_subscriber_node or
+                                any(e.node_name == options.require_subscriber_node
+                                    for e in endpoints))
+            required_count = max(1, len(endpoints)) if options.require_subscriber_node else 1
+            if matching_planner and publisher.get_subscription_count() >= required_count:
+                break
             if time.monotonic() >= deadline:
-                raise RuntimeError(f'no EGO goal subscriber found on {options.topic}')
+                raise RuntimeError(f'goal subscribers did not match on {options.topic}')
             rclpy.spin_once(node, timeout_sec=0.1)
 
         if options.yaw_deg is not None:
@@ -77,6 +87,8 @@ def main(args=None):
             publisher.publish(msg)
             rclpy.spin_once(node, timeout_sec=0.1)
             time.sleep(0.05)
+        if not publisher.wait_for_all_acked(Duration(seconds=2)):
+            raise RuntimeError(f'goal transmission was not acknowledged on {options.topic}')
         heading = (f'fixed PX4 NED heading {options.yaw_deg:g} deg'
                    if options.yaw_deg is not None else 'EGO path auto-yaw')
         print(f'Sent EGO goal ({options.x:g}, {options.y:g}, {options.z:g}) m '

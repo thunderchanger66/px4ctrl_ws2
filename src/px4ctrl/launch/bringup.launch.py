@@ -92,7 +92,7 @@ def generate_launch_description():
             package='fastlio2_px4_odom_bridge',
             executable='fastlio2_px4_odom_bridge_node',
             name='fastlio2_px4_odom_bridge', output='screen',
-            parameters=[LaunchConfiguration('odom_bridge_params')],
+            parameters=[LaunchConfiguration('odom_bridge_params'), {'use_sim_time': use_sim_time}],
             condition=IfCondition(start_odom_bridge)),
         Node(
             package='px4ctrl', executable='ego_position_command_adapter',
@@ -108,11 +108,13 @@ def generate_launch_description():
             }]),
         Node(
             package='px4ctrl', executable='px4ctrl_node', name='px4ctrl',
-            output='screen', parameters=[LaunchConfiguration('px4ctrl_params')]),
+            output='screen', parameters=[LaunchConfiguration('px4ctrl_params'),
+                                         {'use_sim_time': use_sim_time}]),
         ExecuteProcess(
             cmd=['ros2', 'run', 'px4ctrl', 'takeoff',
                  '--altitude', takeoff_altitude,
                  '--wait-timeout', takeoff_timeout,
+                 '--use-sim-time', use_sim_time,
                  '--require-ev-fusion'],
             name='px4ctrl_takeoff',
             output='screen',

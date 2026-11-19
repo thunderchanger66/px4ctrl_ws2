@@ -11,8 +11,8 @@ import time
 
 
 ROOT = Path("/home/thunder/GRA_1")
-WS = ROOT / "px4ctrl_ws2"
-DEFAULT_OUT = WS / "test/experiments/2026-11-13_px4_ned_hover_start_five_point"
+WS = Path(__file__).resolve().parents[2]
+DEFAULT_OUT = WS / "test/experiments" / time.strftime("%Y-%m-%d_%H%M%S_px4_ned_hover")
 OBSERVER = WS / "test/experiments/px4_ned_hover_observer.py"
 LANDER = WS / "test/experiments/land_vehicle.py"
 PX4_LAUNCH = ROOT / "mid360_ws/src/mid360_gazebo_harmonic/launch/mid360_posix_sitl.launch.py"
@@ -179,7 +179,8 @@ def trial(case, output):
             return result
         result["hover_confirmed_before_goal"] = True
         goal_command = (SOURCE +
-            f"ros2 run px4ctrl manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30")
+            f"ros2 run px4ctrl manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30 "
+            "--require-subscriber-node drone_0_ego_planner_node")
         result["goal_command_exit_code"] = run_command(
             goal_command, out / "manual_goal.log", WS, 60)
         retry_exit_codes = []
@@ -201,10 +202,14 @@ def trial(case, output):
                     goal_command, out / f"manual_goal_retry_{attempt+1}.log", WS, 60))
         result["goal_retry_exit_codes"] = retry_exit_codes
         result["goal_retry_count"] = len(retry_exit_codes)
-        try:
-            result["observer_exit_code"] = observer.wait(timeout=200)
-        except subprocess.TimeoutExpired:
-            result["outcome"] = "observer_process_timeout"
+        if "NED tracking window started from hover" not in observer_log.read_text(
+                encoding="utf-8", errors="replace"):
+            result["outcome"] = "no_trajectory_reference"
+        else:
+            try:
+                result["observer_exit_code"] = observer.wait(timeout=200)
+            except subprocess.TimeoutExpired:
+                result["outcome"] = "observer_process_timeout"
         summary = out / "samples.json"
         if summary.exists():
             result.update(json.loads(summary.read_text(encoding="utf-8")))
@@ -248,7 +253,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--cases", help="Comma-separated case names")
+    parser.add_argument("--ros-domain-id", type=int, default=81,
+                        help="Dedicated DDS domain for the SITL stack (default: 81)")
     args = parser.parse_args()
+    if not 1 <= args.ros_domain_id <= 101:
+        parser.error("--ros-domain-id must be in [1, 101]")
+    os.environ["ROS_DOMAIN_ID"] = str(args.ros_domain_id)
+    os.environ["ROS_AUTOMATIC_DISCOVERY_RANGE"] = "LOCALHOST"
     output = args.output.resolve()
     if output.exists() and any(output.iterdir()):
         parser.error(f"output directory must be new or empty: {output}")
@@ -277,6 +288,7 @@ def main():
                 "landing_confirmed": False} for c in selected[i+1:])
             break
     summary = {"measurement_frame": "PX4 local NED only", "cases": results,
+        "ros_domain_id": args.ros_domain_id,
         "complete": len(results) == len(selected) and all(
             x.get("outcome") != "not_run_previous_stack_shutdown_unconfirmed" for x in results),
         "selected_case_names": [c[0] for c in selected]}

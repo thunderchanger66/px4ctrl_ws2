@@ -1,0 +1,11 @@
+# Bare X500 SITL only. An external supervisor owns arming and the mode switch.
+px4ctrl:
+  ros__parameters:
+    use_sim_time: true
+    entry_mode: airborne_takeover
+    start_offboard_on_first_command: false
+    arm_on_first_command: false
+    require_takeover_permission: true
+    auto_takeoff_altitude_m: 0.0
+    minimum_takeoff_altitude_m: 0.0
+    hover_thrust: 0.60

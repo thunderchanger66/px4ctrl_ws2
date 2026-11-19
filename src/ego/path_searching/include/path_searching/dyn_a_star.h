@@ -34,12 +34,14 @@ struct GridNode
     GridNodePtr cameFrom{nullptr};
 };
 
-class NodeComparator
+struct OpenEntry
 {
-public:
-    bool operator()(GridNodePtr node1, GridNodePtr node2)
+    GridNodePtr node;
+    double priority;
+
+    bool operator<(const OpenEntry& other) const
     {
-        return node1->fScore > node2->fScore;
+        return priority > other.priority;
     }
 };
 
@@ -88,7 +90,7 @@ class AStar
     // A contiguous pool avoids one million individual allocations for the
     // default 100^3 search volume and keeps node accesses cache-friendly.
     std::vector<GridNode> grid_nodes_;
-    std::priority_queue<GridNodePtr, std::vector<GridNodePtr>, NodeComparator> openSet_;
+    std::priority_queue<OpenEntry> openSet_;
 
     int rounds_{0};
 
@@ -119,16 +121,14 @@ inline bool AStar::Coord2Index(const Eigen::Vector3d& pt, Eigen::Vector3i& idx) 
 {
     if (!pt.allFinite() || !std::isfinite(step_size_) || step_size_ <= 0.0)
         return false;
-    idx = ((pt - center_) * inv_step_size_ + Eigen::Vector3d(0.5, 0.5, 0.5)).cast<int>() + CENTER_IDX_;
-
-    if (idx(0) < 0 || idx(0) >= POOL_SIZE_(0) || idx(1) < 0 || idx(1) >= POOL_SIZE_(1) || idx(2) < 0 || idx(2) >=
-        POOL_SIZE_(2))
+    const Eigen::Array3d cell = ((pt - center_).array() * inv_step_size_ + 0.5).floor()
+        + CENTER_IDX_.cast<double>().array();
+    if (!cell.allFinite() || (cell < 0).any() ||
+        (cell >= POOL_SIZE_.cast<double>().array()).any())
     {
-        RCLCPP_ERROR(rclcpp::get_logger("Coord2Index"), "Ran out of pool, index=%d %d %d, POOL_SIZE=%d %d %d", idx(0),
-                     idx(1), idx(2), POOL_SIZE_(0), POOL_SIZE_(1), POOL_SIZE_(2));
         return false;
     }
-
+    idx = cell.cast<int>().matrix();
     return true;
 };
 

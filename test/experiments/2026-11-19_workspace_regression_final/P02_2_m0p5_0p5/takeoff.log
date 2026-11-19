@@ -1,0 +1,4 @@
+[37;1m2026-11-19 18:34:43.787 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-11-19 18:34:48.898 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+[37;1m2026-11-19 18:34:50.090 [31;1m[[37;1mRTPS_READER_HISTORY[31;1m Error] [37mChange payload size of '104' bytes is larger than the history payload size of '95' bytes and cannot be resized.[34;1m -> Function [36mcan_change_be_added_nts[m
+PX4Ctrl takeoff complete: climbed 0.5 m and settled.

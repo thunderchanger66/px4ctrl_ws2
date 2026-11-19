@@ -35,7 +35,7 @@ install(PROGRAMS scripts/takeoff.py
   DESTINATION lib/${PROJECT_NAME} RENAME takeoff)
 install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 
-if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/test_px4ctrl_integration.py")
+if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   ament_add_pytest_test(test_px4ctrl_integration
     test/test_px4ctrl_integration.py TIMEOUT 60)

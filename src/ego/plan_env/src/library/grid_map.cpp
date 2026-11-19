@@ -201,9 +201,11 @@ void GridMap::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
                              odom->header.frame_id.c_str(), mp_.frame_id_.c_str());
         return;
     }
-    md_.lidar_pos_(0) = odom->pose.pose.position.x;
-    md_.lidar_pos_(1) = odom->pose.pose.position.y;
-    md_.lidar_pos_(2) = odom->pose.pose.position.z;
+    const auto& p = odom->pose.pose.position;
+    const Eigen::Vector3d position(p.x, p.y, p.z);
+    if (!position.allFinite() || !isInMap(position))
+        return;
+    md_.lidar_pos_ = position;
 
     md_.has_odom_ = true;
 }
@@ -263,8 +265,9 @@ void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr&
         clear_min = clear_min.cwiseMin(md_.last_cloud_min_idx_);
         clear_max = clear_max.cwiseMax(md_.last_cloud_max_idx_);
     }
-    clear_min -= Eigen::Vector3i::Constant(inflate_steps);
-    clear_max += Eigen::Vector3i::Constant(inflate_steps);
+    const Eigen::Vector3i padding(inflate_steps, inflate_steps, 1);
+    clear_min -= padding;
+    clear_max += padding;
     boundIndex(clear_min);
     boundIndex(clear_max);
     for (int x = clear_min.x(); x <= clear_max.x(); ++x)
@@ -303,9 +306,12 @@ void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr&
 
     // add virtual ceiling to limit flight height
     // 添加虚拟天花板控制飞行高度
-    if (mp_.virtual_ceil_height_ > -0.5)
+    const double ceiling_cell = std::floor(
+        (mp_.virtual_ceil_height_ - mp_.map_origin_.z()) * mp_.resolution_inv_) - 1;
+    if (mp_.virtual_ceil_height_ > -0.5 && ceiling_cell >= 0 &&
+        ceiling_cell < mp_.map_voxel_num_.z())
     {
-        int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+        const int ceil_id = static_cast<int>(ceiling_cell);
         for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
             for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
             {
@@ -316,7 +322,7 @@ void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr&
 
 void GridMap::publishMap()
 {
-    if (map_pub_->get_subscription_count() <= 0)
+    if (!md_.cloud_window_initialized_ || map_pub_->get_subscription_count() == 0)
         return;
 
     pcl::PointXYZ pt;
@@ -363,7 +369,7 @@ void GridMap::publishMap()
 
 void GridMap::publishMapInflate(bool all_info)
 {
-    if (map_inf_pub_->get_subscription_count() <= 0)
+    if (!md_.cloud_window_initialized_ || map_inf_pub_->get_subscription_count() == 0)
         return;
 
     pcl::PointXYZ pt;

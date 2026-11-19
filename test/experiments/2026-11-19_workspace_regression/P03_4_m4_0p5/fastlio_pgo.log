@@ -1,0 +1,84 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-19-18-29-39-772051-thunder-24826
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [lio_node-1]: process started with pid [24896]
+[INFO] [pgo_node-2]: process started with pid [24897]
+[lio_node-1] [INFO] [1795084179.838427709] [fastlio2.lio_node]: LIO Node Started
+[lio_node-1] [INFO] [1795084179.838655205] [fastlio2.lio_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/fastlio2/share/fastlio2/config/lio.yaml
+[pgo_node-2] [INFO] [1795084179.865255948] [pgo.pgo_node]: PGO node started
+[pgo_node-2] [INFO] [1795084179.865464095] [pgo.pgo_node]: LOAD FROM YAML CONFIG PATH: /home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml
+[lio_node-1] [WARN] [1795084180.467166089] [fastlio2.lio_node]: FAST-LIO scan has no valid map constraints; suppressing odometry output
+[lio_node-1] Multi thread started 
+[pgo_node-2] [WARN] [1795084186.492031141] []: Messages of type 1 arrived out of order (will print only once)
+[pgo_node-2] [WARN] [1795084186.592971533] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084186.693704860] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084186.792558282] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084186.892392799] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084186.991750381] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.092539963] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.193735347] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.292722598] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.474340025] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.573021885] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.672660230] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.772689759] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.872592904] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084187.974623131] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.072555252] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.174772895] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.274384668] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.387436633] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.573455660] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.672620579] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.773427636] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.873243017] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084188.973021525] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.073011399] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.174061745] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.272736904] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.372891987] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.472522158] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.572681059] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.673132124] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.772764290] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.874782234] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084189.974422195] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.072963279] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.172901368] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.272942354] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.373418461] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.472507330] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.574114322] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.674597704] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.775930938] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.872593336] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084190.972571015] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084191.079485100] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084191.212632711] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084191.313210233] []: Messages of type 0 arrived out of order (will print only once)
+[pgo_node-2] [WARN] [1795084191.812940537] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084191.912315691] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.014366893] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.113134631] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.215165515] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.312561887] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.416725051] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.514828539] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.612759762] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.714272458] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.812344814] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084192.912626224] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084193.013182222] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084193.112554994] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084193.212554020] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084193.313019700] [pgo.pgo_node]: Received out of order message
+[pgo_node-2] [WARN] [1795084193.614643846] [pgo.pgo_node]: Received out of order message
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pgo_node-2]: sending signal 'SIGINT' to process[pgo_node-2]
+[INFO] [lio_node-1]: sending signal 'SIGINT' to process[lio_node-1]
+[lio_node-1] [INFO] [1795084194.333757178] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1795084194.333762508] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[pgo_node-2] [INFO] [1795084194.334729495] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[lio_node-1] [INFO] [1795084194.334878583] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [pgo_node-2]: process has finished cleanly [pid 24897]
+[lio_node-1] Rebuild thread terminated normally
+[INFO] [lio_node-1]: process has finished cleanly [pid 24896]

@@ -19,7 +19,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             "px4ctrl_params",
-            default_value=os.path.join(share, "config", "px4ctrl_x500.yaml"),
+            default_value=os.path.join(share, "config", "px4ctrl_airborne_takeover.yaml"),
         ),
         DeclareLaunchArgument("start_agent", default_value="false"),
         DeclareLaunchArgument("start_clock_bridge", default_value="true"),

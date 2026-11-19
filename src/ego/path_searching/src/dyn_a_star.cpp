@@ -1,4 +1,5 @@
 #include "path_searching/dyn_a_star.h"
+#include <chrono>
 
 using namespace std;
 using namespace Eigen;
@@ -147,7 +148,11 @@ bool AStar::ConvertToIndexAndAdjustStartEndPoints(Vector3d start_pt, Vector3d en
 
 bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_pt)
 {
-    rclcpp::Time time_1 = rclcpp::Clock().now();
+    gridPath_.clear();
+    if (!grid_map_ || !std::isfinite(step_size) || step_size <= 0.0 ||
+        !start_pt.allFinite() || !end_pt.allFinite())
+        return false;
+    const auto time_1 = std::chrono::steady_clock::now();
     ++rounds_;
 
     step_size_ = step_size;
@@ -167,8 +172,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
     GridNodePtr startPtr = nodeAt(start_idx);
     GridNodePtr endPtr = nodeAt(end_idx);
 
-    std::priority_queue<GridNodePtr, std::vector<GridNodePtr>, NodeComparator> empty;
-    openSet_.swap(empty);
+    openSet_ = {};
 
     GridNodePtr neighborPtr = nullptr;
     GridNodePtr current = nullptr;
@@ -179,7 +183,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
     startPtr->fScore = getHeu(startPtr, endPtr);
     startPtr->state = GridNode::OPENSET; //put start node in open set
     startPtr->cameFrom = nullptr;
-    openSet_.push(startPtr); //put start in open set
+    openSet_.push({startPtr, startPtr->fScore});
 
     endPtr->index = end_idx;
 
@@ -189,8 +193,11 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
     while (!openSet_.empty())
     {
         num_iter++;
-        current = openSet_.top();
+        const auto entry = openSet_.top();
         openSet_.pop();
+        current = entry.node;
+        if (current->state == GridNode::CLOSEDSET || entry.priority != current->fScore)
+            continue;
 
         // if ( num_iter < 10000 )
         //     cout << "current=" << current->index.transpose() << endl;
@@ -275,7 +282,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
                         neighborPtr->cameFrom = current;
                         neighborPtr->gScore = tentative_gScore;
                         neighborPtr->fScore = tentative_gScore + getHeu(neighborPtr, endPtr);
-                        openSet_.push(neighborPtr); //put neighbor in open set and record it.
+                        openSet_.push({neighborPtr, neighborPtr->fScore});
                     }
                     else if (tentative_gScore < neighborPtr->gScore)
                     {
@@ -283,10 +290,10 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
                         neighborPtr->cameFrom = current;
                         neighborPtr->gScore = tentative_gScore;
                         neighborPtr->fScore = tentative_gScore + getHeu(neighborPtr, endPtr);
+                        openSet_.push({neighborPtr, neighborPtr->fScore});
                     }
                 }
-        rclcpp::Time time_2 = rclcpp::Clock().now();
-        if ((time_2 - time_1).seconds() > 0.2)
+        if (std::chrono::steady_clock::now() - time_1 > std::chrono::milliseconds(200))
         {
             RCLCPP_WARN(rclcpp::get_logger("AstarSearch"),
                         "Failed in A star path searching !!! 0.2 seconds time limit exceeded.");
@@ -294,11 +301,11 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
         }
     }
 
-    rclcpp::Time time_2 = rclcpp::Clock().now();
-
-    if ((time_2 - time_1).seconds() > 0.1)
+    const double elapsed = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - time_1).count();
+    if (elapsed > 0.1)
         RCLCPP_WARN(rclcpp::get_logger("AstarSearch"),
-                "Time consume in A star path finding is %.3fs, iter=%d", (time_2 - time_1).seconds(), num_iter);
+                "Time consume in A star path finding is %.3fs, iter=%d", elapsed, num_iter);
 
     return false;
 }

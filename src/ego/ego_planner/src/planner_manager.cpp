@@ -126,9 +126,13 @@ namespace ego_planner
                 }
                 else
                 {
-                    Eigen::Vector3d horizen_dir = ((start_pt - local_target_pt).cross(Eigen::Vector3d(0, 0, 1))).
-                        normalized();
-                    Eigen::Vector3d vertical_dir = ((start_pt - local_target_pt).cross(horizen_dir)).normalized();
+                    const Eigen::Vector3d direction = (start_pt - local_target_pt) / dist;
+                    Eigen::Vector3d horizen_dir = direction.cross(Eigen::Vector3d::UnitZ());
+                    if (horizen_dir.squaredNorm() < 1e-12)
+                        horizen_dir = direction.unitOrthogonal();
+                    else
+                        horizen_dir.normalize();
+                    const Eigen::Vector3d vertical_dir = direction.cross(horizen_dir);
                     Eigen::Vector3d random_inserted_pt = (start_pt + local_target_pt) / 2 +
                         (((double)rand()) / RAND_MAX - 0.5) * (start_pt - local_target_pt).norm() * horizen_dir * 0.8 *
                         (-0.978 / (continous_failures_count_ + 0.989) + 0.989) +

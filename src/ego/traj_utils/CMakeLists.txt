@@ -59,4 +59,10 @@ install(DIRECTORY include/
 ament_export_targets(export_${PROJECT_NAME}_lib HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies} Eigen3 PCL)
 
+if(BUILD_TESTING)
+    find_package(ament_cmake_gtest REQUIRED)
+    ament_add_gtest(test_polynomial_traj test/test_polynomial_traj.cpp)
+    target_link_libraries(test_polynomial_traj ${PROJECT_NAME}_lib)
+endif()
+
 ament_package()
