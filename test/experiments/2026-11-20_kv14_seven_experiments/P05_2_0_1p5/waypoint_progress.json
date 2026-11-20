@@ -1,0 +1,26 @@
+{
+  "completed_waypoints": [
+    {
+      "index": 1,
+      "goal_lidar_m": [
+        2.0,
+        0.0,
+        1.5
+      ],
+      "arrival_time_from_hover_s": 5.150000000000002,
+      "px4_ned_goal_error_m": 0.16993105687957968,
+      "arrival_reference_ned_m": [
+        -8.955826125174931e-06,
+        1.9888592036361,
+        -1.4682507552522537
+      ],
+      "arrival_position_ned_m": [
+        -0.16952727735042572,
+        1.9854731559753418,
+        -1.4562205076217651
+      ]
+    }
+  ],
+  "active_waypoint_index": 1,
+  "route_length": 1
+}

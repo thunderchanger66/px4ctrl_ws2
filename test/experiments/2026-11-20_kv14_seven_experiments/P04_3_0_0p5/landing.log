@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/thunder/GRA_1/px4ctrl_ws2/test/experiments/land_vehicle.py", line 124, in <module>
+    main()
+  File "/home/thunder/GRA_1/px4ctrl_ws2/test/experiments/land_vehicle.py", line 116, in main
+    raise TimeoutError("PX4 did not confirm landed and disarmed before timeout")
+TimeoutError: PX4 did not confirm landed and disarmed before timeout

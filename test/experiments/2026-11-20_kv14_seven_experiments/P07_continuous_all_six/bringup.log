@@ -1,0 +1,1128 @@
+[INFO] [launch]: All log files can be found below /home/thunder/.ros/log/2026-11-20-17-36-25-358892-thunder-29987
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [micro_xrce_agent-1]: process started with pid [30112]
+[INFO] [ego_planner_node-2]: process started with pid [30113]
+[INFO] [static_transform_publisher-3]: process started with pid [30115]
+[INFO] [static_transform_publisher-4]: process started with pid [30121]
+[INFO] [traj_server-5]: process started with pid [30152]
+[INFO] [fastlio2_px4_odom_bridge_node-6]: process started with pid [30153]
+[INFO] [ego_position_command_adapter-7]: process started with pid [30154]
+[INFO] [px4ctrl_node-8]: process started with pid [30157]
+[micro_xrce_agent-1] [35m[1795167385.434307][m info     | [34mUDPv4AgentLinux.cpp[m | [37minit                    [m | [32mrunning...[m             | port: 8888
+[micro_xrce_agent-1] [35m[1795167385.434458][m info     | [34mRoot.cpp          [m | [37mset_verbose_level       [m | [32mlogger setup[m           | verbose_level: 4
+[static_transform_publisher-3] [INFO] [1795167385.467485833] [mid360_body_to_base_link]: Spinning until stopped - publishing transform
+[static_transform_publisher-3] translation: ('0.000000', '0.000000', '-0.080000')
+[static_transform_publisher-3] rotation: ('0.000000', '0.000000', '1.000000', '0.000000')
+[static_transform_publisher-3] from 'body' to 'base_link'
+[static_transform_publisher-4] [INFO] [1795167385.468763651] [mid360_body_to_livox_frame]: Spinning until stopped - publishing transform
+[static_transform_publisher-4] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-4] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-4] from 'body' to 'livox_frame'
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795167385.491654950] [fastlio2_px4_odom_bridge]: FAST-LIO odometry bridge: /fastlio2/lio_odom -> /fmu/in/vehicle_visual_odometry
+[ego_position_command_adapter-7] [INFO] [1795167385.777632381] [ego_position_command_adapter]: Waiting for FAST-LIO odometry and valid PX4 local position to align lidar origin
+[ego_planner_node-2] [INFO] [1795167385.824191751] [drone_0_ego_planner_node]: EGO goal execution is gated until px4ctrl reports stable tracking
+[ego_planner_node-2] [ERROR] [1795167385.831345788] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[traj_server-5] [WARN] [1795167386.489006936] [drone_0_traj_server]: [Traj server]: ready.
+[micro_xrce_agent-1] [35m[1795167386.640428][m info     | [34mRoot.cpp          [m | [37mcreate_client           [m | [32mcreate[m                 | client_key: 0x00000001, session_id: 0x81
+[micro_xrce_agent-1] [35m[1795167386.640459][m info     | [34mSessionManager.hpp[m | [37mestablish_session       [m | [32msession established[m    | client_key: 0x00000001, address: 127.0.0.1:59327
+[micro_xrce_agent-1] [35m[1795167386.643352][m info     | [34mProxyClient.cpp   [m | [37mcreate_participant      [m | [32mparticipant created[m    | client_key: 0x00000001, participant_id: 0x001(1)
+[ego_planner_node-2] [FSM]: state: INIT
+[ego_planner_node-2] no odom.
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: INIT
+[ego_planner_node-2] no odom.
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167387.884251831] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [WARN] [1795167388.106762064] [drone_0_ego_planner_node]: Ignoring world cloud until a valid odometry sample is available
+[ego_planner_node-2] [FSM]: from INIT to WAIT_TARGET
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[micro_xrce_agent-1] [35m[1795167391.821383][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x800(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.821433][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x800(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.822478][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x800(6), subscriber_id: 0x800(4)
+[micro_xrce_agent-1] [35m[1795167391.822831][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x801(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.822858][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x801(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823156][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x801(6), subscriber_id: 0x801(4)
+[micro_xrce_agent-1] [35m[1795167391.823249][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x802(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823260][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x802(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823473][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x802(6), subscriber_id: 0x802(4)
+[micro_xrce_agent-1] [35m[1795167391.823551][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x803(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823561][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x803(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823763][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x803(6), subscriber_id: 0x803(4)
+[micro_xrce_agent-1] [35m[1795167391.823843][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x804(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.823860][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x804(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824073][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x804(6), subscriber_id: 0x804(4)
+[micro_xrce_agent-1] [35m[1795167391.824155][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x805(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824171][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x805(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824400][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x805(6), subscriber_id: 0x805(4)
+[micro_xrce_agent-1] [35m[1795167391.824482][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x806(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824492][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x806(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824707][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x806(6), subscriber_id: 0x806(4)
+[micro_xrce_agent-1] [35m[1795167391.824791][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x807(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.824802][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x807(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825020][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x807(6), subscriber_id: 0x807(4)
+[micro_xrce_agent-1] [35m[1795167391.825093][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x808(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825111][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x808(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825344][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x808(6), subscriber_id: 0x808(4)
+[micro_xrce_agent-1] [35m[1795167391.825449][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x809(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825492][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x809(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825736][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x809(6), subscriber_id: 0x809(4)
+[micro_xrce_agent-1] [35m[1795167391.825836][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.825848][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80A(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.826103][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80A(6), subscriber_id: 0x80A(4)
+[micro_xrce_agent-1] [35m[1795167391.826223][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.826232][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80B(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.826474][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80B(6), subscriber_id: 0x80B(4)
+[micro_xrce_agent-1] [35m[1795167391.826563][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.826573][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80C(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.826875][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80C(6), subscriber_id: 0x80C(4)
+[micro_xrce_agent-1] [35m[1795167391.826992][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.827012][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80D(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.827244][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80D(6), subscriber_id: 0x80D(4)
+[micro_xrce_agent-1] [35m[1795167391.827378][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.827395][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80E(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.827677][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80E(6), subscriber_id: 0x80E(4)
+[micro_xrce_agent-1] [35m[1795167391.827811][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x80F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.827824][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x80F(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828040][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x80F(6), subscriber_id: 0x80F(4)
+[micro_xrce_agent-1] [35m[1795167391.828110][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x810(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828125][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x810(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828392][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x810(6), subscriber_id: 0x810(4)
+[micro_xrce_agent-1] [35m[1795167391.828484][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x811(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828495][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x811(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828732][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x811(6), subscriber_id: 0x811(4)
+[micro_xrce_agent-1] [35m[1795167391.828817][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x812(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.828827][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x812(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829036][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x812(6), subscriber_id: 0x812(4)
+[micro_xrce_agent-1] [35m[1795167391.829112][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x813(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829127][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x813(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829356][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x813(6), subscriber_id: 0x813(4)
+[micro_xrce_agent-1] [35m[1795167391.829433][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x814(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829442][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x814(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829673][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x814(6), subscriber_id: 0x814(4)
+[micro_xrce_agent-1] [35m[1795167391.829758][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x815(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.829769][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x815(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830001][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x815(6), subscriber_id: 0x815(4)
+[micro_xrce_agent-1] [35m[1795167391.830079][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x816(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830094][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x816(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830327][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x816(6), subscriber_id: 0x816(4)
+[micro_xrce_agent-1] [35m[1795167391.830404][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x817(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830414][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x817(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830629][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x817(6), subscriber_id: 0x817(4)
+[micro_xrce_agent-1] [35m[1795167391.830703][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x818(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830713][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x818(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.830925][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x818(6), subscriber_id: 0x818(4)
+[micro_xrce_agent-1] [35m[1795167391.830992][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x819(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831001][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x819(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831229][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x819(6), subscriber_id: 0x819(4)
+[micro_xrce_agent-1] [35m[1795167391.831302][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831312][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81A(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831528][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81A(6), subscriber_id: 0x81A(4)
+[micro_xrce_agent-1] [35m[1795167391.831596][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831606][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81B(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831826][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81B(6), subscriber_id: 0x81B(4)
+[micro_xrce_agent-1] [35m[1795167391.831898][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.831908][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81C(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832122][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81C(6), subscriber_id: 0x81C(4)
+[micro_xrce_agent-1] [35m[1795167391.832195][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832206][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81D(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832434][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81D(6), subscriber_id: 0x81D(4)
+[micro_xrce_agent-1] [35m[1795167391.832514][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832524][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81E(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832743][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81E(6), subscriber_id: 0x81E(4)
+[micro_xrce_agent-1] [35m[1795167391.832812][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x81F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.832821][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x81F(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833034][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x81F(6), subscriber_id: 0x81F(4)
+[micro_xrce_agent-1] [35m[1795167391.833104][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x820(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833113][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x820(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833351][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x820(6), subscriber_id: 0x820(4)
+[micro_xrce_agent-1] [35m[1795167391.833439][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x821(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833451][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x821(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833702][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x821(6), subscriber_id: 0x821(4)
+[micro_xrce_agent-1] [35m[1795167391.833778][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x822(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.833788][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x822(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834013][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x822(6), subscriber_id: 0x822(4)
+[micro_xrce_agent-1] [35m[1795167391.834083][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x823(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834093][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x823(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834312][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x823(6), subscriber_id: 0x823(4)
+[micro_xrce_agent-1] [35m[1795167391.834401][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x824(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834416][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x824(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834698][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x824(6), subscriber_id: 0x824(4)
+[micro_xrce_agent-1] [35m[1795167391.834773][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x825(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.834784][m info     | [34mProxyClient.cpp   [m | [37mcreate_subscriber       [m | [32msubscriber created[m     | client_key: 0x00000001, subscriber_id: 0x825(4), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835013][m info     | [34mProxyClient.cpp   [m | [37mcreate_datareader       [m | [32mdatareader created[m     | client_key: 0x00000001, datareader_id: 0x825(6), subscriber_id: 0x825(4)
+[micro_xrce_agent-1] [35m[1795167391.835101][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0DE(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835136][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0DE(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835386][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0DE(5), publisher_id: 0x0DE(3)
+[micro_xrce_agent-1] [35m[1795167391.835456][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x010(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835470][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x010(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835655][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x010(5), publisher_id: 0x010(3)
+[micro_xrce_agent-1] [35m[1795167391.835717][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x107(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835731][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x107(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835912][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x107(5), publisher_id: 0x107(3)
+[micro_xrce_agent-1] [35m[1795167391.835967][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0A8(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.835980][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0A8(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836165][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0A8(5), publisher_id: 0x0A8(3)
+[micro_xrce_agent-1] [35m[1795167391.836233][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x014(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836252][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x014(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836429][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x014(5), publisher_id: 0x014(3)
+[micro_xrce_agent-1] [35m[1795167391.836533][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x01B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836548][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x01B(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836721][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x01B(5), publisher_id: 0x01B(3)
+[micro_xrce_agent-1] [35m[1795167391.836784][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x05C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836797][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x05C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.836946][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x05C(5), publisher_id: 0x05C(3)
+[micro_xrce_agent-1] [35m[1795167391.837001][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x062(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837009][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x062(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837135][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x062(5), publisher_id: 0x062(3)
+[micro_xrce_agent-1] [35m[1795167391.837198][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x09F(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837207][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x09F(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837339][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x09F(5), publisher_id: 0x09F(3)
+[micro_xrce_agent-1] [35m[1795167391.837399][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0A5(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837411][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0A5(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837547][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0A5(5), publisher_id: 0x0A5(3)
+[micro_xrce_agent-1] [35m[1795167391.837619][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0CD(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837629][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0CD(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837755][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0CD(5), publisher_id: 0x0CD(3)
+[micro_xrce_agent-1] [35m[1795167391.837823][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x0F4(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837830][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x0F4(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.837952][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x0F4(5), publisher_id: 0x0F4(3)
+[micro_xrce_agent-1] [35m[1795167391.838016][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x110(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838029][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x110(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838151][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x110(5), publisher_id: 0x110(3)
+[micro_xrce_agent-1] [35m[1795167391.838224][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x113(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838232][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x113(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838362][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x113(5), publisher_id: 0x113(3)
+[micro_xrce_agent-1] [35m[1795167391.838430][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x12B(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838443][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x12B(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838594][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x12B(5), publisher_id: 0x12B(3)
+[micro_xrce_agent-1] [35m[1795167391.838662][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x11E(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838672][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x11E(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838807][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x11E(5), publisher_id: 0x11E(3)
+[micro_xrce_agent-1] [35m[1795167391.838872][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x125(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.838883][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x125(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839004][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x125(5), publisher_id: 0x125(3)
+[micro_xrce_agent-1] [35m[1795167391.839071][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x122(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839079][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x122(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839221][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x122(5), publisher_id: 0x122(3)
+[micro_xrce_agent-1] [35m[1795167391.839291][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x126(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839303][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x126(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839442][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x126(5), publisher_id: 0x126(3)
+[micro_xrce_agent-1] [35m[1795167391.839509][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x128(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839519][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x128(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839676][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x128(5), publisher_id: 0x128(3)
+[micro_xrce_agent-1] [35m[1795167391.839747][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x12C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839756][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x12C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839914][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x12C(5), publisher_id: 0x12C(3)
+[micro_xrce_agent-1] [35m[1795167391.839970][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x131(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.839977][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x131(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840098][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x131(5), publisher_id: 0x131(3)
+[micro_xrce_agent-1] [35m[1795167391.840149][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x136(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840166][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x136(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840334][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x136(5), publisher_id: 0x136(3)
+[micro_xrce_agent-1] [35m[1795167391.840414][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x00D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840435][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x00D(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840660][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x00D(5), publisher_id: 0x00D(3)
+[micro_xrce_agent-1] [35m[1795167391.840731][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x149(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840740][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x149(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840907][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x149(5), publisher_id: 0x149(3)
+[micro_xrce_agent-1] [35m[1795167391.840981][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x08A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.840990][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x08A(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841151][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x08A(5), publisher_id: 0x08A(3)
+[micro_xrce_agent-1] [35m[1795167391.841220][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x14C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841228][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x14C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841394][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x14C(5), publisher_id: 0x14C(3)
+[micro_xrce_agent-1] [35m[1795167391.841454][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x079(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841462][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x079(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841614][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x079(5), publisher_id: 0x079(3)
+[micro_xrce_agent-1] [35m[1795167391.841670][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x01D(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841677][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x01D(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841817][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x01D(5), publisher_id: 0x01D(3)
+[micro_xrce_agent-1] [35m[1795167391.841869][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x14A(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.841877][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x14A(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.842023][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x14A(5), publisher_id: 0x14A(3)
+[micro_xrce_agent-1] [35m[1795167391.842069][m info     | [34mProxyClient.cpp   [m | [37mcreate_topic            [m | [32mtopic created[m          | client_key: 0x00000001, topic_id: 0x08C(2), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.842077][m info     | [34mProxyClient.cpp   [m | [37mcreate_publisher        [m | [32mpublisher created[m      | client_key: 0x00000001, publisher_id: 0x08C(3), participant_id: 0x001(1)
+[micro_xrce_agent-1] [35m[1795167391.842224][m info     | [34mProxyClient.cpp   [m | [37mcreate_datawriter       [m | [32mdatawriter created[m     | client_key: 0x00000001, datawriter_id: 0x08C(5), publisher_id: 0x08C(3)
+[micro_xrce_agent-1] [35m[1795167391.842780][m info     | [34mProxyClient.cpp   [m | [37mcreate_replier          [m | [32mreplier created[m        | client_key: 0x00000001, requester_id: 0x800(7), participant_id: 0x001(1)
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795167391.843562179] [fastlio2_px4_odom_bridge]: Aligned FAST-LIO origin: translation NED [-0.002 -0.009 0.046]
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795167391.843607997] [fastlio2_px4_odom_bridge]: Started FAST-LIO to PX4 clock mapping: rate 1.0000000, offset 1795167378717.682 ms
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_position_command_adapter-7] [INFO] [1795167392.562853966] [ego_position_command_adapter]: Latched lidar-to-PX4 origin translation NED [-0.001, -0.008, 0.045] m
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795167394.580503953] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-0.00 -0.00 -0.98] m/s^2
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[px4ctrl_node-8] [WARN] [1795167396.583829824] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [0.00 -0.00 -0.98] m/s^2
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [INFO] [1795167398.957432947] [drone_0_ego_planner_node]: PX4Ctrl is stable; EGO may now plan and execute the pending goal
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] [TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 0]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=13,time(ms)=0.000,total_t(ms)=0.000,cost=0.397
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 1]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=15,time(ms)=0.000,total_t(ms)=0.000,cost=0.352
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167406.741587781] [drone_0_ego_planner_node]: Trajectory finished 0.268 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 2]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=16,time(ms)=0.000,total_t(ms)=0.000,cost=9.895
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167407.545293458] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-3.80 -1.22 0.28] m/s^2
+[ego_planner_node-2] [WARN] [1795167407.556267262] [drone_0_ego_planner_node]: Trajectory finished 0.123 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 3]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=60,time(ms)=0.000,total_t(ms)=0.000,cost=4.196
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167408.099059739] [drone_0_ego_planner_node]: Trajectory finished 0.141 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 4]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=22,time(ms)=0.000,total_t(ms)=0.000,cost=8.060
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167408.858274082] [drone_0_ego_planner_node]: Trajectory finished 0.181 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 5]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=14,time(ms)=0.000,total_t(ms)=0.000,cost=25.785
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167409.939132623] [drone_0_ego_planner_node]: Trajectory finished 0.162 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 6]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=30,time(ms)=0.000,total_t(ms)=0.000,cost=51.218
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0.001[0m,optimize:0,refine:0.001,avg_time=0.000142857
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167410.788458490] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [2.76 -1.56 -0.50] m/s^2
+[ego_planner_node-2] [WARN] [1795167410.888430912] [drone_0_ego_planner_node]: Trajectory finished 0.111 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 7]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=15,time(ms)=0.000,total_t(ms)=0.000,cost=7.380
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0.000125
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167411.475404287] [drone_0_ego_planner_node]: Trajectory finished 0.396 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 8]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=30,time(ms)=0.000,total_t(ms)=0.000,cost=15.719
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0.000111111
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167411.488666456] [px4ctrl]: Blending discontinuous reference: position jump 0.39 m, velocity jump 0.26 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167412.600409396] [drone_0_ego_planner_node]: Trajectory finished 0.184 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 9]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=25,time(ms)=0.000,total_t(ms)=0.000,cost=37.544
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0.0001
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167413.751482364] [drone_0_ego_planner_node]: Trajectory finished 0.139 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 10]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=18,time(ms)=0.000,total_t(ms)=0.000,cost=25.553
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=9.09091e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167413.882476298] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [3.60 -1.60 0.70] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167414.642265185] [drone_0_ego_planner_node]: Trajectory finished 0.139 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 11]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=28,time(ms)=0.000,total_t(ms)=0.000,cost=6.881
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=8.33333e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167415.414279179] [drone_0_ego_planner_node]: Trajectory finished 0.611 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 12]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=19,time(ms)=0.000,total_t(ms)=0.000,cost=13.597
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.69231e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167415.428539921] [px4ctrl]: Blending discontinuous reference: position jump 0.60 m, velocity jump 0.20 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167416.488298289] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [3.52 -1.90 0.00] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167416.587281711] [drone_0_ego_planner_node]: Trajectory finished 0.252 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 13]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=15,time(ms)=0.000,total_t(ms)=0.000,cost=41.929
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.14286e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167417.555290770] [drone_0_ego_planner_node]: Trajectory finished 0.245 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 14]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=22,time(ms)=0.000,total_t(ms)=0.000,cost=15.049
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.66667e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167418.423311366] [drone_0_ego_planner_node]: Trajectory finished 0.421 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 15]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=28,time(ms)=0.000,total_t(ms)=0.000,cost=1.206
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.25e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167418.435572164] [px4ctrl]: Blending discontinuous reference: position jump 0.41 m, velocity jump 0.75 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167419.475360073] [drone_0_ego_planner_node]: Trajectory finished 0.299 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 16]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=34,time(ms)=0.000,total_t(ms)=0.000,cost=19.090
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.88235e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167420.277413689] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-1.30 3.78 -0.12] m/s^2
+[ego_planner_node-2] [WARN] [1795167420.348631667] [drone_0_ego_planner_node]: Trajectory finished 0.180 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 17]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=39,time(ms)=0.000,total_t(ms)=0.000,cost=14.029
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.55556e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167421.361201818] [drone_0_ego_planner_node]: Trajectory finished 0.167 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 18]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=28,time(ms)=0.000,total_t(ms)=0.000,cost=33.113
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0.001[0m,optimize:0,refine:0.001,avg_time=0.000105263
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167422.261373697] [drone_0_ego_planner_node]: Trajectory finished 0.242 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 19]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=14,time(ms)=0.000,total_t(ms)=0.000,cost=0.727
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=0.0001
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167422.277362535] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-0.74 0.20 -0.95] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167422.924194659] [drone_0_ego_planner_node]: Trajectory finished 0.374 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 20]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=25,time(ms)=0.000,total_t(ms)=0.000,cost=21.857
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=9.52381e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167422.940602636] [px4ctrl]: Blending discontinuous reference: position jump 0.37 m, velocity jump 0.48 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167424.091297595] [drone_0_ego_planner_node]: Trajectory finished 0.277 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 21]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=30,time(ms)=0.000,total_t(ms)=0.000,cost=47.507
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=9.09091e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167424.280308650] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [2.35 -3.24 0.12] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167425.063301420] [drone_0_ego_planner_node]: Trajectory finished 0.328 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 22]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=25,time(ms)=0.000,total_t(ms)=0.000,cost=1.542
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=8.69565e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167425.972559764] [drone_0_ego_planner_node]: Trajectory finished 0.293 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 23]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=32,time(ms)=0.000,total_t(ms)=0.000,cost=2.907
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=8.33333e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167426.682518196] [drone_0_ego_planner_node]: Trajectory finished 0.246 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 24]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=21,time(ms)=0.000,total_t(ms)=0.000,cost=16.602
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=8e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167427.473533961] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-3.11 2.51 -0.17] m/s^2
+[ego_planner_node-2] [WARN] [1795167427.550508346] [drone_0_ego_planner_node]: Trajectory finished 0.188 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 25]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=34,time(ms)=0.000,total_t(ms)=0.000,cost=47.702
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.69231e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167428.731527242] [drone_0_ego_planner_node]: Trajectory finished 0.239 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 26]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=19,time(ms)=0.000,total_t(ms)=0.000,cost=23.063
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.40741e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167429.630517284] [drone_0_ego_planner_node]: Trajectory finished 0.285 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 27]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=18,time(ms)=0.000,total_t(ms)=0.000,cost=2.021
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.14286e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167430.093532273] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-0.97 0.31 -0.93] m/s^2
+[ego_planner_node-2] [WARN] [1795167430.317536940] [drone_0_ego_planner_node]: Trajectory finished 0.240 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 28]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=16,time(ms)=0.000,total_t(ms)=0.000,cost=7.966
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.89655e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167431.116503597] [drone_0_ego_planner_node]: Trajectory finished 0.176 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 29]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=34,time(ms)=0.000,total_t(ms)=0.000,cost=41.089
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.66667e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167432.042602849] [drone_0_ego_planner_node]: Trajectory finished 0.131 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 30]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=36,time(ms)=0.000,total_t(ms)=0.000,cost=8.008
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.45161e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167432.124602578] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-1.72 3.28 -0.32] m/s^2
+[ego_planner_node-2] [WARN] [1795167432.630724154] [drone_0_ego_planner_node]: Trajectory finished 0.483 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 31]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=37,time(ms)=0.000,total_t(ms)=0.000,cost=23.459
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.25e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167432.645921472] [px4ctrl]: Blending discontinuous reference: position jump 0.47 m, velocity jump 0.60 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167434.089681991] [drone_0_ego_planner_node]: Trajectory finished 0.195 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 32]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=41,time(ms)=0.000,total_t(ms)=0.000,cost=44.380
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.06061e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167435.180974253] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-2.84 2.72 0.74] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167435.263426434] [drone_0_ego_planner_node]: Trajectory finished 0.195 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 33]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=34,time(ms)=0.000,total_t(ms)=0.000,cost=37.701
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.88235e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167436.413004636] [drone_0_ego_planner_node]: Trajectory finished 0.162 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 34]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=20,time(ms)=0.000,total_t(ms)=0.000,cost=54.648
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.71429e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167437.330992442] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-1.14 3.60 1.33] m/s^2
+[ego_planner_node-2] [WARN] [1795167437.371960936] [drone_0_ego_planner_node]: Trajectory finished 0.671 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 35]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=27,time(ms)=0.000,total_t(ms)=0.000,cost=6.673
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.55556e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167437.391250660] [px4ctrl]: Blending discontinuous reference: position jump 0.66 m, velocity jump 0.30 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167438.458608051] [drone_0_ego_planner_node]: Trajectory finished 0.258 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 36]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=14,time(ms)=0.000,total_t(ms)=0.000,cost=5.539
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.40541e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167439.239190481] [drone_0_ego_planner_node]: Trajectory finished 0.140 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 37]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=17,time(ms)=0.000,total_t(ms)=0.000,cost=5.890
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.26316e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167439.975615142] [drone_0_ego_planner_node]: Trajectory finished 0.177 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 38]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=56,time(ms)=0.000,total_t(ms)=0.000,cost=8.237
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.12821e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167440.715348340] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-3.93 0.72 0.19] m/s^2
+[ego_planner_node-2] [WARN] [1795167440.720291749] [drone_0_ego_planner_node]: Trajectory finished 0.120 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 39]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=22,time(ms)=0.000,total_t(ms)=0.000,cost=19.286
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167441.363910737] [drone_0_ego_planner_node]: Trajectory finished 0.104 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 40]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=20,time(ms)=0.000,total_t(ms)=0.000,cost=1.087
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0.001[0m,optimize:0,refine:0.001,avg_time=7.31707e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167441.859043792] [drone_0_ego_planner_node]: Trajectory finished 0.129 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 41]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=20,time(ms)=0.000,total_t(ms)=0.000,cost=29.964
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=7.14286e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: from EXEC_TRAJ to WAIT_TARGET
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] [TRIG]: from WAIT_TARGET to GEN_NEW_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 42]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=8,time(ms)=0.000,total_t(ms)=0.000,cost=10.711
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.97674e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from GEN_NEW_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] Triggered!
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167450.351570600] [drone_0_ego_planner_node]: Trajectory finished 0.117 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 43]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=19,time(ms)=0.000,total_t(ms)=0.000,cost=7.464
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.81818e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167450.454595525] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [3.83 0.60 0.97] m/s^2
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167450.943939749] [drone_0_ego_planner_node]: Trajectory finished 0.117 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 44]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=23,time(ms)=0.000,total_t(ms)=0.000,cost=2.127
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.66667e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167451.450547868] [drone_0_ego_planner_node]: Trajectory finished 0.312 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 45]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=26,time(ms)=0.000,total_t(ms)=0.000,cost=32.556
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.52174e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167452.488378634] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [3.97 -0.49 -0.06] m/s^2
+[ego_planner_node-2] [WARN] [1795167452.685342302] [drone_0_ego_planner_node]: Trajectory finished 0.287 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 46]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=18,time(ms)=0.000,total_t(ms)=0.000,cost=54.043
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.38298e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167453.676359091] [drone_0_ego_planner_node]: Trajectory finished 0.089 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 47]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=42,time(ms)=0.000,total_t(ms)=0.000,cost=178.517
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.25e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167454.611425430] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [1.56 -0.96 -0.82] m/s^2
+[ego_planner_node-2] [WARN] [1795167454.735382788] [drone_0_ego_planner_node]: Trajectory finished 0.611 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 48]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=18,time(ms)=0.000,total_t(ms)=0.000,cost=1.829
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6.12245e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167454.751659674] [px4ctrl]: Blending discontinuous reference: position jump 0.60 m, velocity jump 0.89 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167455.711429846] [drone_0_ego_planner_node]: Trajectory finished 0.555 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 49]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=15,time(ms)=0.000,total_t(ms)=0.000,cost=16.405
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=6e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167456.662689923] [px4ctrl]: Acceleration projected into thrust envelope; desired acceleration [-2.94 2.26 -0.32] m/s^2
+[ego_planner_node-2] [WARN] [1795167456.948611750] [drone_0_ego_planner_node]: Trajectory finished 0.433 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 50]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=24,time(ms)=0.000,total_t(ms)=0.000,cost=48.612
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.88235e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167456.962996526] [px4ctrl]: Blending discontinuous reference: position jump 0.42 m, velocity jump 1.22 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167458.559259294] [drone_0_ego_planner_node]: Trajectory finished 0.300 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 51]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=19,time(ms)=0.000,total_t(ms)=0.000,cost=122.488
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.76923e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167458.575604880] [px4ctrl]: Blending discontinuous reference: position jump 0.28 m, velocity jump 1.79 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167459.671182845] [drone_0_ego_planner_node]: Trajectory finished 1.312 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 52]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=19,time(ms)=0.000,total_t(ms)=0.000,cost=0.666
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.66038e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167459.691474838] [px4ctrl]: Blending discontinuous reference: position jump 1.30 m, velocity jump 0.88 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 53]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=11,time(ms)=0.000,total_t(ms)=0.000,cost=0.810
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] total time:[42m0[0m,optimize:0,refine:0,avg_time=5.55556e-05
+[ego_planner_node-2] refine_success=1
+[ego_planner_node-2] [FSM]: from REPLAN_TRAJ to EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[px4ctrl_node-8] [WARN] [1795167464.080391348] [px4ctrl]: Compensating PX4 local reset: delta [0.000 0.000 -1.792] m, heading 0.000 rad
+[px4ctrl_node-8] [WARN] [1795167464.088518749] [px4ctrl]: Blending discontinuous reference: position jump 1.79 m, velocity jump 0.00 m/s
+[ego_planner_node-2] [FSM]: state: EXEC_TRAJ
+[ego_planner_node-2] [WARN] [1795167464.583270606] [drone_0_ego_planner_node]: Trajectory finished 0.890 m from goal (tolerance 0.070 m); replanning from odometry
+[ego_planner_node-2] [TRIG]: from EXEC_TRAJ to REPLAN_TRAJ
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 54]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=30,time(ms)=0.000,total_t(ms)=0.000,cost=4.525
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] [34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter "lambda_fitness".
+[ego_planner_node-2] [0mrefine_success=0
+[ego_planner_node-2] [47;30m
+[ego_planner_node-2] [drone 0 replan 55]==============================================[0m
+[ego_planner_node-2] [1;33mmulti-trajs=1[1;0m
+[ego_planner_node-2] [32miter(+1)=30,time(ms)=0.000,total_t(ms)=0.000,cost=4.695
+[ego_planner_node-2] [0mtraj 1 success.
+[ego_planner_node-2] plan_success=1
+[ego_planner_node-2] Need to reallocate time.
+[ego_planner_node-2] [34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter "lambda_fitness".
+[ego_planner_node-2] [0mrefine_success=0
+[ego_planner_node-2] [ERROR] [1795167464.583546242] [drone_0_ego_planner_node]: Unable to validate a return trajectory; publishing a safe hover
+[ego_planner_node-2] [SAFE_HOLD]: from REPLAN_TRAJ to WAIT_TARGET
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167466.087551866] [drone_0_ego_planner_node]: Rejecting odometry [2.168 -0.986 -0.165] outside map [-40.000 -40.000 -0.150]..[40.000 40.000 10.350]
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167466.503517800] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167468.102961298] [drone_0_ego_planner_node]: Rejecting odometry [2.288 -0.631 -0.756] outside map [-40.000 -40.000 -0.150]..[40.000 40.000 10.350]
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167468.512507105] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167470.202519868] [drone_0_ego_planner_node]: Rejecting odometry [2.288 -0.630 -0.710] outside map [-40.000 -40.000 -0.150]..[40.000 40.000 10.350]
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167470.520576707] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[ego_planner_node-2] [ERROR] [1795167472.203018566] [drone_0_ego_planner_node]: Rejecting odometry [2.300 -0.630 -0.706] outside map [-40.000 -40.000 -0.150]..[40.000 40.000 10.350]
+[ego_planner_node-2] [ERROR] [1795167472.527616599] [drone_0_ego_planner_node]: Odometry timeout; holding the last accepted position and suspending planning
+[ego_planner_node-2] [FSM]: state: WAIT_TARGET
+[ego_planner_node-2] wait for goal or trigger.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795167472.725395263] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[px4ctrl_node-8] [INFO] [1795167472.725394442] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [micro_xrce_agent-1]: process has died [pid 30112, exit code -2, cmd 'MicroXRCEAgent udp4 -p 8888'].
+[traj_server-5] [INFO] [1795167472.725395113] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ego_planner_node-2] [INFO] [1795167472.725399682] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-3] [INFO] [1795167472.725399191] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-4] [INFO] [1795167472.725509421] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [px4ctrl_node-8]: sending signal 'SIGINT' to process[px4ctrl_node-8]
+[INFO] [ego_position_command_adapter-7]: sending signal 'SIGINT' to process[ego_position_command_adapter-7]
+[INFO] [fastlio2_px4_odom_bridge_node-6]: sending signal 'SIGINT' to process[fastlio2_px4_odom_bridge_node-6]
+[INFO] [traj_server-5]: sending signal 'SIGINT' to process[traj_server-5]
+[INFO] [static_transform_publisher-4]: sending signal 'SIGINT' to process[static_transform_publisher-4]
+[INFO] [static_transform_publisher-3]: sending signal 'SIGINT' to process[static_transform_publisher-3]
+[INFO] [ego_planner_node-2]: sending signal 'SIGINT' to process[ego_planner_node-2]
+[ERROR] [traj_server-5]: process has died [pid 30152, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/ego_planner/lib/ego_planner/traj_server --ros-args -r __node:=drone_0_traj_server --params-file /tmp/launch_params_r9te8yag -r position_cmd:=drone_0_planning/pos_cmd -r planning/bspline:=drone_0_planning/bspline'].
+[px4ctrl_node-8] [INFO] [1795167472.728820907] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ego_position_command_adapter-7] Traceback (most recent call last):
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 202, in main
+[fastlio2_px4_odom_bridge_node-6] [INFO] [1795167472.729603850] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [static_transform_publisher-4]: process has died [pid 30121, exit code -2, cmd '/opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --frame-id body --child-frame-id livox_frame --ros-args -r __node:=mid360_body_to_livox_frame --params-file /tmp/launch_params_x36xw7a3'].
+[ego_position_command_adapter-7]     rclpy.spin(node)
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[ego_position_command_adapter-7]     executor.spin_once()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+[ego_position_command_adapter-7]     self._spin_once_impl(timeout_sec)
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+[ego_position_command_adapter-7]     handler, entity, node = self.wait_for_ready_callbacks(
+[ego_position_command_adapter-7]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+[ego_position_command_adapter-7]     return next(self._cb_iter)
+[ego_position_command_adapter-7]            ^^^^^^^^^^^^^^^^^^^
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 781, in _wait_for_ready_callbacks
+[ego_position_command_adapter-7]     wait_set.wait(timeout_nsec)
+[ego_position_command_adapter-7] KeyboardInterrupt
+[ego_position_command_adapter-7] 
+[ego_position_command_adapter-7] During handling of the above exception, another exception occurred:
+[ego_position_command_adapter-7] 
+[ego_position_command_adapter-7] Traceback (most recent call last):
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 209, in <module>
+[ego_position_command_adapter-7]     main()
+[ego_position_command_adapter-7]   File "/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter", line 204, in main
+[ego_position_command_adapter-7]     node.destroy_node()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1962, in destroy_node
+[ego_position_command_adapter-7]     self.destroy_service(self._services[0])
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/node.py", line 1886, in destroy_service
+[ego_position_command_adapter-7]     service.destroy()
+[ego_position_command_adapter-7]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/service.py", line 123, in destroy
+[ego_position_command_adapter-7]     self.__service.destroy_when_not_in_use()
+[ego_position_command_adapter-7] KeyboardInterrupt
+[ERROR] [static_transform_publisher-3]: process has died [pid 30115, exit code -2, cmd '/opt/ros/jazzy/lib/tf2_ros/static_transform_publisher --x 0 --y 0 --z -0.08 --yaw 3.141592653589793 --pitch 0 --roll 0 --frame-id body --child-frame-id base_link --ros-args -r __node:=mid360_body_to_base_link --params-file /tmp/launch_params_1w2ci4uf'].
+[ERROR] [ego_position_command_adapter-7]: process has died [pid 30154, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/px4ctrl/lib/px4ctrl/ego_position_command_adapter --ros-args -r __node:=ego_position_command_adapter --params-file /tmp/launch_params_axr85_a5'].
+[ERROR] [ego_planner_node-2]: process has died [pid 30113, exit code -2, cmd '/home/thunder/GRA_1/px4ctrl_ws2/install/ego_planner/lib/ego_planner/ego_planner_node --ros-args -r __node:=drone_0_ego_planner_node --params-file /tmp/launch_params_03ra8ni9 --params-file /tmp/launch_params_renphqs5 --params-file /tmp/launch_params_6rvmyl15 --params-file /tmp/launch_params_a4txdfae --params-file /tmp/launch_params_18bp0sha --params-file /tmp/launch_params__w8ok38j --params-file /tmp/launch_params_3ggvyy0j --params-file /tmp/launch_params_5kq6mxh6 --params-file /tmp/launch_params_cit57feb --params-file /tmp/launch_params_ar4pl21e --params-file /tmp/launch_params_0gkbkjhr --params-file /tmp/launch_params_25nqs258 --params-file /tmp/launch_params__mrer0p0 --params-file /tmp/launch_params_iuz5e_lq --params-file /tmp/launch_params_gsc2m_tv --params-file /tmp/launch_params_kssjgw4e --params-file /tmp/launch_params_eq0n6pnv --params-file /tmp/launch_params_xawid6yt --params-file /tmp/launch_params_r6cai5ba --params-file /tmp/launch_params_u_2sodla --params-file /tmp/launch_params_nwmj212h --params-file /tmp/launch_params_917v9t61 --params-file /tmp/launch_params_ollgg45u --params-file /tmp/launch_params_4rdo43qk --params-file /tmp/launch_params_k1m24f_v --params-file /tmp/launch_params_3xdgnxtx --params-file /tmp/launch_params_5tixw23u --params-file /tmp/launch_params_9839zbbu --params-file /tmp/launch_params_8qwedq0e --params-file /tmp/launch_params_lgn9zkd5 --params-file /tmp/launch_params_ywy6rddf --params-file /tmp/launch_params_0s698ji3 --params-file /tmp/launch_params_ddhvp62s --params-file /tmp/launch_params_pqt_3rk8 --params-file /tmp/launch_params_9eqo_ye8 --params-file /tmp/launch_params_93e6p820 --params-file /tmp/launch_params_64vxaod5 --params-file /tmp/launch_params_w7nr146n --params-file /tmp/launch_params_skc250wc --params-file /tmp/launch_params_cul49bzs --params-file /tmp/launch_params_7lcgnbpy --params-file /tmp/launch_params_cqd21vkm --params-file /tmp/launch_params_v5844sx_ --params-file /tmp/launch_params_oppilq4q --params-file /tmp/launch_params_06o94_er --params-file /tmp/launch_params_2r49fwfv --params-file /tmp/launch_params_9ru4_vea --params-file /tmp/launch_params_0xul56z5 --params-file /tmp/launch_params_8_c9zd6r --params-file /tmp/launch_params_kfevf56d --params-file /tmp/launch_params_ld0qe2xd --params-file /tmp/launch_params_fu9yclru --params-file /tmp/launch_params_pgrj5xuk --params-file /tmp/launch_params_gs3ht1ko --params-file /tmp/launch_params_qy5hzcj7 --params-file /tmp/launch_params_qkuzjnk8 --params-file /tmp/launch_params_kja58345 --params-file /tmp/launch_params_6_ggnnb4 --params-file /tmp/launch_params__gyxngqw --params-file /tmp/launch_params_enw7auci --params-file /tmp/launch_params_5dvin8lb --params-file /tmp/launch_params_h0eh_oe5 --params-file /tmp/launch_params_dhohtr2y --params-file /tmp/launch_params_mebz661q --params-file /tmp/launch_params_2e8g4w95 --params-file /tmp/launch_params_xz71c7cp --params-file /tmp/launch_params_ya_wuh92 --params-file /tmp/launch_params_ddvy86qe --params-file /tmp/launch_params_ruorblx_ --params-file /tmp/launch_params_kdogusb2 --params-file /tmp/launch_params_3ijsg9q7 --params-file /tmp/launch_params_2gqp4znb -r odom_world:=/fastlio2/lio_odom -r planning/bspline:=drone_0_planning/bspline -r planning/data_display:=drone_0_planning/data_display -r planning/broadcast_bspline_from_planner:=/broadcast_bspline -r planning/broadcast_bspline_to_planner:=/broadcast_bspline -r goal_point:=drone_0_plan_vis/goal_point -r global_list:=drone_0_plan_vis/global_list -r init_list:=drone_0_plan_vis/init_list -r optimal_list:=drone_0_plan_vis/optimal_list -r a_star_list:=drone_0_plan_vis/a_star_list -r grid_map/odom:=/fastlio2/lio_odom -r grid_map/cloud:=/fastlio2/world_cloud -r grid_map/occupancy_inflate:=drone_0_grid/grid_map/occupancy_inflate'].
+[INFO] [fastlio2_px4_odom_bridge_node-6]: process has finished cleanly [pid 30153]
+[INFO] [px4ctrl_node-8]: process has finished cleanly [pid 30157]

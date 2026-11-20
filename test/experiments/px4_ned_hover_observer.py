@@ -46,7 +46,16 @@ class PX4NedObserver(Node):
         super().__init__("px4_ned_hover_benchmark", parameter_overrides=[
             rclpy.parameter.Parameter("use_sim_time", value=True)])
         self.args = args
-        self.goal = np.array([args.goal_x, args.goal_y, args.goal_z], dtype=float)
+        self.goals = (json.loads(args.route_json) if args.route_json else
+                      [[args.goal_x, args.goal_y, args.goal_z]])
+        self.goals = [np.array(goal, dtype=float) for goal in self.goals]
+        if not self.goals or any(goal.shape != (3,) or not np.isfinite(goal).all()
+                                 for goal in self.goals):
+            raise ValueError("route must contain finite XYZ goals")
+        self.goal = self.goals[0]
+        self.active_goal_index = 0
+        self.completed_waypoints = []
+        self.waypoint_complete = False
         self.px4 = None
         self.px4_received = None
         self.reference = None
@@ -76,6 +85,7 @@ class PX4NedObserver(Node):
         self.csv_file = self.csv_path.open("w", newline="", encoding="utf-8")
         self.writer = csv.DictWriter(self.csv_file, fieldnames=FIELDS)
         self.writer.writeheader()
+        self.write_progress()
 
         qos = QoSProfile(depth=20, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.create_subscription(VehicleLocalPosition,
@@ -121,8 +131,23 @@ class PX4NedObserver(Node):
 
     def goal_cb(self, msg):
         p = msg.pose.position
-        if norm3(p.x-self.goal[0], p.y-self.goal[1], p.z-self.goal[2]) <= 0.05:
-            self.get_logger().info("Matching planner goal observed")
+        incoming = np.array([p.x, p.y, p.z], dtype=float)
+        if not np.isfinite(incoming).all():
+            return
+        for index in range(self.active_goal_index, len(self.goals)):
+            if np.linalg.norm(incoming-self.goals[index]) <= 0.05:
+                if index > self.active_goal_index:
+                    if not self.waypoint_complete:
+                        self.get_logger().warning(
+                            f"Received route goal {index} before prior waypoint settled")
+                        return
+                    self.active_goal_index = index
+                    self.goal = self.goals[index]
+                    self.waypoint_complete = False
+                    self.terminal_reference = None
+                    self.arrival_since = None
+                self.get_logger().info(f"Matching planner goal observed: waypoint {index+1}")
+                return
 
     def ego_reference_cb(self, msg):
         if (msg.header.frame_id != 'lidar' or
@@ -262,17 +287,41 @@ class PX4NedObserver(Node):
                       self.args.terminal_reference_drift)
         if not ref_stable:
             self.terminal_reference = ref_pos.copy()
-        arrived = (ref_stable and goal_error is not None and
+        arrived = (not self.waypoint_complete and ref_stable and goal_error is not None and
                    ref_goal_error <= self.args.reference_goal_radius and
                    goal_error <= self.args.arrival_radius and speed <= self.args.arrival_speed)
         if arrived:
             if self.arrival_since is None:
                 self.arrival_since = now
             elif now-self.arrival_since >= self.args.settle_duration:
-                self.arrival_time = now-self.trajectory_start
-                self.finish("arrived")
+                waypoint = {
+                    "index": self.active_goal_index + 1,
+                    "goal_lidar_m": self.goal.tolist(),
+                    "arrival_time_from_hover_s": now-self.trajectory_start,
+                    "px4_ned_goal_error_m": goal_error,
+                    "arrival_reference_ned_m": ref_pos.tolist(),
+                    "arrival_position_ned_m": px.tolist(),
+                }
+                self.completed_waypoints.append(waypoint)
+                self.waypoint_complete = True
+                self.arrival_since = None
+                self.write_progress()
+                self.get_logger().info(
+                    f"Settled waypoint {waypoint['index']}/{len(self.goals)} at "
+                    f"{waypoint['arrival_time_from_hover_s']:.2f} s")
+                if self.active_goal_index == len(self.goals)-1:
+                    self.arrival_time = now-self.trajectory_start
+                    self.finish("arrived")
         else:
             self.arrival_since = None
+
+    def write_progress(self):
+        payload = {"completed_waypoints": self.completed_waypoints,
+                   "active_waypoint_index": self.active_goal_index + 1,
+                   "route_length": len(self.goals)}
+        temporary = self.ready_path.with_name("waypoint_progress.tmp")
+        temporary.write_text(json.dumps(payload, indent=2)+"\n", encoding="utf-8")
+        temporary.replace(self.ready_path.with_name("waypoint_progress.json"))
 
     def summary(self):
         e = np.asarray([r["tracking_error_3d_m"] for r in self.rows], dtype=float)
@@ -285,6 +334,9 @@ class PX4NedObserver(Node):
             "metric_definition": "3D Euclidean norm of PX4 local-NED DesiredState position minus PX4 VehicleLocalPosition; sampled at 20 Hz during active reference motion through settled arrival, requiring valid fresh PX4 local state and armed/offboard non-failsafe status.",
             "hover_start_ned_m": self.hover_position.tolist() if self.hover_position is not None else None,
             "goal_lidar_m": self.goal.tolist(),
+            "route_goals_lidar_m": [goal.tolist() for goal in self.goals],
+            "completed_waypoints": self.completed_waypoints,
+            "completed_waypoint_count": len(self.completed_waypoints),
             "trajectory_start_trigger": "PX4 NED DesiredState moved from the captured hover position by the displacement threshold or its speed exceeded the threshold",
             "arrival_time_s": self.arrival_time,
             "samples": len(self.rows),
@@ -331,6 +383,8 @@ def main():
     parser.add_argument("--goal-x", type=float, required=True)
     parser.add_argument("--goal-y", type=float, required=True)
     parser.add_argument("--goal-z", type=float, required=True)
+    parser.add_argument("--route-json", default="",
+                        help="ordered JSON array of lidar XYZ waypoint arrays")
     parser.add_argument("--timeout", type=float, default=90.0)
     parser.add_argument("--startup-timeout", type=float, default=300.0)
     parser.add_argument("--max-data-age", type=float, default=0.30)
