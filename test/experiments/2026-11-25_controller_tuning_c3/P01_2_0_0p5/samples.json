@@ -1,0 +1,89 @@
+{
+  "result": "arrived",
+  "trial_valid": true,
+  "metric_frame": "px4_local_ned",
+  "metric_definition": "3D Euclidean norm of PX4 local-NED DesiredState position minus PX4 VehicleLocalPosition; sampled at 20 Hz during active reference motion through settled arrival, requiring valid fresh PX4 local state and armed/offboard non-failsafe status.",
+  "hover_start_ned_m": [
+    -0.018501998856663704,
+    0.07015301287174225,
+    -0.556202232837677
+  ],
+  "goal_lidar_m": [
+    2.0,
+    0.0,
+    0.5
+  ],
+  "route_goals_lidar_m": [
+    [
+      2.0,
+      0.0,
+      0.5
+    ]
+  ],
+  "completed_waypoints": [
+    {
+      "index": 1,
+      "goal_lidar_m": [
+        2.0,
+        0.0,
+        0.5
+      ],
+      "arrival_time_from_hover_s": 9.95,
+      "px4_ned_goal_error_m": 0.008473751939748772,
+      "arrival_reference_ned_m": [
+        0.0016630251946073314,
+        1.9811555607909535,
+        -0.519572965920578
+      ],
+      "arrival_position_ned_m": [
+        0.0003187696565873921,
+        1.9890772104263306,
+        -0.5232744812965393
+      ]
+    }
+  ],
+  "completed_waypoint_count": 1,
+  "trajectory_start_trigger": "PX4 NED DesiredState moved from the captured hover position by the displacement threshold or its speed exceeded the threshold",
+  "arrival_time_s": 9.95,
+  "samples": 199,
+  "tracking_duration_s": 9.95,
+  "sample_rate_hz": 20.0,
+  "px4_ned_tracking_error_rmse_m": 0.0840596054128284,
+  "px4_ned_tracking_error_p95_m": 0.15284322805182757,
+  "px4_ned_tracking_error_max_m": 0.15964753104152965,
+  "px4_ned_tracking_error_xy_rmse_m": 0.08387946255892449,
+  "px4_ned_speed_peak_mps": 0.5894483584549872,
+  "px4_ned_speed_p95_mps": 0.5645042019669244,
+  "px4_ned_acceleration_peak_mps2": 0.5880004570177586,
+  "px4_ned_acceleration_p95_mps2": 0.5154857720904481,
+  "reference_speed_peak_mps": 0.5094057118240188,
+  "reference_acceleration_peak_mps2": 1.2522889041879393,
+  "actual_acceleration_source": "PX4 VehicleLocalPosition ax/ay/az in local NED",
+  "px4_ned_final_tracking_error_m": 0.008846511853586453,
+  "px4_ned_goal_error_final_m": 0.008473751939748772,
+  "requested_goal_ned_m": [
+    0.0005663305347674893,
+    1.9814299513444116,
+    -0.5196326940866658
+  ],
+  "terminal_reference_ned_m": [
+    0.0016630251946073314,
+    1.9811555607909535,
+    -0.519572965920578
+  ],
+  "arrival_radius_m": 0.2,
+  "reference_goal_radius_m": 0.08,
+  "arrival_speed_mps": 0.2,
+  "terminal_reference_speed_mps": 0.08,
+  "settle_duration_s": 1.0,
+  "failsafe_samples": 0,
+  "invalid_state_sample_ticks_skipped": 0,
+  "invalid_state_skip_reasons": {
+    "local_invalid_or_stale": 0,
+    "vehicle_status_stale": 0,
+    "not_armed": 0,
+    "not_offboard": 0,
+    "failsafe": 0,
+    "reference_invalid_or_stale": 0
+  }
+}

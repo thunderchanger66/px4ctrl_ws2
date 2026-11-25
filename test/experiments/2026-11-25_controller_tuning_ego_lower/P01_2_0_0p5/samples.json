@@ -1,0 +1,89 @@
+{
+  "result": "arrived",
+  "trial_valid": true,
+  "metric_frame": "px4_local_ned",
+  "metric_definition": "3D Euclidean norm of PX4 local-NED DesiredState position minus PX4 VehicleLocalPosition; sampled at 20 Hz during active reference motion through settled arrival, requiring valid fresh PX4 local state and armed/offboard non-failsafe status.",
+  "hover_start_ned_m": [
+    -0.010205009952187538,
+    0.07169852405786514,
+    -0.4578135013580322
+  ],
+  "goal_lidar_m": [
+    2.0,
+    0.0,
+    0.5
+  ],
+  "route_goals_lidar_m": [
+    [
+      2.0,
+      0.0,
+      0.5
+    ]
+  ],
+  "completed_waypoints": [
+    {
+      "index": 1,
+      "goal_lidar_m": [
+        2.0,
+        0.0,
+        0.5
+      ],
+      "arrival_time_from_hover_s": 11.149999999999999,
+      "px4_ned_goal_error_m": 0.04912034497320469,
+      "arrival_reference_ned_m": [
+        -0.0004698325559055982,
+        1.983157679276963,
+        -0.4249788181153421
+      ],
+      "arrival_position_ned_m": [
+        -0.042314134538173676,
+        2.0071122646331787,
+        -0.4216551184654236
+      ]
+    }
+  ],
+  "completed_waypoint_count": 1,
+  "trajectory_start_trigger": "PX4 NED DesiredState moved from the captured hover position by the displacement threshold or its speed exceeded the threshold",
+  "arrival_time_s": 11.149999999999999,
+  "samples": 223,
+  "tracking_duration_s": 11.149999999999999,
+  "sample_rate_hz": 20.000000000000004,
+  "px4_ned_tracking_error_rmse_m": 0.08302930250325044,
+  "px4_ned_tracking_error_p95_m": 0.12640199265542734,
+  "px4_ned_tracking_error_max_m": 0.12871161937129927,
+  "px4_ned_tracking_error_xy_rmse_m": 0.08253127189993936,
+  "px4_ned_speed_peak_mps": 0.44762319698830505,
+  "px4_ned_speed_p95_mps": 0.41968853409748363,
+  "px4_ned_acceleration_peak_mps2": 0.4712907325946384,
+  "px4_ned_acceleration_p95_mps2": 0.37841417877413874,
+  "reference_speed_peak_mps": 0.36703422575618927,
+  "reference_acceleration_peak_mps2": 0.30599778825407836,
+  "actual_acceleration_source": "PX4 VehicleLocalPosition ax/ay/az in local NED",
+  "px4_ned_final_tracking_error_m": 0.04833026740391924,
+  "px4_ned_goal_error_final_m": 0.04912034497320469,
+  "requested_goal_ned_m": [
+    -0.0004648931779762948,
+    1.9816145344053386,
+    -0.4250189022115747
+  ],
+  "terminal_reference_ned_m": [
+    -0.0004698325559055982,
+    1.983157679276963,
+    -0.4249788181153421
+  ],
+  "arrival_radius_m": 0.2,
+  "reference_goal_radius_m": 0.08,
+  "arrival_speed_mps": 0.2,
+  "terminal_reference_speed_mps": 0.08,
+  "settle_duration_s": 1.0,
+  "failsafe_samples": 0,
+  "invalid_state_sample_ticks_skipped": 0,
+  "invalid_state_skip_reasons": {
+    "local_invalid_or_stale": 0,
+    "vehicle_status_stale": 0,
+    "not_armed": 0,
+    "not_offboard": 0,
+    "failsafe": 0,
+    "reference_invalid_or_stale": 0
+  }
+}
