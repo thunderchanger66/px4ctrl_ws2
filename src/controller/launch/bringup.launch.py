@@ -79,7 +79,7 @@ def generate_launch_description():
         DeclareLaunchArgument('odom_bridge_params',
                               default_value=os.path.join(
                                   bridge_share, 'config', 'fastlio2_px4_odom_bridge.yaml')),
-        DeclareLaunchArgument('ego_max_vel', default_value='2.0'),
+        DeclareLaunchArgument('ego_max_vel', default_value='1.5'),
         DeclareLaunchArgument('ego_max_acc', default_value='1.5'),
         DeclareLaunchArgument('ego_max_jerk', default_value='4.0'),
         DeclareLaunchArgument('ego_lambda_smooth', default_value='2.0'),
