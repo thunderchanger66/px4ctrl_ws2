@@ -21,6 +21,10 @@ def generate_launch_description():
     start_odom_bridge = LaunchConfiguration('start_odom_bridge')
     start_rviz = LaunchConfiguration('start_rviz')
     start_takeoff = LaunchConfiguration('start_takeoff')
+    adapter_max_reference_acceleration = LaunchConfiguration('adapter_max_reference_acceleration')
+    adapter_max_reference_jerk = LaunchConfiguration('adapter_max_reference_jerk')
+    adapter_acceleration_preview = LaunchConfiguration('adapter_acceleration_preview')
+    adapter_alignment_stationary_speed = LaunchConfiguration('adapter_alignment_stationary_speed')
     agent_port = LaunchConfiguration('agent_port')
     takeoff_altitude = LaunchConfiguration('takeoff_altitude')
     takeoff_timeout = LaunchConfiguration('takeoff_timeout')
@@ -45,6 +49,7 @@ def generate_launch_description():
             'obstacle_inflation': LaunchConfiguration('ego_obstacle_inflation'),
             'collision_clearance': LaunchConfiguration('ego_collision_clearance'),
             'min_flight_height': LaunchConfiguration('ego_min_flight_height'),
+            'goal_tolerance': LaunchConfiguration('ego_goal_tolerance'),
         }.items(),
     )
     rviz = IncludeLaunchDescription(
@@ -61,6 +66,10 @@ def generate_launch_description():
         DeclareLaunchArgument('start_odom_bridge', default_value='true'),
         DeclareLaunchArgument('start_rviz', default_value='false'),
         DeclareLaunchArgument('start_takeoff', default_value='true'),
+        DeclareLaunchArgument('adapter_max_reference_acceleration', default_value='1.8'),
+        DeclareLaunchArgument('adapter_max_reference_jerk', default_value='5.0'),
+        DeclareLaunchArgument('adapter_acceleration_preview', default_value='0.15'),
+        DeclareLaunchArgument('adapter_alignment_stationary_speed', default_value='0.20'),
         DeclareLaunchArgument('takeoff_altitude', default_value='0.5'),
         DeclareLaunchArgument('takeoff_timeout', default_value='45'),
         DeclareLaunchArgument('wait_for_stable_px4', default_value='true'),
@@ -70,14 +79,15 @@ def generate_launch_description():
         DeclareLaunchArgument('odom_bridge_params',
                               default_value=os.path.join(
                                   bridge_share, 'config', 'fastlio2_px4_odom_bridge.yaml')),
-        DeclareLaunchArgument('ego_max_vel', default_value='0.5'),
-        DeclareLaunchArgument('ego_max_acc', default_value='0.4'),
-        DeclareLaunchArgument('ego_max_jerk', default_value='1.4'),
+        DeclareLaunchArgument('ego_max_vel', default_value='2.0'),
+        DeclareLaunchArgument('ego_max_acc', default_value='1.5'),
+        DeclareLaunchArgument('ego_max_jerk', default_value='4.0'),
         DeclareLaunchArgument('ego_lambda_smooth', default_value='2.0'),
         DeclareLaunchArgument('ego_planning_horizon', default_value='7.5'),
         DeclareLaunchArgument('ego_obstacle_inflation', default_value='0.45'),
         DeclareLaunchArgument('ego_collision_clearance', default_value='0.65'),
         DeclareLaunchArgument('ego_min_flight_height', default_value='0.25'),
+        DeclareLaunchArgument('ego_goal_tolerance', default_value='0.05'),
         ExecuteProcess(
             cmd=['MicroXRCEAgent', 'udp4', '-p', agent_port],
             name='micro_xrce_agent', output='screen', condition=IfCondition(start_agent)),
@@ -100,6 +110,10 @@ def generate_launch_description():
                 'desired_state_topic': '/controller/desired_state',
                 'source_frame': 'lidar',
                 'target_frame': 'px4_local_ned',
+                'max_reference_acceleration_mps2': adapter_max_reference_acceleration,
+                'max_reference_jerk_mps3': adapter_max_reference_jerk,
+                'acceleration_preview_sec': adapter_acceleration_preview,
+                'alignment_stationary_speed_mps': adapter_alignment_stationary_speed,
             }]),
         Node(
             package='controller', executable='px4ctrl_node', name='px4ctrl',

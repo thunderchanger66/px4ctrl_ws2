@@ -16,7 +16,7 @@ OUT = WS / "test/experiments/2026-11-13_five_point_dual_localization_p04_3_0"
 OBSERVER = WS / "test/experiments/benchmark_observer.py"
 LANDER = WS / "test/experiments/land_vehicle.py"
 PX4_LAUNCH = ROOT / "mid360_ws/src/mid360_gazebo_harmonic/launch/mid360_posix_sitl.launch.py"
-PX4_PARAMS = WS / "src/px4ctrl/config/px4ctrl_bringup.yaml"
+PX4_PARAMS = WS / "src/controller/config/px4ctrl_gra_mid360.yaml"
 
 CASES = [
     ("P01_2_0_0p5", 2.0, 0.0, 0.5),
@@ -143,9 +143,9 @@ def one_trial(case):
             return result
 
         bringup_args = (
-            f"ros2 launch px4ctrl bringup.launch.py start_agent:=true start_rviz:=false "
+            f"ros2 launch controller bringup.launch.py start_agent:=true start_rviz:=false "
             "start_takeoff:=false "
-            f"px4ctrl_params:={PX4_PARAMS} ego_max_vel:=1.0 ego_max_acc:=1.0 "
+            f"controller_params:={PX4_PARAMS} ego_max_vel:=1.0 ego_max_acc:=1.0 "
             "ego_max_jerk:=3.0 ego_lambda_smooth:=2.0 ego_planning_horizon:=7.5 "
             "ego_obstacle_inflation:=0.45 ego_collision_clearance:=0.65"
         )
@@ -169,7 +169,7 @@ def one_trial(case):
         time.sleep(2.0)
 
         takeoff_rc = run_command(
-            SOURCE + "ros2 run px4ctrl takeoff --altitude 0.5 --wait-timeout 45 --require-ev-fusion",
+            SOURCE + "ros2 run controller takeoff --altitude 0.5 --wait-timeout 45 --require-ev-fusion",
             trial_dir / "takeoff.log", WS, 90.0,
         )
         result["takeoff_exit_code"] = takeoff_rc
@@ -177,7 +177,7 @@ def one_trial(case):
             result["outcome"] = "failed_takeoff"
         else:
             goal_rc = run_command(
-                SOURCE + f"ros2 run px4ctrl manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30",
+                SOURCE + f"ros2 run controller manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30",
                 trial_dir / "manual_goal.log", WS, 60.0,
             )
             result["goal_command_exit_code"] = goal_rc
@@ -202,7 +202,7 @@ def one_trial(case):
                         "Rejecting unreachable waypoint" in bringup_text):
                     break
                 retry_rc = run_command(
-                    SOURCE + f"ros2 run px4ctrl manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30",
+                    SOURCE + f"ros2 run controller manual_goal {x} {y} {z} --auto-yaw --wait-timeout 30",
                     trial_dir / f"manual_goal_retry_{attempt + 1}.log", WS, 60.0,
                 )
                 retry_exit_codes.append(retry_rc)

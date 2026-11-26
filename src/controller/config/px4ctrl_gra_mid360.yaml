@@ -31,6 +31,11 @@ px4ctrl:
     max_thrust: 0.95
     max_tilt_deg: 30.0
     max_acceleration_mps2: 6.0
+    max_tracking_speed_mps: 2.8
+    speed_limit_braking_gain: 4.0
+    max_horizontal_jerk_mps3: 6.0
+    stationary_hold_horizontal_jerk_mps3: 4.0
+    stationary_hold_feedback_scale: 1.5
     require_local_position_valid: true
     max_local_position_m: 100.0
     max_local_velocity_mps: 15.0
@@ -50,8 +55,19 @@ px4ctrl:
     max_command_velocity_jump_mps: 1.5
     max_yaw_rate_radps: 0.6
     max_yaw_acceleration_radps2: 0.8
-    kp: [1.5, 1.5, 1.8]
-    kv: [1.2, 1.2, 1.4]
-    ki: [0.1, 0.1, 0.15]
-    integral_limit_mps2: [0.40, 0.40, 0.50]
-    integral_enable_velocity_error_mps: 0.60
+    mrac_reference_kp: [1.05, 1.05, 1.15]
+    mrac_reference_kv: [1.32, 1.32, 1.65]
+    mrac_rho: 4.5
+    mrac_gamma1: 0.25
+    mrac_gamma2: 0.20
+    mrac_alpha: 0.08
+    mrac_beta: 4.0
+    mrac_kappa1: 0.04
+    mrac_kappa2: 0.05
+    mrac_velocity_scale_mps: 3.0
+    mrac_gain1_element_limit: 0.75
+    mrac_gain2_element_limit: 0.35
+    mrac_gain1_norm_limit: 0.12
+    mrac_gain2_norm_limit: 0.25
+    mrac_disturbance_limit_mps2: 0.24
+    pd_mrac_state_topic: /controller/pd_mrac_state

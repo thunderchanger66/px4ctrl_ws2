@@ -21,7 +21,7 @@ FAST-LIO 局部里程计和点云 -----> PGO 回环优化及 map->lidar TF
                                            |
                           lidar -> PX4 local NED 适配器
                                            |
-                              /px4ctrl/desired_state
+                              /controller/desired_state
                                            |
                 px4ctrl 位置/速度反馈 -> 姿态 + 归一化推力
                                            |
@@ -120,7 +120,7 @@ yaw_NED = pi/2 - yaw_lidar     (随后归一化到 [-pi, pi])
 yaw_rate_NED = -yaw_rate_lidar
 ```
 
-启动时适配器等待 FAST-LIO 和 PX4 都静止且数据新鲜，再锁存原点平移；PX4 的位置 reset 会更新平移。输出 `/px4ctrl/desired_state`，frame 是 `px4_local_ned`。
+启动时适配器等待 FAST-LIO 和 PX4 都静止且数据新鲜，再锁存原点平移；PX4 的位置 reset 会更新平移。输出 `/controller/desired_state`，frame 是 `px4_local_ned`。
 
 `px4ctrl` 用 PX4 的 NED 实测位置/速度计算跟踪加速度，施加推力、倾角、yaw 速率限制，再发布 `VehicleAttitudeSetpoint`。EGO 规划的是位置轨迹，`px4ctrl` 控制的是姿态+推力；两者之间有适配层，EGO 不直接控制 PX4 电机。
 
@@ -132,10 +132,10 @@ yaw_rate_NED = -yaw_rate_lidar
 | 地图/状态 | `/fastlio2/lio_odom`、`/fastlio2/world_cloud` | `/drone_0_grid/grid_map/occupancy_inflate` |
 | EGO 轨迹 | `/goal_pose`、FAST-LIO 状态、inflated occupancy | `/drone_0_planning/bspline` |
 | 轨迹采样 | `/drone_0_planning/bspline` | `/drone_0_planning/pos_cmd` |
-| 坐标适配 | `pos_cmd`、FAST-LIO/PX4 原点状态 | `/px4ctrl/desired_state`，`px4_local_ned` |
+| 坐标适配 | `pos_cmd`、FAST-LIO/PX4 原点状态 | `/controller/desired_state`，`px4_local_ned` |
 | 飞行控制 | NED reference、PX4 local position/velocity | PX4 attitude/thrust Offboard |
 
-当前 bringup 默认 EGO 速度/加速度/jerk 上限为 `1.0 m/s`、`1.0 m/s^2`、`3.0 m/s^3`；平滑权重 `2.0`，规划视距 `7.5 m`；障碍膨胀 `0.45 m`、优化清距 `0.65 m`。这些是配置约束，不是保证整条实际轨迹严格等于该峰值的实测结果。参数入口在 [`bringup.launch.py`](src/px4ctrl/launch/bringup.launch.py) 和 [`advanced_param.launch.py`](src/ego/ego_planner/launch/advanced_param.launch.py)。
+当前 bringup 默认 EGO 速度/加速度/jerk 上限为 `0.5 m/s`、`0.4 m/s^2`、`1.4 m/s^3`；平滑权重 `2.0`，规划视距 `7.5 m`；障碍膨胀 `0.45 m`、优化清距 `0.65 m`。这些是配置约束，不是保证整条实际轨迹严格等于该峰值的实测结果。参数入口在 [`bringup.launch.py`](src/controller/launch/bringup.launch.py) 和 [`advanced_param.launch.py`](src/ego/ego_planner/launch/advanced_param.launch.py)。
 
 ## 7. 当前流程的边界
 
@@ -165,10 +165,10 @@ export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 正常运行链路后再发目标，例如：
 
 ```bash
-ros2 run px4ctrl manual_goal 4.0 -4.0 0.5 --auto-yaw
+ros2 run controller manual_goal 4.0 -4.0 0.5 --auto-yaw
 ```
 
-代码导航：[`bringup.launch.py`](src/px4ctrl/launch/bringup.launch.py)、[`ego_replan_fsm.cpp`](src/ego/ego_planner/src/ego_replan_fsm.cpp)、[`planner_manager.cpp`](src/ego/ego_planner/src/planner_manager.cpp)、[`bspline_optimizer.cpp`](src/ego/bspline_opt/src/bspline_optimizer.cpp)、[`grid_map.cpp`](src/ego/plan_env/src/library/grid_map.cpp)、[`traj_server.cpp`](src/ego/ego_planner/src/traj_server.cpp)、[`ego_position_command_adapter.py`](src/px4ctrl/scripts/ego_position_command_adapter.py)。
+代码导航：[`bringup.launch.py`](src/controller/launch/bringup.launch.py)、[`ego_replan_fsm.cpp`](src/ego/ego_planner/src/ego_replan_fsm.cpp)、[`planner_manager.cpp`](src/ego/ego_planner/src/planner_manager.cpp)、[`bspline_optimizer.cpp`](src/ego/bspline_opt/src/bspline_optimizer.cpp)、[`grid_map.cpp`](src/ego/plan_env/src/library/grid_map.cpp)、[`traj_server.cpp`](src/ego/ego_planner/src/traj_server.cpp)、[`ego_position_command_adapter.py`](src/controller/scripts/ego_position_command_adapter.py)。
 
 ## 参考
 

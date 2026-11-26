@@ -28,6 +28,7 @@ def generate_launch_description():
         'obstacle_inflation': '0.45',
         'collision_clearance': '0.65',
         'min_flight_height': '0.25',
+        'goal_tolerance': '0.20',
     }
     cfg = {name: LaunchConfiguration(name) for name in args}
     advanced = IncludeLaunchDescription(
@@ -51,6 +52,7 @@ def generate_launch_description():
             'obstacle_inflation': cfg['obstacle_inflation'],
             'collision_clearance': cfg['collision_clearance'],
             'min_flight_height': cfg['min_flight_height'],
+            'goal_tolerance': cfg['goal_tolerance'],
             'use_distinctive_trajs': 'True',
             'flight_type': '1',
         }.items(),

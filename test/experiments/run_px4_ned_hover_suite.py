@@ -16,7 +16,7 @@ DEFAULT_OUT = WS / "test/experiments/2026-11-20_kv14_seven_experiments"
 OBSERVER = WS / "test/experiments/px4_ned_hover_observer.py"
 LANDER = WS / "test/experiments/land_vehicle.py"
 PX4_LAUNCH = ROOT / "mid360_ws/src/mid360_gazebo_harmonic/launch/mid360_posix_sitl.launch.py"
-PX4_PARAMS = WS / "src/px4ctrl/config/px4ctrl_bringup.yaml"
+PX4_PARAMS = WS / "src/controller/config/px4ctrl_gra_mid360.yaml"
 
 POINTS = [
     ("P01_2_0_0p5", 2.0, 0.0, 0.5),
@@ -170,8 +170,8 @@ def trial(experiment, output):
             return result
 
         launch = (
-            f"ros2 launch px4ctrl bringup.launch.py start_agent:=true start_rviz:=false "
-            f"start_takeoff:=false px4ctrl_params:={PX4_PARAMS} "
+            f"ros2 launch controller bringup.launch.py start_agent:=true start_rviz:=false "
+            f"start_takeoff:=false controller_params:={PX4_PARAMS} "
             "ego_max_vel:=1.0 ego_max_acc:=1.0 ego_max_jerk:=3.0 "
             "ego_lambda_smooth:=2.0 ego_planning_horizon:=7.5 "
             "ego_obstacle_inflation:=0.45 ego_collision_clearance:=0.65")
@@ -191,7 +191,7 @@ def trial(experiment, output):
         time.sleep(1.0)
 
         takeoff_rc = run_command(SOURCE +
-            "ros2 run px4ctrl takeoff --altitude 0.5 --wait-timeout 45 --require-ev-fusion",
+            "ros2 run controller takeoff --altitude 0.5 --wait-timeout 45 --require-ev-fusion",
             out / "takeoff.log", WS, 90)
         result["takeoff_exit_code"] = takeoff_rc
         if takeoff_rc != 0:
@@ -214,7 +214,7 @@ def trial(experiment, output):
         for index, goal in enumerate(goals):
             x, y, z = goal
             goal_command = (SOURCE +
-                f"ros2 run px4ctrl manual_goal {x} {y} {z} --auto-yaw "
+                f"ros2 run controller manual_goal {x} {y} {z} --auto-yaw "
                 "--wait-timeout 30 --require-subscriber-node drone_0_ego_planner_node")
             goal_log = out / ("manual_goal.log" if index == 0 else
                               f"manual_goal_waypoint_{index+1}.log")

@@ -1,6 +1,8 @@
 #include "bspline_opt/uniform_bspline.h"
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 namespace ego_planner
 {
@@ -137,158 +139,81 @@ namespace ego_planner
 
     bool UniformBspline::checkFeasibility(double& ratio, bool show)
     {
-        bool fea = true;
+        ratio = std::numeric_limits<double>::infinity();
+        if (p_ != 3 || control_points_.cols() <= p_ || !control_points_.allFinite() ||
+            !u_.allFinite() || !(limit_vel_ > 0 && limit_acc_ > 0 && limit_jerk_ > 0))
+            return false;
+        for (Eigen::Index i = 1; i < u_.size(); ++i)
+            if (u_(i) <= u_(i - 1))
+                return false;
 
-        Eigen::MatrixXd P = control_points_;
-        /* check vel feasibility and insert points */
-        double max_vel = -1.0;
-        double enlarged_vel_lim = limit_vel_ * (1.0 + feasibility_tolerance_) + 1e-4;
-        for (int i = 0; i < P.cols() - 1; ++i)
-        {
-            Eigen::VectorXd vel = p_ * (P.col(i + 1) - P.col(i)) / (u_(i + p_ + 1) - u_(i + 1));
-
-            const double speed = vel.norm();
-            if (speed > enlarged_vel_lim)
-            {
-                if (show)
-                    cout << "[Check]: Infeasible vel " << i << " :" << vel.transpose()
-                         << " (norm=" << speed << ")" << endl;
-                fea = false;
-                max_vel = std::max(max_vel, speed);
-            }
-        }
-
-        /* acc feasibility */
-        double max_acc = -1.0;
-        double enlarged_acc_lim = limit_acc_ * (1.0 + feasibility_tolerance_) + 1e-4;
-        for (int i = 0; i < P.cols() - 2; ++i)
-        {
-            Eigen::VectorXd acc = p_ * (p_ - 1) *
-                ((P.col(i + 2) - P.col(i + 1)) / (u_(i + p_ + 2) - u_(i + 2)) -
-                    (P.col(i + 1) - P.col(i)) / (u_(i + p_ + 1) - u_(i + 1))) /
-                (u_(i + p_ + 1) - u_(i + 2));
-
-            const double acceleration = acc.norm();
-            if (acceleration > enlarged_acc_lim)
-            {
-                if (show)
-                    cout << "[Check]: Infeasible acc " << i << " :" << acc.transpose()
-                         << " (norm=" << acceleration << ")" << endl;
-                fea = false;
-                max_acc = std::max(max_acc, acceleration);
-            }
-        }
-
-        double max_jerk = 0.0;
-        UniformBspline jerk_spline = getDerivative().getDerivative().getDerivative();
-        const Eigen::MatrixXd jerk_points = jerk_spline.getControlPoint();
-        const double enlarged_jerk_lim = limit_jerk_ * (1.0 + feasibility_tolerance_) + 1e-4;
-        for (int i = 0; i < jerk_points.cols(); ++i)
-        {
-            const double jerk = jerk_points.col(i).norm();
-            if (jerk > enlarged_jerk_lim)
-            {
-                if (show)
-                    cout << "[Check]: Infeasible jerk " << i << " : " << jerk_points.col(i).transpose()
-                         << " (norm=" << jerk << ")" << endl;
-                fea = false;
-                max_jerk = std::max(max_jerk, jerk);
-            }
-        }
-
-        ratio = std::max({1.0, max_vel / limit_vel_,
-                          std::sqrt(std::abs(max_acc) / limit_acc_),
-                          std::cbrt(max_jerk / limit_jerk_)});
-
-        return fea;
+        const auto velocity = getDerivative();
+        auto acceleration = getDerivative().getDerivative();
+        const auto max_norm = [](const Eigen::MatrixXd& points) {
+            return points.allFinite() ? points.colwise().norm().maxCoeff() :
+                std::numeric_limits<double>::infinity();
+        };
+        const double speed = max_norm(velocity.control_points_);
+        const double accel = max_norm(acceleration.control_points_);
+        const double jerk = max_norm(acceleration.getDerivative().control_points_);
+        ratio = std::max({1.0, speed / limit_vel_, std::sqrt(accel / limit_acc_),
+                          std::cbrt(jerk / limit_jerk_)});
+        const double margin = 1.0 + feasibility_tolerance_;
+        const bool feasible = std::isfinite(ratio) && speed <= limit_vel_ * margin + 1e-4 &&
+            accel <= limit_acc_ * margin + 1e-4 && jerk <= limit_jerk_ * margin + 1e-4;
+        if (show && !feasible)
+            std::cout << "Spline derivative bounds (value / limit): speed " << speed << " / " << limit_vel_
+                      << ", acceleration " << accel << " / " << limit_acc_
+                      << ", jerk " << jerk << " / " << limit_jerk_ << std::endl;
+        return feasible;
     }
 
-    void UniformBspline::lengthenTime(const double& ratio)
-    {
-        int num1 = 5;
-        int num2 = getKnot().rows() - 1 - 5;
-
-        double delta_t = (ratio - 1.0) * (u_(num2) - u_(num1));
-        double t_inc = delta_t / double(num2 - num1);
-        for (int i = num1 + 1; i <= num2; ++i)
-            u_(i) += double(i - num1) * t_inc;
-        for (int i = num2 + 1; i < u_.rows(); ++i)
-            u_(i) += delta_t;
-    }
-
-    // void UniformBspline::recomputeInit() {}
-
-    // 将一组点转换为控制点
-    void UniformBspline::parameterizeToBspline(const double& ts, const vector<Eigen::Vector3d>& point_set,
-                                               const vector<Eigen::Vector3d>& start_end_derivative,
+    bool UniformBspline::parameterizeToBspline(const double& ts,
+                                               const vector<Eigen::Vector3d>& point_set,
+                                               const vector<Eigen::Vector3d>& derivatives,
                                                Eigen::MatrixXd& ctrl_pts)
     {
-        if (ts <= 0)
+        if (!std::isfinite(ts) || ts <= 0.0 || point_set.size() < 5 || derivatives.size() != 4)
+            return false;
+
+        const Eigen::Index samples = point_set.size();
+        const Eigen::Index controls = samples + 2;
+        const Eigen::Index free_controls = controls - 6;
+        Eigen::MatrixXd fixed = Eigen::MatrixXd::Zero(3, controls);
+        const auto set_boundary = [&](Eigen::Index i, const Eigen::Vector3d& position,
+                                      const Eigen::Vector3d& velocity, const Eigen::Vector3d& accel) {
+            const Eigen::Vector3d offset = accel * (ts * ts / 3.0);
+            fixed.col(i) = position + offset - ts * velocity;
+            fixed.col(i + 1) = position - offset / 2.0;
+            fixed.col(i + 2) = position + offset + ts * velocity;
+        };
+        set_boundary(0, point_set.front(), derivatives[0], derivatives[2]);
+        set_boundary(controls - 3, point_set.back(), derivatives[1], derivatives[3]);
+
+        // Each cubic knot sample has weights [1, 4, 1]/6. Solve for
+        // interior points only, with exact endpoint position, velocity and acceleration.
+        Eigen::MatrixXd basis = Eigen::MatrixXd::Zero(samples - 2, free_controls);
+        Eigen::MatrixXd rhs(samples - 2, 3);
+        for (Eigen::Index i = 1; i < samples - 1; ++i)
         {
-            cout << "[B-spline]:time step error." << endl;
-            return;
+            Eigen::Vector3d sample = point_set[i];
+            for (Eigen::Index j = i; j <= i + 2; ++j)
+            {
+                const double weight = (j == i + 1 ? 4.0 : 1.0) / 6.0;
+                if (j >= 3 && j < controls - 3)
+                    basis(i - 1, j - 3) = weight;
+                else
+                    sample -= weight * fixed.col(j);
+            }
+            rhs.row(i - 1) = sample.transpose();
         }
-
-        if (point_set.size() <= 3)
-        {
-            cout << "[B-spline]:point set have only " << point_set.size() << " points." << endl;
-            return;
-        }
-
-        if (start_end_derivative.size() != 4)
-        {
-            cout << "[B-spline]:derivatives error." << endl;
-        }
-
-        int K = point_set.size();
-
-        // write A
-        Eigen::Vector3d prow(3), vrow(3), arow(3);
-        prow << 1, 4, 1;
-        vrow << -1, 0, 1;
-        arow << 1, -2, 1;
-
-        Eigen::MatrixXd A = Eigen::MatrixXd::Zero(K + 4, K + 2);
-
-        for (int i = 0; i < K; ++i)
-            A.block(i, i, 1, 3) = (1 / 6.0) * prow.transpose();
-
-        A.block(K, 0, 1, 3) = (1 / 2.0 / ts) * vrow.transpose();
-        A.block(K + 1, K - 1, 1, 3) = (1 / 2.0 / ts) * vrow.transpose();
-
-        A.block(K + 2, 0, 1, 3) = (1 / ts / ts) * arow.transpose();
-        A.block(K + 3, K - 1, 1, 3) = (1 / ts / ts) * arow.transpose();
-
-        //cout << "A" << endl << A << endl << endl;
-
-        // write b
-        Eigen::VectorXd bx(K + 4), by(K + 4), bz(K + 4);
-        for (int i = 0; i < K; ++i)
-        {
-            bx(i) = point_set[i](0);
-            by(i) = point_set[i](1);
-            bz(i) = point_set[i](2);
-        }
-
-        for (int i = 0; i < 4; ++i)
-        {
-            bx(K + i) = start_end_derivative[i](0);
-            by(K + i) = start_end_derivative[i](1);
-            bz(K + i) = start_end_derivative[i](2);
-        }
-
-        // solve Ax = b
-        Eigen::VectorXd px = A.colPivHouseholderQr().solve(bx);
-        Eigen::VectorXd py = A.colPivHouseholderQr().solve(by);
-        Eigen::VectorXd pz = A.colPivHouseholderQr().solve(bz);
-
-        // convert to control pts
-        ctrl_pts.resize(3, K + 2);
-        ctrl_pts.row(0) = px.transpose();
-        ctrl_pts.row(1) = py.transpose();
-        ctrl_pts.row(2) = pz.transpose();
-
-        // cout << "[B-spline]: parameterization ok." << endl;
+        if (!fixed.allFinite() || !rhs.allFinite())
+            return false;
+        fixed.middleCols(3, free_controls) = basis.colPivHouseholderQr().solve(rhs).transpose();
+        if (!fixed.allFinite())
+            return false;
+        ctrl_pts = std::move(fixed);
+        return true;
     }
 
     double UniformBspline::getTimeSum()

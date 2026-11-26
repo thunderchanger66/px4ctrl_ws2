@@ -13,28 +13,29 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "controller/arm_cdm_parameters.hpp"
+#include "controller/pd_mrac.hpp"
+#include "controller/msg/pd_mrac_state.hpp"
 #include "px4_msgs/msg/offboard_control_mode.hpp"
 #include "px4_msgs/msg/vehicle_attitude.hpp"
 #include "px4_msgs/msg/vehicle_attitude_setpoint.hpp"
 #include "px4_msgs/msg/vehicle_command.hpp"
 #include "px4_msgs/msg/vehicle_land_detected.hpp"
 #include "px4_msgs/msg/vehicle_local_position.hpp"
-#include "px4_msgs/msg/vehicle_odometry.hpp"
 #include "px4_msgs/msg/vehicle_status.hpp"
 #include "controller/msg/control_debug.hpp"
 #include "controller/msg/desired_state.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/empty.hpp"
+#include "std_msgs/msg/float64_multi_array.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
 
 namespace
 {
 using DesiredStateMsg = controller::msg::DesiredState;
 using ControlDebug = controller::msg::ControlDebug;
+using controller::PdMrac;
 using Vector3 = Eigen::Vector3d;
 using Matrix3 = Eigen::Matrix3d;
 
@@ -59,6 +60,12 @@ struct ControlOutput //控制输出的内部表示
   Vector3 velocity_reference{Vector3::Zero()};
   Vector3 acceleration_requested{Vector3::Zero()};
   Vector3 acceleration_feasible{Vector3::Zero()};
+  Vector3 mrac_estimated_disturbance{Vector3::Zero()};
+  Vector3 mrac_model_error_position{Vector3::Zero()};
+  Vector3 mrac_model_error_velocity{Vector3::Zero()};
+  double mrac_gain1_norm{0.0};
+  double mrac_gain2_norm{0.0};
+  double mrac_filter_norm{0.0};
 };
 
 Vector3 limit_body_z_tilt(Vector3 body_z, double max_tilt_rad) //倾角限制
@@ -118,7 +125,7 @@ class Px4Ctrl final : public rclcpp::Node
 {
 public:
   Px4Ctrl()
-  : Node("px4ctrl") //构造函数：参数声明/校验/订阅/发布/定时器
+  : Node("px4ctrl")
   {
     for (const auto & override_param : get_node_parameters_interface()->get_parameter_overrides()) {
       const std::string & name = override_param.first;
@@ -134,8 +141,9 @@ public:
     }
 
     declare_parameter("reference_frame", "px4_local_ned");
-    declare_parameter("desired_state_topic", "/px4ctrl/desired_state");
+    declare_parameter("desired_state_topic", "/controller/desired_state");
     declare_parameter("debug_topic", "/px4ctrl/debug");
+    declare_parameter("pd_mrac_state_topic", "/controller/pd_mrac_state");
     declare_parameter("entry_mode", "auto_takeoff");
     declare_parameter("takeover_velocity_tolerance_mps", 0.20);
     declare_parameter("require_takeover_permission", false);
@@ -161,6 +169,11 @@ public:
     declare_parameter("max_thrust", 0.95);
     declare_parameter("max_tilt_deg", 30.0);
     declare_parameter("max_acceleration_mps2", 4.0);
+    declare_parameter("max_tracking_speed_mps", 2.8);
+    declare_parameter("speed_limit_braking_gain", 4.0);
+    declare_parameter("max_horizontal_jerk_mps3", 8.0);
+    declare_parameter("stationary_hold_horizontal_jerk_mps3", 2.0);
+    declare_parameter("stationary_hold_feedback_scale", 1.0);
     declare_parameter("local_position_timeout_sec", 0.50);
     declare_parameter("land_detected_timeout_sec", 2.0);
     declare_parameter("px4_status_timeout_sec", 1.50);
@@ -184,30 +197,21 @@ public:
     declare_parameter("max_command_velocity_jump_mps", 1.5);
     declare_parameter("max_yaw_rate_radps", 0.6);
     declare_parameter("max_yaw_acceleration_radps2", 0.8);
-    declare_parameter("kp", std::vector<double>{1.5, 1.5, 1.8});
-    declare_parameter("kv", std::vector<double>{1.2, 1.2, 1.4});
-    declare_parameter("ki", std::vector<double>{0.10, 0.10, 0.15});
-    declare_parameter("integral_limit_mps2", std::vector<double>{0.40, 0.40, 0.50});
-    declare_parameter("integral_enable_velocity_error_mps", 0.60);
-    declare_parameter("enable_cdm_feedforward", false);
-    declare_parameter("cdm_joint_state_topic", "/joint_states");
-    declare_parameter("cdm_odometry_topic", "/fmu/out/vehicle_odometry");
-    declare_parameter("cdm_state_timeout_sec", 0.20);
-    declare_parameter("cdm_max_acceleration_mps2", 1.0);
-
-    enable_cdm_feedforward_ = get_parameter("enable_cdm_feedforward").as_bool();
-    cdm_state_timeout_sec_ = get_parameter("cdm_state_timeout_sec").as_double();
-    cdm_max_acceleration_mps2_ = get_parameter("cdm_max_acceleration_mps2").as_double();
-    if (!std::isfinite(cdm_state_timeout_sec_) || cdm_state_timeout_sec_ <= 0.0 ||
-      !std::isfinite(cdm_max_acceleration_mps2_) || cdm_max_acceleration_mps2_ <= 0.0)
-    {
-      throw std::runtime_error("CDM timeout and acceleration limit must be positive");
-    }
-
-    if (enable_cdm_feedforward_) {
-      initialize_cdm_model();
-    }
-
+    declare_parameter("mrac_reference_kp", std::vector<double>{1.5, 1.5, 1.8});
+    declare_parameter("mrac_reference_kv", std::vector<double>{1.2, 1.2, 1.4});
+    declare_parameter("mrac_rho", 4.5);
+    declare_parameter("mrac_gamma1", 0.25);
+    declare_parameter("mrac_gamma2", 0.25);
+    declare_parameter("mrac_alpha", 0.3);
+    declare_parameter("mrac_beta", 5.0);
+    declare_parameter("mrac_kappa1", 0.02);
+    declare_parameter("mrac_kappa2", 0.02);
+    declare_parameter("mrac_velocity_scale_mps", 2.0);
+    declare_parameter("mrac_gain1_element_limit", 2.0);
+    declare_parameter("mrac_gain2_element_limit", 1.0);
+    declare_parameter("mrac_gain1_norm_limit", 8.0);
+    declare_parameter("mrac_gain2_norm_limit", 4.0);
+    declare_parameter("mrac_disturbance_limit_mps2", 2.0);
     reference_frame_ = get_parameter("reference_frame").as_string();
     entry_mode_ = get_parameter("entry_mode").as_string();
     takeover_velocity_tolerance_mps_ = get_parameter("takeover_velocity_tolerance_mps").as_double();
@@ -222,6 +226,12 @@ public:
     max_thrust_ = get_parameter("max_thrust").as_double();
     max_tilt_rad_ = get_parameter("max_tilt_deg").as_double() * M_PI / 180.0;
     max_acceleration_ = get_parameter("max_acceleration_mps2").as_double();
+    max_tracking_speed_mps_ = get_parameter("max_tracking_speed_mps").as_double();
+    speed_limit_braking_gain_ = get_parameter("speed_limit_braking_gain").as_double();
+    max_horizontal_jerk_mps3_ = get_parameter("max_horizontal_jerk_mps3").as_double();
+    stationary_hold_horizontal_jerk_mps3_ =
+      get_parameter("stationary_hold_horizontal_jerk_mps3").as_double();
+    stationary_hold_feedback_scale_ = get_parameter("stationary_hold_feedback_scale").as_double();
     local_position_timeout_sec_ = get_parameter("local_position_timeout_sec").as_double();
     land_detected_timeout_sec_ = get_parameter("land_detected_timeout_sec").as_double();
     px4_status_timeout_sec_ = get_parameter("px4_status_timeout_sec").as_double();
@@ -245,13 +255,9 @@ public:
     max_command_velocity_jump_mps_ = get_parameter("max_command_velocity_jump_mps").as_double();
     max_yaw_rate_radps_ = get_parameter("max_yaw_rate_radps").as_double();
     max_yaw_acceleration_radps2_ = get_parameter("max_yaw_acceleration_radps2").as_double();
-    const auto kp = get_parameter("kp").as_double_array();
-    const auto kv = get_parameter("kv").as_double_array();
-    const auto ki = get_parameter("ki").as_double_array();
-    const auto integral_limit = get_parameter("integral_limit_mps2").as_double_array();
-    integral_enable_velocity_error_mps_ =
-      get_parameter("integral_enable_velocity_error_mps").as_double();
-    if (kp.size() != 3 || kv.size() != 3 || ki.size() != 3 || integral_limit.size() != 3 ||
+    const auto mrac_kp = get_parameter("mrac_reference_kp").as_double_array();
+    const auto mrac_kv = get_parameter("mrac_reference_kv").as_double_array();
+    if (mrac_kp.size() != 3 || mrac_kv.size() != 3 ||
         reference_frame_.empty() ||
         !std::isfinite(command_timeout_sec_) || command_timeout_sec_ <= 0.0 ||
         !std::isfinite(prestream_seconds_) || prestream_seconds_ < 0.0 ||
@@ -262,6 +268,11 @@ public:
         min_thrust_ >= max_thrust_ || hover_thrust_ <= min_thrust_ ||
         hover_thrust_ >= max_thrust_ || !std::isfinite(max_tilt_rad_) || max_tilt_rad_ <= 0.0 ||
         max_tilt_rad_ >= M_PI_2 || !std::isfinite(max_acceleration_) || max_acceleration_ <= 0.0 ||
+        !std::isfinite(max_horizontal_jerk_mps3_) || max_horizontal_jerk_mps3_ <= 0.0 ||
+        !std::isfinite(stationary_hold_horizontal_jerk_mps3_) ||
+        stationary_hold_horizontal_jerk_mps3_ <= 0.0 ||
+        !std::isfinite(stationary_hold_feedback_scale_) ||
+        stationary_hold_feedback_scale_ <= 0.0 ||
         !std::isfinite(local_position_timeout_sec_) || local_position_timeout_sec_ <= 0.0 ||
         !std::isfinite(land_detected_timeout_sec_) || land_detected_timeout_sec_ <= 0.0 ||
         !std::isfinite(px4_status_timeout_sec_) || px4_status_timeout_sec_ <= 0.0 ||
@@ -284,23 +295,37 @@ public:
         !std::isfinite(command_blend_sec_) || command_blend_sec_ < 0.0 ||
         !std::isfinite(max_command_position_jump_m_) || max_command_position_jump_m_ <= 0.0 ||
         !std::isfinite(max_command_velocity_jump_mps_) || max_command_velocity_jump_mps_ <= 0.0 ||
-        !std::isfinite(integral_enable_velocity_error_mps_) || integral_enable_velocity_error_mps_ <= 0.0 ||
         !std::isfinite(max_yaw_rate_radps_) || max_yaw_rate_radps_ <= 0.0 ||
         !std::isfinite(max_yaw_acceleration_radps2_) || max_yaw_acceleration_radps2_ <= 0.0)
     {
       throw std::runtime_error("invalid px4ctrl parameters");
     }
+    PdMrac::Parameters mrac_parameters;
     for (size_t i = 0; i < 3; ++i) {
-      kp_(static_cast<Eigen::Index>(i)) = kp[i];
-      kv_(static_cast<Eigen::Index>(i)) = kv[i];
-      ki_(static_cast<Eigen::Index>(i)) = ki[i];
-      integral_limit_(static_cast<Eigen::Index>(i)) = integral_limit[i];
-      if (!std::isfinite(kp[i]) || !std::isfinite(kv[i]) || !std::isfinite(ki[i]) ||
-        !std::isfinite(integral_limit[i]) || kp[i] < 0.0 || kv[i] < 0.0 || ki[i] < 0.0 ||
-        integral_limit[i] <= 0.0) {
-        throw std::runtime_error("kp, kv, ki and integral limits must be finite and non-negative");
+      mrac_parameters.kp(static_cast<Eigen::Index>(i)) = mrac_kp[i];
+      mrac_parameters.kv(static_cast<Eigen::Index>(i)) = mrac_kv[i];
+      if (!std::isfinite(mrac_kp[i]) || !std::isfinite(mrac_kv[i]) ||
+        mrac_kp[i] <= 0.0 || mrac_kv[i] <= 0.0) {
+        throw std::runtime_error("MRAC reference gains must be finite and positive");
       }
     }
+    mrac_parameters.rho = get_parameter("mrac_rho").as_double();
+    mrac_parameters.gamma1 = get_parameter("mrac_gamma1").as_double();
+    mrac_parameters.gamma2 = get_parameter("mrac_gamma2").as_double();
+    mrac_parameters.alpha = get_parameter("mrac_alpha").as_double();
+    mrac_parameters.beta = get_parameter("mrac_beta").as_double();
+    mrac_parameters.kappa1 = get_parameter("mrac_kappa1").as_double();
+    mrac_parameters.kappa2 = get_parameter("mrac_kappa2").as_double();
+    mrac_parameters.velocity_scale_mps = get_parameter("mrac_velocity_scale_mps").as_double();
+    mrac_parameters.gain1_element_limit =
+      get_parameter("mrac_gain1_element_limit").as_double();
+    mrac_parameters.gain2_element_limit =
+      get_parameter("mrac_gain2_element_limit").as_double();
+    mrac_parameters.gain1_norm_limit = get_parameter("mrac_gain1_norm_limit").as_double();
+    mrac_parameters.gain2_norm_limit = get_parameter("mrac_gain2_norm_limit").as_double();
+    mrac_parameters.disturbance_limit_mps2 =
+      get_parameter("mrac_disturbance_limit_mps2").as_double();
+    pd_mrac_ = std::make_unique<PdMrac>(mrac_parameters);
     const auto px4_qos = rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile();
     command_sub_ = create_subscription<DesiredStateMsg>(
       get_parameter("desired_state_topic").as_string(), rclcpp::QoS(20),
@@ -314,15 +339,6 @@ public:
     local_position_sub_ = create_subscription<px4_msgs::msg::VehicleLocalPosition>(
       get_parameter("px4_local_position_topic").as_string(), px4_qos,
       std::bind(&Px4Ctrl::local_position_callback, this, std::placeholders::_1));
-    if (enable_cdm_feedforward_) {
-      odometry_sub_ = create_subscription<px4_msgs::msg::VehicleOdometry>(
-        get_parameter("cdm_odometry_topic").as_string(), px4_qos,
-        std::bind(&Px4Ctrl::cdm_odometry_callback, this, std::placeholders::_1));
-      joint_state_sub_ = create_subscription<sensor_msgs::msg::JointState>(
-        get_parameter("cdm_joint_state_topic").as_string(),
-        rclcpp::QoS(rclcpp::SensorDataQoS()),
-        std::bind(&Px4Ctrl::joint_state_callback, this, std::placeholders::_1));
-    }
     land_detected_sub_ = create_subscription<px4_msgs::msg::VehicleLandDetected>(
       get_parameter("px4_land_detected_topic").as_string(), px4_qos,
       [this](const px4_msgs::msg::VehicleLandDetected::SharedPtr msg) {
@@ -352,6 +368,8 @@ public:
       get_parameter("status_topic").as_string(), rclcpp::QoS(10));
     debug_pub_ = create_publisher<ControlDebug>(
       get_parameter("debug_topic").as_string(), rclcpp::QoS(10));
+    pd_mrac_state_pub_ = create_publisher<controller::msg::PdMracState>(
+      get_parameter("pd_mrac_state_topic").as_string(), rclcpp::QoS(10));
 
     const double rate = get_parameter("publish_rate_hz").as_double();
     if (!std::isfinite(rate) || rate < 10.0) throw std::runtime_error("publish_rate_hz must be >= 10");
@@ -359,13 +377,10 @@ public:
       std::chrono::duration<double>(1.0 / rate), std::bind(&Px4Ctrl::timer_callback, this));
     publish_status(entry_mode_ == "airborne_takeover" ?
       "waiting_for_airborne_takeover" : "waiting_for_px4_local_position_and_reference_command");
-    if (enable_cdm_feedforward_) {
-      RCLCPP_INFO(get_logger(),
-        "CDM force feed-forward ENABLED (max acceleration %.2f m/s^2; stale-state fallback enabled)",
-        cdm_max_acceleration_mps2_);
-    } else {
-      RCLCPP_INFO(get_logger(), "CDM force feed-forward disabled");
-    }
+    RCLCPP_INFO(get_logger(),
+      "Filtered-trend PD-MRAC enabled (gamma1=%.3f gamma2=%.3f alpha=%.3f beta=%.2f)",
+      mrac_parameters.gamma1, mrac_parameters.gamma2,
+      mrac_parameters.alpha, mrac_parameters.beta);
   }
 
 private:
@@ -499,155 +514,6 @@ private:
     update_px4_clock(msg->timestamp);
     local_position_time_ = get_clock()->now();
     local_position_received_ = true;
-  }
-
-  void initialize_cdm_model()
-  {
-    llc_mpc::ArmCdmGeometry geometry;
-    geometry.total_mass = declare_parameter<double>("cdm.total_mass_kg", 2.843243);
-    geometry.arm_mass = declare_parameter<double>("cdm.arm_mass_kg", 0.325331);
-    geometry.uav_base_inertia = Vector3(
-      declare_parameter<double>("cdm.base_inertia_xx", 0.02684785),
-      declare_parameter<double>("cdm.base_inertia_yy", 0.02690653),
-      declare_parameter<double>("cdm.base_inertia_zz", 0.02385432)).asDiagonal();
-    geometry.joint_offset_12 = cdm_vector_parameter(
-      "cdm.joint_offset_12_m", {0.198, 0.0005, -0.024});
-    geometry.joint_offset_23 = cdm_vector_parameter(
-      "cdm.joint_offset_23_m", {0.194, -0.0005, 0.0});
-    geometry.link_mass = cdm_vector_parameter(
-      "cdm.link_mass_kg", {0.12418, 0.11778, 0.083371});
-    const auto centers = declare_parameter<std::vector<double>>(
-      "cdm.link_com_m", {0.156980, 0.019388, -0.0082101,
-        0.144410, 0.018876, 8.2381e-7,
-        0.071417896813, 0.018996302624, 0.010302221502});
-    const auto inertias = declare_parameter<std::vector<double>>(
-      "cdm.link_inertia_kg_m2", {
-        3.0533e-5, 1.8411e-9, -1.1909e-9, 1.8411e-9, 8.0863e-5, 1.5749e-8,
-        -1.1909e-9, 1.5749e-8, 7.8412e-5,
-        1.9771e-5, 3.3851e-8, -5.9263e-11, 3.3851e-8, 5.6465e-5, 1.1813e-13,
-        -5.9263e-11, 1.1813e-13, 6.3243e-5,
-        3.063625451122e-5, 8.370556733279e-9, 2.758764487371e-6,
-        8.370556733279e-9, 7.715607141505e-5, -2.583337077642e-9,
-        2.758764487371e-6, -2.583337077642e-9, 5.766176007008e-5});
-    if (centers.size() != 9 || inertias.size() != 27) {
-      throw std::runtime_error("CDM link COM/inertia parameter lengths must be 9 and 27");
-    }
-    for (int link = 0; link < 3; ++link) {
-      geometry.local_com[link] = Vector3(
-        centers[3 * link], centers[3 * link + 1], centers[3 * link + 2]);
-      for (int row = 0; row < 3; ++row) {
-        for (int col = 0; col < 3; ++col) {
-          geometry.local_com_inertia[link](row, col) =
-            inertias[9 * link + 3 * row + col];
-        }
-      }
-    }
-    cdm_model_ = std::make_unique<llc_mpc::ArmCdmParameters>(geometry);
-    if (!cdm_model_->valid()) {
-      throw std::runtime_error("Invalid CDM geometry parameters");
-    }
-    cdm_total_mass_ = geometry.total_mass;
-  }
-
-  Vector3 cdm_vector_parameter(const std::string & name, const std::array<double, 3> & fallback)
-  {
-    const auto values = declare_parameter<std::vector<double>>(
-      name, {fallback[0], fallback[1], fallback[2]});
-    if (values.size() != 3) throw std::runtime_error(name + " must have 3 elements");
-    return Vector3(values[0], values[1], values[2]);
-  }
-
-  static Vector3 cdm_frd_to_flu(const Vector3 & value)
-  {
-    return Vector3(value.x(), -value.y(), -value.z());
-  }
-
-  void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
-  {
-    const std::array<std::string, 3> names{{"shoulder_pitch", "elbow_pitch", "wrist_pitch"}};
-    Vector3 q, dq;
-    for (size_t joint = 0; joint < names.size(); ++joint) {
-      const auto it = std::find(msg->name.begin(), msg->name.end(), names[joint]);
-      if (it == msg->name.end()) return;
-      const auto index = static_cast<size_t>(it - msg->name.begin());
-      if (index >= msg->position.size() || index >= msg->velocity.size()) return;
-      q(joint) = msg->position[index];
-      dq(joint) = msg->velocity[index];
-    }
-    if (!q.allFinite() || !dq.allFinite()) return;
-    const auto now = std::chrono::steady_clock::now();
-    if (cdm_arm_state_valid_) {
-      const double dt = std::chrono::duration<double>(now - cdm_joint_update_).count();
-      if (dt > 0.002 && dt < 0.2) {
-        const Vector3 raw = (dq - cdm_arm_dq_) / dt;
-        cdm_arm_ddq_ = 0.7 * cdm_arm_ddq_ + 0.3 * raw;
-      }
-    }
-    cdm_arm_q_ = q;
-    cdm_arm_dq_ = dq;
-    cdm_joint_update_ = now;
-    cdm_arm_state_valid_ = true;
-  }
-
-  void cdm_odometry_callback(const px4_msgs::msg::VehicleOdometry::SharedPtr msg)
-  {
-    if (msg->pose_frame != px4_msgs::msg::VehicleOdometry::POSE_FRAME_NED) return;
-    Eigen::Quaterniond q(msg->q[0], msg->q[1], msg->q[2], msg->q[3]);
-    if (!q.coeffs().allFinite() || q.norm() < 0.5) return;
-    q.normalize();
-    cdm_frd_to_ned_ = q;
-    Vector3 velocity(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
-    if (msg->velocity_frame == px4_msgs::msg::VehicleOdometry::VELOCITY_FRAME_NED) {
-      cdm_velocity_flu_ = cdm_frd_to_flu(q.conjugate() * velocity);
-    } else if (msg->velocity_frame == px4_msgs::msg::VehicleOdometry::VELOCITY_FRAME_BODY_FRD) {
-      cdm_velocity_flu_ = cdm_frd_to_flu(velocity);
-    } else {
-      cdm_velocity_flu_.setZero();
-    }
-    const Vector3 omega = cdm_frd_to_flu(Vector3(
-      msg->angular_velocity[0], msg->angular_velocity[1], msg->angular_velocity[2]));
-    const auto now = std::chrono::steady_clock::now();
-    if (cdm_odometry_valid_) {
-      const double dt = std::chrono::duration<double>(now - cdm_odom_update_).count();
-      if (dt > 0.002 && dt < 0.2) {
-        cdm_alpha_flu_ = 0.8 * cdm_alpha_flu_ + 0.2 * (omega - cdm_omega_flu_) / dt;
-      }
-    }
-    cdm_omega_flu_ = omega;
-    cdm_odom_update_ = now;
-    cdm_odometry_valid_ = cdm_velocity_flu_.allFinite() && omega.allFinite();
-  }
-
-  Vector3 cdm_acceleration_feedforward()
-  {
-    if (!enable_cdm_feedforward_) return Vector3::Zero();
-    const auto now = std::chrono::steady_clock::now();
-    if (!cdm_model_ || !cdm_arm_state_valid_ || !cdm_odometry_valid_ ||
-      now - cdm_joint_update_ > std::chrono::duration<double>(cdm_state_timeout_sec_) ||
-      now - cdm_odom_update_ > std::chrono::duration<double>(cdm_state_timeout_sec_))
-    {
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-        "CDM feed-forward enabled but arm/odometry is stale; using feedback only");
-      return Vector3::Zero();
-    }
-    llc_mpc::ArmJointPrediction joints;
-    joints.q = cdm_arm_q_;
-    joints.dq = cdm_arm_dq_;
-    joints.ddq = cdm_arm_ddq_;
-    llc_mpc::ArmStage stage;
-    llc_mpc::CdmDisturbance disturbance;
-    if (!cdm_model_->calculate(joints, stage) ||
-      !cdm_model_->disturbance(stage, cdm_omega_flu_, cdm_alpha_flu_,
-        cdm_velocity_flu_, cdm_total_mass_ * gravity_, disturbance))
-    {
-      return Vector3::Zero();
-    }
-    const Vector3 force_frd = cdm_frd_to_flu(disturbance.force_body);
-    Vector3 accel_ned = -(cdm_frd_to_ned_ * force_frd) / cdm_total_mass_;
-    if (!accel_ned.allFinite()) return Vector3::Zero();
-    const double norm = accel_ned.norm();
-    if (norm > cdm_max_acceleration_mps2_) accel_ned *= cdm_max_acceleration_mps2_ / norm;
-    return accel_ned;
   }
 
   bool local_position_healthy() const //反馈是否可信
@@ -807,35 +673,60 @@ private:
     const Vector3 position_error = d.position - p;
     // kp is the historical acceleration-per-position gain. Divide by kv so
     // existing YAML preserves its proportional acceleration contribution.
-    Vector3 velocity_reference = d.velocity;
-    for (int i = 0; i < 3; ++i) {
-      if (kv_(i) > 1e-9) velocity_reference(i) += kp_(i) / kv_(i) * position_error(i);
-    }
-    const Vector3 velocity_error = velocity_reference - v;
-    const bool integral_enabled = state_ == ControlState::tracking && command_fresh() &&
-      velocity_error.norm() <= integral_enable_velocity_error_mps_;
-    const Vector3 integral_before = integral_acceleration_;
-    if (!integral_enabled || last_output_saturated_) {
-      integral_acceleration_ *= 0.995;
-    } else {
-      const double dt = last_control_time_ ? std::clamp(
-        (get_clock()->now() - *last_control_time_).seconds(), 0.0, 0.05) : 0.0;
-      integral_acceleration_ += ki_.cwiseProduct(velocity_error) * dt;
-      for (int i = 0; i < 3; ++i) {
-        integral_acceleration_(i) = std::clamp(
-          integral_acceleration_(i), -integral_limit_(i), integral_limit_(i));
+    const double control_dt = last_control_time_ ? std::clamp(
+      (get_clock()->now() - *last_control_time_).seconds(), 0.0, 0.05) : 0.0;
+    const bool stationary_reference = d.velocity.norm() <= 0.05 &&
+      d.acceleration.norm() <= 0.10;
+    if (stationary_reference && !stationary_reference_active_) {
+      // Motion-phase adaptive feed-forward can encode centripetal forces that
+      // do not exist once the vehicle reaches a stationary hold.
+      pd_mrac_->reset(p, v);
+      if (state_ == ControlState::tracking) {
+        RCLCPP_INFO(get_logger(), "Cleared motion-adapted gains for stationary reference hold");
       }
     }
-    const Vector3 integral_term = integral_acceleration_;
-    Vector3 acceleration = d.acceleration + cdm_acceleration_feedforward() +
-      kv_.cwiseProduct(velocity_error) + integral_term;
-    for (int i = 0; i < 3; ++i) {
-      if (kv_(i) <= 1e-9) acceleration(i) += kp_(i) * position_error(i);
-    }
+    stationary_reference_active_ = stationary_reference;
+    const bool overspeed = state_ == ControlState::tracking &&
+      v.norm() > max_tracking_speed_mps_;
+    const bool adaptation_enabled = state_ == ControlState::tracking && command_fresh() &&
+      !last_output_saturated_ && !stationary_reference && !overspeed;
+    const double feedback_scale = state_ == ControlState::tracking && stationary_reference ?
+      stationary_hold_feedback_scale_ : 1.0;
+    const auto mrac = pd_mrac_->update(
+      d.position, d.velocity, d.acceleration, p, v, control_dt,
+      adaptation_enabled, feedback_scale);
+    Vector3 acceleration = mrac.acceleration;
     if (!acceleration.allFinite()) acceleration.setZero();
+    bool speed_limited = false;
+    const double actual_speed = v.norm();
+    if (state_ == ControlState::tracking && std::isfinite(actual_speed) &&
+        actual_speed > max_tracking_speed_mps_ && actual_speed > 1e-6) {
+      const double excess_speed = actual_speed - max_tracking_speed_mps_;
+      const double braking_acceleration = std::min(
+        max_acceleration_, speed_limit_braking_gain_ * excess_speed);
+      acceleration -= (braking_acceleration / actual_speed) * v;
+      speed_limited = true;
+    }
+    if (!horizontal_acceleration_initialized_) {
+      last_horizontal_acceleration_ = acceleration.head<2>();
+      horizontal_acceleration_initialized_ = true;
+    } else {
+      Eigen::Vector2d acceleration_step =
+        acceleration.head<2>() - last_horizontal_acceleration_;
+      const double jerk_limit = stationary_reference ?
+        stationary_hold_horizontal_jerk_mps3_ : max_horizontal_jerk_mps3_;
+      const double max_step = jerk_limit * control_dt;
+      const double step_norm = acceleration_step.norm();
+      if (step_norm > max_step && step_norm > 1e-9) {
+        acceleration_step *= max_step / step_norm;
+      }
+      last_horizontal_acceleration_ += acceleration_step;
+    }
+    acceleration.head<2>() = last_horizontal_acceleration_;
     const Vector3 acceleration_requested = acceleration;
+    const Vector3 velocity_error = d.velocity - v;
     const double acceleration_norm = acceleration.norm();
-    uint8_t saturation_flags = 0;
+    uint8_t saturation_flags = speed_limited ? 16 : 0;
     if (acceleration_norm > max_acceleration_) {
       acceleration *= max_acceleration_ / acceleration_norm;
       saturation_flags |= 1;
@@ -882,9 +773,8 @@ private:
     thrust = std::clamp(thrust, min_thrust_, max_thrust_);
     if (std::abs(unclamped_thrust - thrust) > 1e-9) saturation_flags |= 8;
     if (saturation_flags != 0) {
-      integral_acceleration_ = integral_before * 0.995;
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-        "Acceleration projected into thrust envelope; desired acceleration [%.2f %.2f %.2f] m/s^2",
+        "PD-MRAC acceleration projected into thrust envelope; feasible acceleration [%.2f %.2f %.2f] m/s^2",
         acceleration.x(), acceleration.y(), acceleration.z());
     }
 
@@ -896,9 +786,15 @@ private:
     out.yaw_rate = yaw_rate_setpoint_;
     out.position_error = position_error;
     out.velocity_error = velocity_error;
-    out.velocity_reference = velocity_reference;
+    out.velocity_reference = d.velocity;
     out.acceleration_requested = acceleration_requested;
     out.acceleration_feasible = acceleration;
+    out.mrac_estimated_disturbance = mrac.estimated_disturbance;
+    out.mrac_model_error_position = mrac.model_error_position;
+    out.mrac_model_error_velocity = mrac.model_error_velocity;
+    out.mrac_gain1_norm = mrac.gain1_norm;
+    out.mrac_gain2_norm = mrac.gain2_norm;
+    out.mrac_filter_norm = mrac.filter_norm;
     last_output_saturated_ = saturation_flags != 0;
     last_control_time_ = get_clock()->now();
     return out;
@@ -914,6 +810,7 @@ private:
     takeoff_origin_z_ = hover_position_.z();
     // PX4 local z is Down, therefore a positive altitude is a negative z target.
     takeoff_target_.z() -= auto_takeoff_altitude_m_;
+    pd_mrac_->reset(hover_position_, Vector3::Zero());
     takeoff_start_time_ = get_clock()->now();
     hover_settle_start_time_.reset();
     state_ = auto_takeoff_altitude_m_ > 1e-3 ? ControlState::takeoff : ControlState::hover;
@@ -948,6 +845,7 @@ private:
     if (require_takeover_permission_ && !takeover_permission_) return false;
     hover_position_ = {static_cast<double>(p.x), static_cast<double>(p.y),
       static_cast<double>(p.z)};
+    pd_mrac_->reset(hover_position_, Vector3(p.vx, p.vy, p.vz));
     hold_yaw_ = static_cast<double>(p.heading);
     yaw_setpoint_ = hold_yaw_;
     yaw_rate_setpoint_ = 0.0;
@@ -1124,6 +1022,7 @@ private:
     setpoint.yaw_sp_move_rate = static_cast<float>(output.yaw_rate);
     setpoint_pub_->publish(setpoint);
     publish_debug(output);
+    publish_pd_mrac_state(output);
     if (entry_mode_ == "airborne_takeover") {
       if (!vehicle_offboard()) {
         const bool prestream_ready = takeover_start_time_ &&
@@ -1234,25 +1133,30 @@ private:
     debug_pub_->publish(msg);
   }
 
+  void publish_pd_mrac_state(const ControlOutput & output)
+  {
+    auto to_msg = [](const Vector3 & value) {
+        geometry_msgs::msg::Vector3 msg;
+        msg.x = value.x();
+        msg.y = value.y();
+        msg.z = value.z();
+        return msg;
+      };
+    controller::msg::PdMracState msg;
+    msg.header.stamp = get_clock()->now();
+    msg.header.frame_id = "px4_local_ned";
+    msg.estimated_disturbance = to_msg(output.mrac_estimated_disturbance);
+    msg.model_error_position = to_msg(output.mrac_model_error_position);
+    msg.model_error_velocity = to_msg(output.mrac_model_error_velocity);
+    msg.gain1_frobenius_norm = output.mrac_gain1_norm;
+    msg.gain2_frobenius_norm = output.mrac_gain2_norm;
+    msg.filtered_error_norm = output.mrac_filter_norm;
+    pd_mrac_state_pub_->publish(msg);
+  }
+
   std::string reference_frame_;
   std::string entry_mode_{"auto_takeoff"};
   std::string suspension_reason_;
-  bool enable_cdm_feedforward_{false};
-  double cdm_state_timeout_sec_{0.20};
-  double cdm_max_acceleration_mps2_{1.0};
-  double cdm_total_mass_{2.843243};
-  std::unique_ptr<llc_mpc::ArmCdmParameters> cdm_model_;
-  Vector3 cdm_arm_q_{Vector3::Zero()};
-  Vector3 cdm_arm_dq_{Vector3::Zero()};
-  Vector3 cdm_arm_ddq_{Vector3::Zero()};
-  Vector3 cdm_velocity_flu_{Vector3::Zero()};
-  Vector3 cdm_omega_flu_{Vector3::Zero()};
-  Vector3 cdm_alpha_flu_{Vector3::Zero()};
-  Eigen::Quaterniond cdm_frd_to_ned_{Eigen::Quaterniond::Identity()};
-  bool cdm_arm_state_valid_{false};
-  bool cdm_odometry_valid_{false};
-  std::chrono::steady_clock::time_point cdm_joint_update_{};
-  std::chrono::steady_clock::time_point cdm_odom_update_{};
   double command_timeout_sec_{0.5};
   double prestream_seconds_{1.0};
   double takeover_velocity_tolerance_mps_{0.20};
@@ -1266,6 +1170,13 @@ private:
   double max_thrust_{0.95};
   double max_tilt_rad_{0.52};
   double max_acceleration_{4.0};
+  double max_tracking_speed_mps_{2.8};
+  double speed_limit_braking_gain_{4.0};
+  double max_horizontal_jerk_mps3_{8.0};
+  double stationary_hold_horizontal_jerk_mps3_{2.0};
+  double stationary_hold_feedback_scale_{1.0};
+  Eigen::Vector2d last_horizontal_acceleration_{Eigen::Vector2d::Zero()};
+  bool horizontal_acceleration_initialized_{false};
   double local_position_timeout_sec_{0.5};
   double land_detected_timeout_sec_{2.0};
   double px4_status_timeout_sec_{1.5};
@@ -1289,13 +1200,9 @@ private:
   double max_command_velocity_jump_mps_{1.5};
   double max_yaw_rate_radps_{0.6};
   double max_yaw_acceleration_radps2_{0.8};
-  Vector3 kp_{1.5, 1.5, 1.8};
-  Vector3 kv_{1.2, 1.2, 1.4};
-  Vector3 ki_{0.10, 0.10, 0.15};
-  Vector3 integral_limit_{0.40, 0.40, 0.50};
-  Vector3 integral_acceleration_{Vector3::Zero()};
-  double integral_enable_velocity_error_mps_{0.60};
+  std::unique_ptr<PdMrac> pd_mrac_;
   bool last_output_saturated_{false};
+  bool stationary_reference_active_{false};
   std::optional<rclcpp::Time> last_control_time_;
   std::optional<DesiredState> desired_;
   std::optional<DesiredState> reference_target_;
@@ -1343,8 +1250,6 @@ private:
   rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr status_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLocalPosition>::SharedPtr local_position_sub_;
-  rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr odometry_sub_;
-  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;
   rclcpp::Subscription<px4_msgs::msg::VehicleLandDetected>::SharedPtr land_detected_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr takeover_permission_sub_;
   rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr manual_yaw_sub_;
@@ -1354,6 +1259,7 @@ private:
   rclcpp::Publisher<px4_msgs::msg::VehicleCommand>::SharedPtr vehicle_command_pub_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_pub_;
   rclcpp::Publisher<ControlDebug>::SharedPtr debug_pub_;
+  rclcpp::Publisher<controller::msg::PdMracState>::SharedPtr pd_mrac_state_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 }  // namespace

@@ -7,7 +7,6 @@
 #include <bspline_opt/uniform_bspline.h>
 #include <traj_utils/msg/data_disp.hpp>
 #include <plan_env/grid_map.h>
-#include <plan_env/obj_predictor.h>
 #include <traj_utils/plan_container.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <traj_utils/planning_visualization.h>
@@ -39,6 +38,13 @@ namespace ego_planner
                                      const Eigen::Vector3d& start_acc,
                                      const std::vector<Eigen::Vector3d>& waypoints, const Eigen::Vector3d& end_vel,
                                      const Eigen::Vector3d& end_acc);
+        // Generate a short minimum-jerk terminal correction after the primary
+        // EGO spline ends outside the goal tolerance. The final spline must pass
+        // the same inflated-map and physical-limit checks before publication.
+        bool planTerminalCorrection(const Eigen::Vector3d& start_pos,
+                                    const Eigen::Vector3d& start_vel,
+                                    const Eigen::Vector3d& start_acc,
+                                    const Eigen::Vector3d& end_pos);
 
         void initPlanModules(rclcpp::Node::SharedPtr& node, PlanningVisualization::Ptr vis = NULL);
 
@@ -55,7 +61,6 @@ namespace ego_planner
         LocalTrajData local_data_;
         GlobalTrajData global_data_;
         GridMap::Ptr grid_map_;
-        fast_planner::ObjPredictor::Ptr obj_predictor_;
         SwarmTrajData swarm_trajs_buf_;
 
     private:
@@ -71,12 +76,7 @@ namespace ego_planner
 
         void updateTrajInfo(const UniformBspline& position_traj, const rclcpp::Time time_now);
 
-        void reparamBspline(UniformBspline& bspline, vector<Eigen::Vector3d>& start_end_derivative, double ratio,
-                            Eigen::MatrixXd& ctrl_pts, double& dt,
-                            double& time_inc);
-
-        bool refineTrajAlgo(UniformBspline& traj, vector<Eigen::Vector3d>& start_end_derivative, double ratio,
-                            double& ts, Eigen::MatrixXd& optimal_control_points);
+        bool collisionFree(UniformBspline& spline, double speed_bound);
 
         // !SECTION stable
 

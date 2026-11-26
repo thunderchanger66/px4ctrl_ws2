@@ -3,16 +3,24 @@
 <package format="3">
   <name>ego_planner</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="ma@todo.todo">ma</maintainer>
-  <license>TODO: License declaration</license>
+  <description>EGO local replanning and trajectory server for PX4 local navigation.</description>
+  <maintainer email="thunder@example.com">GRA</maintainer>
+  <license>GPL-3.0-only</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
 
-  <depend>quadrotor_msgs</depend>
-  <depend>bspline_opt</depend>
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>quadrotor_msgs</depend>
+  <depend>plan_env</depend>
+  <depend>path_searching</depend>
+  <depend>traj_utils</depend>
+  <depend>bspline_opt</depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>tf2_ros</exec_depend>

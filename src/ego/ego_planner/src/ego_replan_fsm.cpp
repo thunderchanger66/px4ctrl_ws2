@@ -18,7 +18,8 @@ namespace ego_planner
         node_->declare_parameter("fsm/flight_type", -1);
         node_->declare_parameter("fsm/thresh_replan_time", -1.0);
         node_->declare_parameter("fsm/thresh_no_replan_meter", -1.0);
-        node_->declare_parameter("fsm/goal_tolerance_m", 0.15);
+        node_->declare_parameter("fsm/goal_tolerance_m", 0.20);
+        node_->declare_parameter("fsm/goal_speed_tolerance_mps", 0.20);
         node_->declare_parameter("fsm/replan_retry_interval", 0.25);
         node_->declare_parameter("fsm/odom_timeout_sec", 0.5);
         node_->declare_parameter("fsm/odom_max_speed_mps", 5.0);
@@ -34,7 +35,10 @@ namespace ego_planner
         node_->get_parameter("fsm/thresh_replan_time", replan_thresh_);
         node_->get_parameter("fsm/thresh_no_replan_meter", no_replan_thresh_);
         node_->get_parameter("fsm/goal_tolerance_m", goal_tolerance_);
+        node_->get_parameter("fsm/goal_speed_tolerance_mps", goal_speed_tolerance_);
         node_->get_parameter("fsm/replan_retry_interval", replan_retry_interval_);
+        if (!std::isfinite(goal_speed_tolerance_) || goal_speed_tolerance_ <= 0.0)
+            goal_speed_tolerance_ = 0.20;
         if (!std::isfinite(replan_retry_interval_) || replan_retry_interval_ < 0.05)
         {
             RCLCPP_WARN(node_->get_logger(), "fsm/replan_retry_interval must be >= 0.05; using 0.25 s");
@@ -357,6 +361,7 @@ namespace ego_planner
         }
 
         have_trigger_ = true;
+        terminal_recovery_attempts_ = 0;
 
         planNextWaypoint(end_wp);
     }
@@ -793,13 +798,23 @@ namespace ego_planner
             {
                 if (node_->now() < next_plan_attempt_)
                     break;
-                bool success = planFromGlobalTraj(10); // zx-todo
-                if (success)
+                // For a short next leg, the optimizer can repeatedly reject
+                // its minimum-knot spline. Try the same checked short path
+                // used at a terminal correction once normal planning fails.
+                if (!have_target_)
+                    break;
+                if (planFromGlobalTraj(10))
                 {
                     next_plan_attempt_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
                     changeFSMExecState(EXEC_TRAJ, "FSM");
                     flag_escape_emergency_ = true;
                     publishSwarmTrajs(false);
+                }
+                else if (planner_manager_->local_data_.traj_id_ > 0 &&
+                         tryShortGoalTrajectory())
+                {
+                    next_plan_attempt_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
+                    changeFSMExecState(EXEC_TRAJ, "SHORT_GOAL_TRAJECTORY");
                 }
                 else
                 {
@@ -838,7 +853,8 @@ namespace ego_planner
                 LocalTrajData* info = &planner_manager_->local_data_;
                 rclcpp::Time time_now = node_->now();
                 double t_cur = (time_now - info->start_time_).seconds();
-                t_cur = std::min(info->duration_, t_cur);
+                const double elapsed = t_cur;
+                t_cur = std::clamp(t_cur, 0.0, info->duration_);
 
                 Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
 
@@ -852,10 +868,14 @@ namespace ego_planner
                 }
                 else if ((local_target_pt_ - end_pt_).norm() < 1e-3) // close to the global target
                 {
-                    if (t_cur > info->duration_ - 1e-2)
+                    if (elapsed >= info->duration_)
                     {
                         const double goal_error = (end_pt_ - odom_pos_).norm();
-                        if (goal_error <= goal_tolerance_)
+                        const double terminal_speed = odom_vel_.norm();
+                        const double reference_error = (end_pt_ - pos).norm();
+                        if (reference_error <= goal_tolerance_ && goal_error <= goal_tolerance_ &&
+                            std::isfinite(terminal_speed) &&
+                            terminal_speed <= goal_speed_tolerance_)
                         {
                             have_target_ = false;
                             have_trigger_ = false;
@@ -870,30 +890,50 @@ namespace ego_planner
                             goto force_return;
                         }
 
-                        RCLCPP_WARN(node_->get_logger(),
-                                    "Trajectory finished %.3f m from goal (tolerance %.3f m); replanning from odometry",
-                                    goal_error, goal_tolerance_);
-                        replan_from_odom_ = true;
-                        planNextWaypoint(end_pt_);
-                        if (have_target_ && planFromGlobalTraj(2))
+                        // Give the controller time to settle at the final reference.
+                        if (elapsed < info->duration_ + 0.7)
+                            goto force_return;
+                        if (++terminal_recovery_attempts_ > 3)
                         {
-                            replan_from_odom_ = false;
-                            changeFSMExecState(EXEC_TRAJ, "FSM");
-                            flag_escape_emergency_ = true;
-                            publishSwarmTrajs(false);
+                            RCLCPP_ERROR(node_->get_logger(),
+                                         "Terminal recovery did not converge after three attempts");
+                            publishHoldTrajectory();
+                            goto force_return;
+                        }
+
+                        // The trajectory server holds the endpoint with zero velocity
+                        // and acceleration here. Retain the measured entry velocity.
+                        if (tryShortGoalTrajectory())
+                        {
+                            changeFSMExecState(EXEC_TRAJ, "TERMINAL_CORRECTION");
                         }
                         else
                         {
-                            RCLCPP_ERROR(node_->get_logger(),
-                                         "Unable to validate a return trajectory; publishing a safe hover");
-                            publishHoldTrajectory();
+                            replan_from_odom_ = true;
+                            planNextWaypoint(end_pt_);
+                            if (have_target_ && planFromGlobalTraj(2))
+                            {
+                                replan_from_odom_ = false;
+                                flag_escape_emergency_ = true;
+                                publishSwarmTrajs(false);
+                                changeFSMExecState(EXEC_TRAJ, "FSM");
+                            }
+                            else
+                            {
+                                RCLCPP_ERROR(node_->get_logger(),
+                                             "No validated terminal recovery trajectory; publishing a safe hover");
+                                publishHoldTrajectory();
+                            }
                         }
                         goto force_return;
                     }
-                    else if ((end_pt_ - pos).norm() > no_replan_thresh_ && t_cur > replan_thresh_)
+                    else if (planner_manager_->pp_.drone_id > 0 &&
+                             (end_pt_ - pos).norm() > no_replan_thresh_ && t_cur > replan_thresh_)
                     {
                         changeFSMExecState(REPLAN_TRAJ, "FSM");
                     }
+                    // For a solo UAV this spline already reaches the final goal.
+                    // The collision timer still replaces it if occupancy changes.
                 }
                 else if (t_cur > replan_thresh_)
                 {
@@ -988,9 +1028,25 @@ namespace ego_planner
             return false;
         t_cur = std::clamp(t_cur, 0.0, info->duration_);
 
-        start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur);
-        start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur);
+        // Replanning must start from the measured vehicle state.  The old
+        // implementation restarted from the previous spline's prediction;
+        // when PX4/FAST-LIO tracking lagged behind that prediction, the newly
+        // published spline began ahead of the aircraft and the controller had
+        // to absorb a position/velocity step.  Keep the smooth predicted
+        // acceleration, but anchor position and velocity to fresh odometry.
+        const Eigen::Vector3d predicted_pos = info->position_traj_.evaluateDeBoorT(t_cur);
+        const Eigen::Vector3d predicted_vel = info->velocity_traj_.evaluateDeBoorT(t_cur);
+        start_pt_ = odom_pos_;
+        start_vel_ = odom_vel_;
         start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_cur);
+        const double position_lag = (predicted_pos - odom_pos_).norm();
+        const double velocity_lag = (predicted_vel - odom_vel_).norm();
+        if (position_lag > 0.25 || velocity_lag > 0.50)
+        {
+            RCLCPP_WARN(node_->get_logger(),
+                        "Replanning from measured odometry; previous spline lag %.3f m, %.3f m/s",
+                        position_lag, velocity_lag);
+        }
 
         bool success = callReboundReplan(false, false);
 
@@ -1121,43 +1177,47 @@ namespace ego_planner
         cout << "refine_success=" << plan_and_refine_success << endl;
 
         if (plan_and_refine_success)
-        {
-            auto info = &planner_manager_->local_data_;
-
-            traj_utils::msg::Bspline bspline;
-            bspline.order = 3;
-            bspline.start_time = info->start_time_;
-            bspline.traj_id = info->traj_id_;
-
-            Eigen::MatrixXd pos_pts = info->position_traj_.getControlPoint();
-            bspline.pos_pts.reserve(pos_pts.cols());
-            for (int i = 0; i < pos_pts.cols(); ++i)
-            {
-                geometry_msgs::msg::Point pt;
-                pt.x = pos_pts(0, i);
-                pt.y = pos_pts(1, i);
-                pt.z = pos_pts(2, i);
-                bspline.pos_pts.push_back(pt);
-            }
-
-            Eigen::VectorXd knots = info->position_traj_.getKnot();
-
-            bspline.knots.reserve(knots.rows());
-            for (int i = 0; i < knots.rows(); ++i)
-            {
-                bspline.knots.push_back(knots(i));
-            }
-
-            /* 1. publish traj to traj_server */
-            bspline_pub_->publish(bspline);
-
-            /* 2. publish traj to the next drone of swarm */
-
-            /* 3. publish traj for visualization */
-            visualization_->displayOptimalList(info->position_traj_.get_control_points(), 0);
-        }
-
+            publishLocalTrajectory();
         return plan_and_refine_success;
+    }
+
+    bool EGOReplanFSM::tryShortGoalTrajectory()
+    {
+        if (target_type_ != MANUAL_TARGET || !odometryFresh() ||
+            !planner_manager_->planTerminalCorrection(
+                odom_pos_, odom_vel_, Eigen::Vector3d::Zero(), end_pt_))
+            return false;
+
+        local_target_pt_ = end_pt_;
+        local_target_vel_.setZero();
+        have_new_target_ = false;
+        replan_from_odom_ = false;
+        flag_escape_emergency_ = true;
+        publishLocalTrajectory();
+        publishSwarmTrajs(false);
+        return true;
+    }
+
+    void EGOReplanFSM::publishLocalTrajectory()
+    {
+        auto& trajectory = planner_manager_->local_data_;
+        traj_utils::msg::Bspline message;
+        message.order = 3;
+        message.start_time = trajectory.start_time_;
+        message.traj_id = trajectory.traj_id_;
+        const Eigen::MatrixXd points = trajectory.position_traj_.getControlPoint();
+        message.pos_pts.reserve(points.cols());
+        for (Eigen::Index i = 0; i < points.cols(); ++i)
+        {
+            auto& point = message.pos_pts.emplace_back();
+            point.x = points(0, i);
+            point.y = points(1, i);
+            point.z = points(2, i);
+        }
+        const Eigen::VectorXd knots = trajectory.position_traj_.getKnot();
+        message.knots.assign(knots.data(), knots.data() + knots.size());
+        bspline_pub_->publish(message);
+        visualization_->displayOptimalList(points, 0);
     }
 
     void EGOReplanFSM::publishHoldTrajectory()
@@ -1339,7 +1399,7 @@ namespace ego_planner
                 break;
             }
         }
-        if (t > planner_manager_->global_data_.global_duration_) // Last global point
+        if (t >= planner_manager_->global_data_.global_duration_) // Last global point
         {
             local_target_pt_ = end_pt_;
             planner_manager_->global_data_.last_progress_time_ = planner_manager_->global_data_.global_duration_;

@@ -50,7 +50,7 @@ namespace ego_planner
 
         bspline_optimizer_ = std::make_unique<BsplineOptimizer>();
         bspline_optimizer_->setParam(node);
-        bspline_optimizer_->setEnvironment(grid_map_, obj_predictor_);
+        bspline_optimizer_->setEnvironment(grid_map_);
         bspline_optimizer_->a_star_ = std::make_shared<AStar>();
         bspline_optimizer_->a_star_->initGridMap(grid_map_, Eigen::Vector3i(100, 100, 100));
 
@@ -92,13 +92,14 @@ namespace ego_planner
                         ? pp_.ctrl_pt_dist / pp_.max_vel_ * 1.5
                         : pp_.ctrl_pt_dist / pp_.max_vel_ * 5;
         // pp_.ctrl_pt_dist / pp_.max_vel_ is too tense, and will surely exceed the acc/vel limits
-        vector<Eigen::Vector3d> point_set, start_end_derivatives;
+        vector<Eigen::Vector3d> point_set;
+        const vector<Eigen::Vector3d> start_end_derivatives{
+            start_vel, local_target_vel, start_acc, Eigen::Vector3d::Zero()};
         static bool flag_first_call = true, flag_force_polynomial = false;
         bool flag_regenerate = false;
         do
         {
             point_set.clear();
-            start_end_derivatives.clear();
             flag_regenerate = false;
 
             // 这里如果正常进入if（通常为初次生成），则do部分只进行一次，即只清空一次点集；若进入else则有可能对异常情况重置flag_regenerate并再do一次
@@ -112,11 +113,11 @@ namespace ego_planner
                 PolynomialTraj gl_traj;
 
                 double dist = (start_pt - local_target_pt).norm();
-                // 判断 速度的平方/加速度 是否大于dist，并决定如何计算时间
-                double time = pow(pp_.max_vel_, 2) / pp_.max_acc_ > dist
-                                  ? sqrt(dist / pp_.max_acc_)
-                                  : (dist - pow(pp_.max_vel_, 2) / pp_.max_acc_) / pp_.max_vel_ + 2 * pp_.max_vel_ / pp_
-                                  .max_acc_;
+                // Seed with the rest-to-rest quintic peak bounds. The final
+                // derivative check also covers nonzero entry and exit states.
+                const double time = std::max({0.6, 1.875 * dist / pp_.max_vel_,
+                    std::sqrt(5.774 * dist / pp_.max_acc_),
+                    std::cbrt(60.0 * dist / pp_.max_jerk_)});
 
                 if (!flag_randomPolyTraj)
                 // false生成一段单一的多项式轨迹，true生成一个包含随机插入点的轨迹
@@ -148,38 +149,32 @@ namespace ego_planner
                                                           Eigen::Vector3d::Zero(), t);
                 }
 
-                double t;
-                bool flag_too_far;
-                ts *= 1.5; // ts will be divided by 1.5 in the next
-                do
+                int spans = std::max(6, static_cast<int>(std::ceil(time / ts)));
+                for (;;)
                 {
-                    ts /= 1.5;
+                    ts = time / spans;
                     point_set.clear();
-                    flag_too_far = false;
-                    Eigen::Vector3d last_pt = gl_traj.evaluate(0);
-                    for (t = 0; t < time; t += ts)
-                    {
-                        Eigen::Vector3d pt = gl_traj.evaluate(t);
-                        if ((last_pt - pt).norm() > pp_.ctrl_pt_dist * 1.5)
-                        {
-                            flag_too_far = true;
-                            break;
-                        }
-                        last_pt = pt;
-                        point_set.push_back(pt);
-                    }
+                    point_set.push_back(start_pt);
+                    for (int i = 1; i < spans; ++i)
+                        point_set.push_back(gl_traj.evaluate(i * ts));
+                    point_set.push_back(local_target_pt);
+                    const auto dense_enough = std::adjacent_find(point_set.begin(), point_set.end(),
+                        [&](const auto& first, const auto& second) {
+                            return !second.allFinite() ||
+                                (second - first).norm() > pp_.ctrl_pt_dist * 1.5;
+                        }) == point_set.end();
+                    if (dense_enough)
+                        break;
+                    if (spans >= 256)
+                        return false;
+                    spans = std::min(256, 2 * spans);
                 }
-                while (flag_too_far || point_set.size() < 7); // To make sure the initial path has enough points.
-                t -= ts;
-                start_end_derivatives.push_back(gl_traj.evaluateVel(0));
-                start_end_derivatives.push_back(local_target_vel);
-                start_end_derivatives.push_back(gl_traj.evaluateAcc(0));
-                start_end_derivatives.push_back(gl_traj.evaluateAcc(t));
             }
             else // Initial path generated from previous trajectory.
             {
                 double t;
-                double t_cur = (clock_->now() - local_data_.start_time_).seconds();
+                const double t_cur = std::clamp((clock_->now() - local_data_.start_time_).seconds(),
+                                                0.0, local_data_.duration_);
 
                 vector<double> pseudo_arc_length;
                 vector<Eigen::Vector3d> segment_point;
@@ -251,10 +246,7 @@ namespace ego_planner
                 }
                 while (point_set.size() < 7); // If the start point is very close to end point, this will help
 
-                start_end_derivatives.push_back(local_data_.velocity_traj_.evaluateDeBoorT(t_cur));
-                start_end_derivatives.push_back(local_target_vel);
-                start_end_derivatives.push_back(local_data_.acceleration_traj_.evaluateDeBoorT(t_cur));
-                start_end_derivatives.push_back(Eigen::Vector3d::Zero());
+                point_set.front() = start_pt;
 
                 if (point_set.size() > pp_.planning_horizen_ / pp_.ctrl_pt_dist * 3)
                 // The initial path is unnormally too long!
@@ -268,7 +260,8 @@ namespace ego_planner
 
         // 将轨迹变为B样条轨迹
         Eigen::MatrixXd ctrl_pts, ctrl_pts_temp;
-        UniformBspline::parameterizeToBspline(ts, point_set, start_end_derivatives, ctrl_pts);
+        if (!UniformBspline::parameterizeToBspline(ts, point_set, start_end_derivatives, ctrl_pts))
+            return false;
 
         vector<std::pair<int, int>> segments;
         segments = bspline_optimizer_->initControlPoints(ctrl_pts, true);
@@ -338,70 +331,71 @@ namespace ego_planner
 
         t_start = clock_->now();
 
-        UniformBspline pos = UniformBspline(ctrl_pts, 3, ts);
-        pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_, pp_.max_jerk_, pp_.feasibility_tolerance_);
-
-        /*** STEP 3: REFINE(RE-ALLOCATE TIME) IF NECESSARY ***/
-        // Note: Only adjust time in single drone mode. But we still allow drone_0 to adjust its time profile.
-        if (pp_.drone_id <= 0)
+        UniformBspline pos(ctrl_pts, 3, ts);
+        const auto dynamically_feasible = [&](UniformBspline& candidate, double& ratio) {
+            candidate.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_, pp_.max_jerk_,
+                                        pp_.feasibility_tolerance_);
+            return candidate.checkFeasibility(ratio);
+        };
+        double scale = 1.0;
+        bool feasible = dynamically_feasible(pos, scale);
+        if (!feasible && pp_.drone_id <= 0 && std::isfinite(scale))
         {
-            double ratio;
-            bool flag_step_2_success = true;
-            if (!pos.checkFeasibility(ratio, false))
-            {
-                cout << "Need to reallocate time." << endl;
+            // Reuse the optimized geometry, but give all of its spans more
+            // time. Refit the six endpoint controls for the new time step so
+            // the command starts with the original physical derivatives.
+            const int spans = static_cast<int>(ctrl_pts.cols()) - 3;
+            vector<Eigen::Vector3d> samples;
+            samples.reserve(spans + 1);
+            for (int i = 0; i <= spans; ++i)
+                samples.push_back(pos.evaluateDeBoorT(i * ts));
+            samples.front() = start_pt;
+            samples.back() = local_target_pt;
+            bspline_optimizer_->ref_pts_ = samples;
 
-                Eigen::MatrixXd optimal_control_points;
-                flag_step_2_success = refineTrajAlgo(pos, start_end_derivatives, ratio, ts, optimal_control_points);
-                if (flag_step_2_success)
-                    pos = UniformBspline(optimal_control_points, 3, ts);
-            }
-
-            if (!flag_step_2_success)
+            const double initial_scale = scale;
+            double fitted_dt = ts * scale * 1.03;
+            for (int attempt = 0; attempt < 6 && !feasible; ++attempt)
             {
-                printf(
-                    "\033[34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter \"lambda_fitness\".\n\033[0m");
-                continous_failures_count_++;
-                return false;
+                Eigen::MatrixXd controls;
+                if (!UniformBspline::parameterizeToBspline(fitted_dt, samples, start_end_derivatives, controls))
+                    break;
+                Eigen::MatrixXd optimized_controls;
+                if (bspline_optimizer_->BsplineOptimizeTrajRefine(controls, fitted_dt, optimized_controls))
+                {
+                    UniformBspline refined(optimized_controls, 3, fitted_dt);
+                    if (dynamically_feasible(refined, scale) && collisionFree(refined, pp_.max_vel_))
+                    {
+                        pos = std::move(refined);
+                        feasible = true;
+                    }
+                }
+                if (!feasible)
+                {
+                    UniformBspline fitted(controls, 3, fitted_dt);
+                    if (dynamically_feasible(fitted, scale) && collisionFree(fitted, pp_.max_vel_))
+                    {
+                        pos = std::move(fitted);
+                        feasible = true;
+                    }
+                }
+                if (feasible)
+                    RCLCPP_INFO(rclcpp::get_logger("EGOPlannerManager"),
+                                "Retimed feasible spline: %.3f -> %.3f s (initial derivative scale %.2f)",
+                                ts * spans, fitted_dt * spans, initial_scale);
+                else if (std::isfinite(scale))
+                    fitted_dt *= std::clamp(scale * 1.03, 1.18, 1.55);
+                else
+                    break;
             }
         }
-        else
+        if (!feasible || !collisionFree(pos, pp_.max_vel_))
         {
-            static bool print_once = true;
-            if (print_once)
-            {
-                print_once = false;
-                RCLCPP_ERROR(rclcpp::get_logger("ego_planner"), "IN SWARM MODE, REFINE DISABLED!");
-            }
-        }
-
-        // The optimizer performs collision checks during its iterations, but
-        // the final time-rescaled spline is the one sent to PX4. Re-check the
-        // published spline over its complete duration so a refinement or
-        // numerical update can never turn an apparently successful plan into
-        // a command through an inflated obstacle voxel.
-        const double final_duration = pos.getTimeSum();
-        const double sample_step = std::max(0.01, grid_map_->getResolution() /
-                                                   std::max(pp_.max_vel_, 1e-3));
-        if (!std::isfinite(final_duration) || final_duration <= 0.0)
-        {
-            RCLCPP_ERROR(rclcpp::get_logger("EGOPlannerManager"),
-                         "Rejecting trajectory with invalid final duration");
+            RCLCPP_WARN(rclcpp::get_logger("EGOPlannerManager"),
+                        "Rejecting final spline: %s",
+                        feasible ? "inflated occupancy or map bounds" : "no fit met the dynamic and occupancy limits");
             continous_failures_count_++;
             return false;
-        }
-        for (double t = 0.0; t <= final_duration + 1e-6; t += sample_step)
-        {
-            const Eigen::Vector3d sample = pos.evaluateDeBoorT(std::min(t, final_duration));
-            const int occupancy = sample.allFinite() ? grid_map_->getInflateOccupancy(sample) : -1;
-            if (occupancy != 0)
-            {
-                RCLCPP_WARN(rclcpp::get_logger("EGOPlannerManager"),
-                            "Rejecting final trajectory: sample %.3f s is %s",
-                            t, occupancy < 0 ? "outside the occupancy map" : "inside inflated occupancy");
-                continous_failures_count_++;
-                return false;
-            }
         }
 
         // t_refine = ros::Time::now() - t_start;
@@ -640,26 +634,155 @@ namespace ego_planner
         return true;
     }
 
-    bool EGOPlannerManager::refineTrajAlgo(UniformBspline& traj, vector<Eigen::Vector3d>& start_end_derivative,
-                                           double ratio, double& ts, Eigen::MatrixXd& optimal_control_points)
+    bool EGOPlannerManager::collisionFree(UniformBspline& spline, double speed_bound)
     {
-        double t_inc;
+        const double duration = spline.getTimeSum();
+        const double resolution = grid_map_->getResolution();
+        if (!(std::isfinite(duration) && duration > 0.0 && resolution > 0.0))
+            return false;
+        // Sample no farther apart than a quarter of a voxel using the checked
+        // speed bound, and explicitly include both endpoints.
+        const double step = std::min(0.05, 0.25 * resolution /
+            (speed_bound * (1.0 + pp_.feasibility_tolerance_) + 1e-4));
+        const int intervals = std::max(1, static_cast<int>(std::ceil(duration / step)));
+        for (int i = 0; i <= intervals; ++i)
+        {
+            const Eigen::Vector3d point = spline.evaluateDeBoorT(duration * i / intervals);
+            if (!point.allFinite() || grid_map_->getInflateOccupancy(point) != 0)
+                return false;
+        }
+        return true;
+    }
 
-        Eigen::MatrixXd ctrl_pts; // = traj.getControlPoint()
+    bool EGOPlannerManager::planTerminalCorrection(const Eigen::Vector3d& start_pos,
+                                                       const Eigen::Vector3d& start_vel,
+                                                       const Eigen::Vector3d& start_acc,
+                                                       const Eigen::Vector3d& end_pos)
+    {
+        if (!grid_map_ || !clock_ || !start_pos.allFinite() || !start_vel.allFinite() ||
+            !start_acc.allFinite() || !end_pos.allFinite() ||
+            !grid_map_->isInMap(start_pos) || !grid_map_->isInMap(end_pos) ||
+            grid_map_->getInflateOccupancy(end_pos) != 0)
+            return false;
 
-        // std::cout << "ratio: " << ratio << std::endl;
-        reparamBspline(traj, start_end_derivative, ratio, ctrl_pts, ts, t_inc);
+        const double distance = (end_pos - start_pos).norm();
+        if (!std::isfinite(distance) || distance < 1e-3 || distance > 0.60 || start_vel.norm() > 0.25)
+            return false;
 
-        traj = UniformBspline(ctrl_pts, 3, ts);
+        // Rest-to-rest quintic bounds provide a conservative starting duration;
+        // nonzero measured entry velocity is retained as a boundary condition.
+        const double correction_speed = std::min(0.40, pp_.max_vel_);
+        const double duration_min = std::max({
+            0.7,
+            1.875 * distance / correction_speed,
+            std::sqrt(5.8 * distance / pp_.max_acc_),
+            std::cbrt(60.0 * distance / pp_.max_jerk_),
+        });
+        if (!std::isfinite(duration_min) || duration_min <= 0.0)
+            return false;
 
-        double t_step = traj.getTimeSum() / (ctrl_pts.cols() - 3);
-        bspline_optimizer_->ref_pts_.clear();
-        for (double t = 0; t < traj.getTimeSum() + 1e-4; t += t_step)
-            bspline_optimizer_->ref_pts_.push_back(traj.evaluateDeBoorT(t));
+        constexpr int kMaximumAttempts = 8;
+        constexpr double kDurationGrowth = 1.35;
+        const double spatial_step = grid_map_->getResolution() * 0.25;
+        if (!std::isfinite(spatial_step) || spatial_step <= 0.0)
+            return false;
+        for (int attempt = 0; attempt < kMaximumAttempts; ++attempt)
+        {
+            const double duration = duration_min * std::pow(kDurationGrowth, attempt);
+            const int segments = std::clamp(static_cast<int>(std::ceil(duration / 0.05)), 12, 200);
+            const double sample_dt = duration / static_cast<double>(segments);
+            const Eigen::Vector3d zero = Eigen::Vector3d::Zero();
+            PolynomialTraj polynomial = PolynomialTraj::one_segment_traj_gen(
+                start_pos, start_vel, start_acc, end_pos, zero, zero, duration);
 
-        bool success = bspline_optimizer_->BsplineOptimizeTrajRefine(ctrl_pts, ts, optimal_control_points);
+            std::vector<Eigen::Vector3d> samples;
+            samples.reserve(static_cast<size_t>(segments + 1));
+            bool polynomial_clear = true;
+            for (int i = 0; i <= segments; ++i)
+            {
+                const double t = sample_dt * static_cast<double>(i);
+                const Eigen::Vector3d point = polynomial.evaluate(t);
+                if (!point.allFinite() || !grid_map_->isInMap(point) ||
+                    grid_map_->getInflateOccupancy(point) != 0)
+                {
+                    polynomial_clear = false;
+                    break;
+                }
+                samples.push_back(point);
+            }
+            if (!polynomial_clear || samples.size() != static_cast<size_t>(segments + 1))
+            {
+                RCLCPP_WARN(rclcpp::get_logger("EGOPlannerManager"),
+                            "Terminal correction candidate %d/%d intersects inflated occupancy or leaves map",
+                            attempt + 1, kMaximumAttempts);
+                continue;
+            }
 
-        return success;
+            std::vector<Eigen::Vector3d> boundary_derivatives{
+                start_vel, zero, start_acc, zero};
+            Eigen::MatrixXd control_points;
+            if (!UniformBspline::parameterizeToBspline(sample_dt, samples,
+                                                       boundary_derivatives, control_points))
+                continue;
+            UniformBspline candidate(control_points, 3, sample_dt);
+            candidate.setPhysicalLimits(correction_speed, pp_.max_acc_, pp_.max_jerk_, 0.0);
+            double required_scale = 1.0;
+            if (!candidate.checkFeasibility(required_scale, false))
+            {
+                RCLCPP_INFO(rclcpp::get_logger("EGOPlannerManager"),
+                            "Terminal correction candidate %d/%d exceeds dynamic limits (time scale %.3f); retrying slower",
+                            attempt + 1, kMaximumAttempts, required_scale);
+                continue;
+            }
+
+            const double candidate_duration = candidate.getTimeSum();
+            if (!std::isfinite(candidate_duration) || candidate_duration <= 0.0)
+                continue;
+            UniformBspline velocity = candidate.getDerivative();
+            UniformBspline acceleration = velocity.getDerivative();
+            const Eigen::Vector3d terminal_position = candidate.evaluateDeBoorT(candidate_duration);
+            const Eigen::Vector3d terminal_velocity = velocity.evaluateDeBoorT(candidate_duration);
+            const Eigen::Vector3d terminal_acceleration = acceleration.evaluateDeBoorT(candidate_duration);
+            if (!terminal_position.allFinite() || !terminal_velocity.allFinite() ||
+                !terminal_acceleration.allFinite() ||
+                (terminal_position - end_pos).norm() > 0.02 ||
+                terminal_velocity.norm() > 0.05 || terminal_acceleration.norm() > 0.10)
+                continue;
+
+            const double sample_time_step = std::min(
+                0.05, spatial_step / (correction_speed + 1e-4));
+            const int collision_samples = std::max(
+                1, static_cast<int>(std::ceil(candidate_duration / sample_time_step)));
+            bool spline_clear = true;
+            for (int i = 0; i <= collision_samples; ++i)
+            {
+                const double t = candidate_duration * static_cast<double>(i) /
+                                 static_cast<double>(collision_samples);
+                const Eigen::Vector3d point = candidate.evaluateDeBoorT(t);
+                if (!point.allFinite() || !grid_map_->isInMap(point) ||
+                    grid_map_->getInflateOccupancy(point) != 0)
+                {
+                    spline_clear = false;
+                    break;
+                }
+            }
+            if (!spline_clear)
+            {
+                RCLCPP_WARN(rclcpp::get_logger("EGOPlannerManager"),
+                            "Terminal correction B-spline failed the final inflated-map check");
+                continue;
+            }
+
+            updateTrajInfo(candidate, clock_->now());
+            RCLCPP_INFO(rclcpp::get_logger("EGOPlannerManager"),
+                        "Accepted checked minimum-jerk terminal correction: %.3f m, %.3f s, attempt %d/%d",
+                        distance, candidate_duration, attempt + 1, kMaximumAttempts);
+            return true;
+        }
+
+        RCLCPP_ERROR(rclcpp::get_logger("EGOPlannerManager"),
+                     "No collision-free terminal correction met EGO velocity/acceleration/jerk limits");
+        return false;
     }
 
     void EGOPlannerManager::updateTrajInfo(const UniformBspline& position_traj, const rclcpp::Time time_now)
@@ -673,23 +796,4 @@ namespace ego_planner
         local_data_.traj_id_ += 1;
     }
 
-    void EGOPlannerManager::reparamBspline(UniformBspline& bspline, vector<Eigen::Vector3d>& start_end_derivative,
-                                           double ratio,
-                                           Eigen::MatrixXd& ctrl_pts, double& dt, double& time_inc)
-    {
-        double time_origin = bspline.getTimeSum();
-        int seg_num = bspline.getControlPoint().cols() - 3;
-
-        bspline.lengthenTime(ratio);
-        double duration = bspline.getTimeSum();
-        dt = duration / double(seg_num);
-        time_inc = duration - time_origin;
-
-        vector<Eigen::Vector3d> point_set;
-        for (double time = 0.0; time <= duration + 1e-4; time += dt)
-        {
-            point_set.push_back(bspline.evaluateDeBoorT(time));
-        }
-        UniformBspline::parameterizeToBspline(dt, point_set, start_end_derivative, ctrl_pts);
-    }
 } // namespace ego_planner

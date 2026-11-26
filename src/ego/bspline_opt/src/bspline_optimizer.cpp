@@ -31,6 +31,7 @@ namespace ego_planner
         node->declare_parameter("optimization/swarm_clearance", -1.0);
         node->declare_parameter("optimization/max_vel", -1.0);
         node->declare_parameter("optimization/max_acc", -1.0);
+        node->declare_parameter("optimization/max_jerk", node->get_parameter("manager/max_jerk").as_double());
 
         node->declare_parameter("optimization/order", 3);
 
@@ -43,6 +44,7 @@ namespace ego_planner
         node->get_parameter("optimization/swarm_clearance", swarm_clearance_);
         node->get_parameter("optimization/max_vel", max_vel_);
         node->get_parameter("optimization/max_acc", max_acc_);
+        node->get_parameter("optimization/max_jerk", max_jerk_);
 
         node->get_parameter("optimization/order", order_);
     }
@@ -50,12 +52,6 @@ namespace ego_planner
     void BsplineOptimizer::setEnvironment(const GridMap::Ptr& map)
     {
         this->grid_map_ = map;
-    }
-
-    void BsplineOptimizer::setEnvironment(const GridMap::Ptr& map, const fast_planner::ObjPredictor::Ptr mov_obj)
-    {
-        this->grid_map_ = map;
-        this->moving_objs_ = mov_obj;
     }
 
     void BsplineOptimizer::setControlPoints(const Eigen::MatrixXd& points)
@@ -985,41 +981,6 @@ namespace ego_planner
         }
     }
 
-    void BsplineOptimizer::calcMovingObjCost(const Eigen::MatrixXd& q, double& cost, Eigen::MatrixXd& gradient)
-    {
-        cost = 0.0;
-        int end_idx = q.cols() - order_;
-        constexpr double CLEARANCE = 1.5;
-        double t_now = clock_->now().seconds();
-
-        for (int i = order_; i < end_idx; i++)
-        {
-            double time = ((double)(order_ - 1) / 2 + (i - order_ + 1)) * bspline_interval_;
-
-            for (int id = 0; id < moving_objs_->getObjNums(); id++)
-            {
-                Eigen::Vector3d obj_prid = moving_objs_->evaluateConstVel(id, t_now + time);
-                double dist = (cps_.points.col(i) - obj_prid).norm();
-                // cout /*<< "cps_.points.col(i)=" << cps_.points.col(i).transpose()*/ << " moving_objs_=" << obj_prid.transpose() << " dist=" << dist << endl;
-                double dist_err = CLEARANCE - dist;
-                Eigen::Vector3d dist_grad = (cps_.points.col(i) - obj_prid).normalized();
-
-                if (dist_err < 0)
-                {
-                    /* do nothing */
-                }
-                else
-                {
-                    cost += pow(dist_err, 2);
-                    gradient.col(i) += -2.0 * dist_err * dist_grad;
-                }
-            }
-            // cout << "time=" << time << " i=" << i << " order_=" << order_ << " end_idx=" << end_idx << endl;
-            // cout << "--" << endl;
-        }
-        // cout << "---------------" << endl;
-    }
-
     void BsplineOptimizer::calcDistanceCostRebound(const Eigen::MatrixXd& q, double& cost,
                                                    Eigen::MatrixXd& gradient, int iter_num, double smoothness_cost)
     {
@@ -1152,205 +1113,28 @@ namespace ego_planner
     void BsplineOptimizer::calcFeasibilityCost(const Eigen::MatrixXd& q, double& cost,
                                                Eigen::MatrixXd& gradient)
     {
-        // #define SECOND_DERIVATIVE_CONTINOUS
-
-#ifdef SECOND_DERIVATIVE_CONTINOUS
-
-    cost = 0.0;
-    double demarcation = 1.0; // 1m/s, 1m/s/s
-    double ar = 3 * demarcation, br = -3 * pow(demarcation, 2), cr = pow(demarcation, 3);
-    double al = ar, bl = -br, cl = cr;
-
-    /* abbreviation */
-    double ts, ts_inv2, ts_inv3;
-    ts = bspline_interval_;
-    ts_inv2 = 1 / ts / ts;
-    ts_inv3 = 1 / ts / ts / ts;
-
-    /* velocity feasibility */
-    for (int i = 0; i < q.cols() - 1; i++)
-    {
-      Eigen::Vector3d vi = (q.col(i + 1) - q.col(i)) / ts;
-
-      for (int j = 0; j < 3; j++)
-      {
-        if (vi(j) > max_vel_ + demarcation)
-        {
-          double diff = vi(j) - max_vel_;
-          cost += (ar * diff * diff + br * diff + cr) * ts_inv3; // multiply ts_inv3 to make vel and acc has similar magnitude
-
-          double grad = (2.0 * ar * diff + br) / ts * ts_inv3;
-          gradient(j, i + 0) += -grad;
-          gradient(j, i + 1) += grad;
-        }
-        else if (vi(j) > max_vel_)
-        {
-          double diff = vi(j) - max_vel_;
-          cost += pow(diff, 3) * ts_inv3;
-          ;
-
-          double grad = 3 * diff * diff / ts * ts_inv3;
-          ;
-          gradient(j, i + 0) += -grad;
-          gradient(j, i + 1) += grad;
-        }
-        else if (vi(j) < -(max_vel_ + demarcation))
-        {
-          double diff = vi(j) + max_vel_;
-          cost += (al * diff * diff + bl * diff + cl) * ts_inv3;
-
-          double grad = (2.0 * al * diff + bl) / ts * ts_inv3;
-          gradient(j, i + 0) += -grad;
-          gradient(j, i + 1) += grad;
-        }
-        else if (vi(j) < -max_vel_)
-        {
-          double diff = vi(j) + max_vel_;
-          cost += -pow(diff, 3) * ts_inv3;
-
-          double grad = -3 * diff * diff / ts * ts_inv3;
-          gradient(j, i + 0) += -grad;
-          gradient(j, i + 1) += grad;
-        }
-        else
-        {
-          /* nothing happened */
-        }
-      }
-    }
-
-    /* acceleration feasibility */
-    for (int i = 0; i < q.cols() - 2; i++)
-    {
-      Eigen::Vector3d ai = (q.col(i + 2) - 2 * q.col(i + 1) + q.col(i)) * ts_inv2;
-
-      for (int j = 0; j < 3; j++)
-      {
-        if (ai(j) > max_acc_ + demarcation)
-        {
-          double diff = ai(j) - max_acc_;
-          cost += ar * diff * diff + br * diff + cr;
-
-          double grad = (2.0 * ar * diff + br) * ts_inv2;
-          gradient(j, i + 0) += grad;
-          gradient(j, i + 1) += -2 * grad;
-          gradient(j, i + 2) += grad;
-        }
-        else if (ai(j) > max_acc_)
-        {
-          double diff = ai(j) - max_acc_;
-          cost += pow(diff, 3);
-
-          double grad = 3 * diff * diff * ts_inv2;
-          gradient(j, i + 0) += grad;
-          gradient(j, i + 1) += -2 * grad;
-          gradient(j, i + 2) += grad;
-        }
-        else if (ai(j) < -(max_acc_ + demarcation))
-        {
-          double diff = ai(j) + max_acc_;
-          cost += al * diff * diff + bl * diff + cl;
-
-          double grad = (2.0 * al * diff + bl) * ts_inv2;
-          gradient(j, i + 0) += grad;
-          gradient(j, i + 1) += -2 * grad;
-          gradient(j, i + 2) += grad;
-        }
-        else if (ai(j) < -max_acc_)
-        {
-          double diff = ai(j) + max_acc_;
-          cost += -pow(diff, 3);
-
-          double grad = -3 * diff * diff * ts_inv2;
-          gradient(j, i + 0) += grad;
-          gradient(j, i + 1) += -2 * grad;
-          gradient(j, i + 2) += grad;
-        }
-        else
-        {
-          /* nothing happened */
-        }
-      }
-    }
-
-#else
-
         cost = 0.0;
-        /* abbreviation */
-        double ts, /*vm2, am2, */ ts_inv2;
-        // vm2 = max_vel_ * max_vel_;
-        // am2 = max_acc_ * max_acc_;
-
-        ts = bspline_interval_;
-        ts_inv2 = 1 / ts / ts;
-
-        /* velocity feasibility */
-        for (int i = 0; i < q.cols() - 1; i++)
-        {
-            Eigen::Vector3d vi = (q.col(i + 1) - q.col(i)) / ts;
-
-            // cout << "temp_v * vi=" ;
-            for (int j = 0; j < 3; j++)
+        const double inv_dt = 1.0 / bspline_interval_;
+        const auto penalize = [&](const auto& coefficients, double derivative_scale,
+                                  double limit, double weight) {
+            const Eigen::Index count = coefficients.size();
+            for (Eigen::Index i = 0; i + count <= q.cols(); ++i)
             {
-                if (vi(j) > max_vel_)
-                {
-                    // cout << "zx-todo VEL" << endl;
-                    // cout << vi(j) << endl;
-                    cost += pow(vi(j) - max_vel_, 2) * ts_inv2;
-                    // multiply ts_inv3 to make vel and acc has similar magnitude
-
-                    gradient(j, i + 0) += -2 * (vi(j) - max_vel_) / ts * ts_inv2;
-                    gradient(j, i + 1) += 2 * (vi(j) - max_vel_) / ts * ts_inv2;
-                }
-                else if (vi(j) < -max_vel_)
-                {
-                    cost += pow(vi(j) + max_vel_, 2) * ts_inv2;
-
-                    gradient(j, i + 0) += -2 * (vi(j) + max_vel_) / ts * ts_inv2;
-                    gradient(j, i + 1) += 2 * (vi(j) + max_vel_) / ts * ts_inv2;
-                }
-                else
-                {
-                    /* code */
-                }
+                const Eigen::Vector3d derivative = derivative_scale * q.middleCols(i, count) * coefficients;
+                const double magnitude = derivative.norm();
+                if (magnitude <= limit)
+                    continue;
+                const double excess = magnitude - limit;
+                cost += weight * excess * excess;
+                const Eigen::Vector3d slope =
+                    (2.0 * weight * excess * derivative_scale / magnitude) * derivative;
+                gradient.middleCols(i, count) += slope * coefficients.transpose();
             }
-        }
-
-        /* acceleration feasibility */
-        for (int i = 0; i < q.cols() - 2; i++)
-        {
-            Eigen::Vector3d ai = (q.col(i + 2) - 2 * q.col(i + 1) + q.col(i)) * ts_inv2;
-
-            // cout << "temp_a * ai=" ;
-            for (int j = 0; j < 3; j++)
-            {
-                if (ai(j) > max_acc_)
-                {
-                    // cout << "zx-todo ACC" << endl;
-                    // cout << ai(j) << endl;
-                    cost += pow(ai(j) - max_acc_, 2);
-
-                    gradient(j, i + 0) += 2 * (ai(j) - max_acc_) * ts_inv2;
-                    gradient(j, i + 1) += -4 * (ai(j) - max_acc_) * ts_inv2;
-                    gradient(j, i + 2) += 2 * (ai(j) - max_acc_) * ts_inv2;
-                }
-                else if (ai(j) < -max_acc_)
-                {
-                    cost += pow(ai(j) + max_acc_, 2);
-
-                    gradient(j, i + 0) += 2 * (ai(j) + max_acc_) * ts_inv2;
-                    gradient(j, i + 1) += -4 * (ai(j) + max_acc_) * ts_inv2;
-                    gradient(j, i + 2) += 2 * (ai(j) + max_acc_) * ts_inv2;
-                }
-                else
-                {
-                    /* code */
-                }
-            }
-            // cout << endl;
-        }
-
-#endif
+        };
+        penalize(Eigen::Vector2d(-1.0, 1.0), inv_dt, max_vel_, 1.0);
+        penalize(Eigen::Vector3d(1.0, -2.0, 1.0), inv_dt * inv_dt, max_acc_, 1.0);
+        penalize(Eigen::Vector4d(-1.0, 3.0, -3.0, 1.0), inv_dt * inv_dt * inv_dt,
+                 max_jerk_, bspline_interval_ * bspline_interval_);
     }
 
     /*                    上面七个都是计算损失的函数           */
@@ -1907,30 +1691,26 @@ namespace ego_planner
         memcpy(cps_.points.data() + 3 * order_, x, n * sizeof(x[0]));
 
         /* ---------- evaluate cost and gradient ---------- */
-        double f_smoothness, f_distance, f_feasibility /*, f_mov_objs*/, f_swarm, f_terminal;
+        double f_smoothness, f_distance, f_feasibility, f_swarm, f_terminal;
 
         Eigen::MatrixXd g_smoothness = Eigen::MatrixXd::Zero(3, cps_.size);
         Eigen::MatrixXd g_distance = Eigen::MatrixXd::Zero(3, cps_.size);
         Eigen::MatrixXd g_feasibility = Eigen::MatrixXd::Zero(3, cps_.size);
-        // Eigen::MatrixXd g_mov_objs = Eigen::MatrixXd::Zero(3, cps_.size);
         Eigen::MatrixXd g_swarm = Eigen::MatrixXd::Zero(3, cps_.size);
         Eigen::MatrixXd g_terminal = Eigen::MatrixXd::Zero(3, cps_.size);
 
         calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
         calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
         calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
-        // calcMovingObjCost(cps_.points, f_mov_objs, g_mov_objs);
         calcSwarmCost(cps_.points, f_swarm, g_swarm);
         calcTerminalCost(cps_.points, f_terminal, g_terminal);
 
         f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + new_lambda2_ *
             f_swarm + lambda2_ * f_terminal;
-        // f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + new_lambda2_ * f_mov_objs;
         // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
         Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility +
             new_lambda2_ * g_swarm + lambda2_ * g_terminal;
-        // Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + new_lambda2_ * g_mov_objs;
         memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));
     }
 

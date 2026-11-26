@@ -53,7 +53,7 @@ namespace ego_planner
 
         /* parameters */
         int target_type_; // 1 mannual select, 2 hard code
-        double no_replan_thresh_, replan_thresh_, goal_tolerance_;
+        double no_replan_thresh_, replan_thresh_, goal_tolerance_, goal_speed_tolerance_;
         double replan_retry_interval_{0.25};
         double odom_timeout_sec_{0.5};
         double odom_max_speed_mps_{5.0};
@@ -87,6 +87,7 @@ namespace ego_planner
         int current_wp_;
 
         bool flag_escape_emergency_;
+        int terminal_recovery_attempts_{0};
 
         /* ROS utils */
         rclcpp::Node::SharedPtr node_;
@@ -139,6 +140,8 @@ namespace ego_planner
 
         bool checkCollision();
         bool odometryFresh() const;
+        bool tryShortGoalTrajectory();
+        void publishLocalTrajectory();
         void publishSwarmTrajs(bool startup_pub);
 
     public:

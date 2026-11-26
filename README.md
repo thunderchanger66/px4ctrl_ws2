@@ -1,96 +1,33 @@
-# px4ctrl_ws
+# GRA_1 PX4 + FAST-LIO2 + EGO 工作空间
 
-This workspace contains a native PX4 ROS 2 attitude/thrust controller for the
-copied EGO planner. It uses PX4 local NED position and velocity as feedback,
-with FAST-LIO odometry required as the planner-frame reference and health gate.
-It publishes `px4_msgs/msg/VehicleAttitudeSetpoint` directly to PX4, bypassing
-PX4's position controller.
+此工作空间中的唯一 ROS 控制器包是 `controller`。当前 `controller/px4ctrl_node` 使用 filtered-trend PD-MRAC 控制律，接收 EGO 轨迹转换后的 PX4 本地 NED 期望状态，向 PX4 发布姿态和推力设定值。旧的固定增益控制器包已移除。
 
-## Build
+## 构建
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/GRA_1/ws_livox/install/setup.bash
-cd ~/GRA_1/px4ctrl_ws
-colcon build --symlink-install --executor sequential
+cd ~/GRA_1/px4ctrl_ws2
+colcon build --packages-up-to controller --symlink-install
 source install/setup.bash
 ```
 
-## Run
+## 运行
 
-Start PX4/Gazebo and FAST-LIO/PGO in separate terminals as in the existing
-deployment guide. Then start the controller workspace:
-
-```bash
-source /opt/ros/jazzy/setup.bash
-source ~/GRA_1/ws_livox/install/setup.bash
-source ~/GRA_1/px4ctrl_ws/install/setup.bash
-ros2 launch px4ctrl bringup.launch.py start_rviz:=false
-```
-
-This launch starts EGO, `traj_server`, the FAST-LIO-to-PX4 odometry bridge,
-`px4ctrl`, and `MicroXRCEAgent` on UDP 8888. PX4/Gazebo and FAST-LIO/PGO are
-intentionally external processes.
-
-Send a goal only after the streams are live. The controller now uses an explicit
-`takeoff -> hover -> tracking` sequence: the first goal arms the vehicle and
-starts a 0.5 m NED takeoff hold, then waits for a settled hover before handing
-the goal to the EGO trajectory. A stale trajectory returns to a hold at the
-current PX4 local position.
+按部署流程启动 PX4/Gazebo 和 FAST-LIO2。PGO 当前只发布 `map->lidar` TF/优化路径，EGO 与 PX4 bridge 仍消费 FAST-LIO 局部 `lidar` odometry；除非需要查看回环结果，否则无需为了 P03 单点跟踪启动 PGO。然后启动完整 EGO + 控制链路：
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 source ~/GRA_1/ws_livox/install/setup.bash
-source ~/GRA_1/px4ctrl_ws/install/setup.bash
-ros2 run px4ctrl manual_goal 1.5 -1.0 0.5 0 --wait-timeout 30
+source ~/GRA_1/mid360_ws/install/setup.bash
+source ~/GRA_1/fastlio2_pgo_ws/install/setup.bash
+source ~/GRA_1/px4ctrl_ws2/install/setup.bash
+ros2 launch controller bringup.launch.py start_rviz:=true
 ```
 
-The attitude/thrust loop runs at 100 Hz of the configured ROS clock. SITL uses
-Gazebo `/clock`, so controller, EGO planning, and trajectory sampling all slow
-or pause together when simulation does. For hardware, use a parameter file with
-`use_sim_time: false`. PX4 uORB timestamps still come from PX4 output messages.
-`auto_takeoff_altitude_m`,
-`takeoff_duration_sec`, `hover_settle_sec`, and
-`hover_velocity_tolerance_mps` are in `config/px4ctrl_sitl.yaml`. At the
-hover-to-tracking transition, the commanded reference blends from the measured
-PX4 state to the current EGO setpoint over `tracking_handoff_sec`; EGO's
-`yaw_dot` is rotated into PX4 NED and supplied as a bounded yaw-rate feedforward.
-Tune these values only after checking the PX4 local-position and external-
-vision streams.
-
-The odometry bridge continuously estimates the ROS simulation-to-PX4 clock
-rate and offset, preserving FAST-LIO sample time in PX4's
-`timestamp_sample`. Samples older than `max_sample_age_sec` are dropped, so
-stale queued odometry cannot be presented to EKF2 as current data.
-
-The goal is expressed in the `lidar` planning frame. At startup, the controller
-aligns the planner origin to PX4 local NED while both odometry streams report a
-stationary vehicle, then applies the resulting rotation and translation to EGO
-position commands. Small EKF local-position resets are compensated with PX4's
-reported `delta_xy`/`delta_z`, as PX4's own position controller does; unusually
-large resets remain a latched safety fault. Set
-`align_to_px4_local_origin: false` only when the origins are independently known
-to coincide. The controller publishes
-to `/fmu/in/vehicle_attitude_setpoint_v1`, which is the versioned topic exposed
-by the PX4 build used here. The 2026-11-03 SITL run tracked a 1 m EGO goal with
-4 cm final 3D position error; see `TEST_REPORT.md` and its CSV evidence.
-
-## Safety checks
-
-Before sending a goal, verify:
+稳定起飞后，在 EGO 的 `lidar` 规划坐标中发送目标：
 
 ```bash
-ros2 topic info -v /fmu/in/vehicle_attitude_setpoint_v1
-ros2 topic echo /px4ctrl/status --once
-ros2 topic echo /fastlio2/lio_odom --once
-ros2 topic echo /fmu/out/vehicle_status_v4 --once
+ros2 run controller manual_goal 4.0 -4.0 0.5 --auto-yaw
 ```
 
-Stop the complete launch chain before starting another trial. The controller
-gates output on PX4 estimator health, aligns the planner/PX4 local origin, and
-latches a landing action on safety faults. The 1 m goal has passed in SITL.
-Obstacle replanning, longer missions, and hardware flight have not been
-validated. See `TEST_REPORT.md` for the measured result and exact procedure.
-
-For the implementation rationale, PX4 parameter checklist, thrust calibration,
-and staged flight validation procedure, see `PX4CTRL_RESEARCH.md`.
+控制器参数位于 `src/controller/config/px4ctrl_gra_mid360.yaml`。当前完整 bringup 的 EGO 参考上限为 `2.0 m/s`、`1.5 m/s²`、`4.0 m/s³`，适配器使用经 P03 重复验证的 `0.15 s` 有界加速度预览。P03 指标及调参过程见 [P03 调参报告](test/experiments/2026-11-26_p03_rmse_jerk_tuning/RESULTS.md)。

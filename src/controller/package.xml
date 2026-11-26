@@ -15,7 +15,6 @@
   <exec_depend>rclpy</exec_depend>
   <depend>Eigen3</depend>
   <depend>std_msgs</depend>
-  <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>quadrotor_msgs</depend>
   <exec_depend>ament_index_python</exec_depend>

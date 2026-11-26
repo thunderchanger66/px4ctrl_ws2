@@ -21,4 +21,4 @@ The PX4Ctrl bringup adapts position commands from `lidar` into PX4 local NED. EG
 
 `advanced_param.launch.py` starts the planner node and exposes the map, dynamic limits, collision clearance, and optimizer parameters. `single_uav_gazebo.launch.py` supplies the current single-vehicle SITL defaults. `rviz.launch.py` loads `single_drone.rviz`.
 
-The EGO message types and planner buffers retain swarm-trajectory interfaces. Dynamic-object prediction and `obj_generator` are optional interfaces and are not started by the current LiDAR-only single-UAV bringup. Keep them when those modes are needed.
+The EGO message types retain swarm-trajectory interfaces, but this workspace is configured for a single UAV. Dynamic obstacles are represented by the live LiDAR occupancy map; the unused dynamic-object prediction node and its optimizer hook were removed because the hook was never enabled in the active planner. This build does not predict moving-object trajectories.

@@ -60,7 +60,7 @@ namespace ego_planner
         // constraints
         // input : (K+2) points with boundary vel/acc; ts
         // output: (K+6) control_pts
-        static void parameterizeToBspline(const double& ts, const vector<Eigen::Vector3d>& point_set,
+        static bool parameterizeToBspline(const double& ts, const vector<Eigen::Vector3d>& point_set,
                                           const vector<Eigen::Vector3d>& start_end_derivative,
                                           Eigen::MatrixXd& ctrl_pts);
 
@@ -69,7 +69,6 @@ namespace ego_planner
         void setPhysicalLimits(const double& vel, const double& acc, const double& jerk,
                                const double& tolerance);
         bool checkFeasibility(double& ratio, bool show = false);
-        void lengthenTime(const double& ratio);
 
         /* for performance evaluation */
 

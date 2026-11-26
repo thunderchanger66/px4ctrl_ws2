@@ -22,6 +22,7 @@ def generate_launch_description():
     obstacle_inflation = LaunchConfiguration('obstacle_inflation', default=0.45)
     collision_clearance = LaunchConfiguration('collision_clearance', default=0.65)
     min_flight_height = LaunchConfiguration('min_flight_height', default=0.25)
+    goal_tolerance = LaunchConfiguration('goal_tolerance', default=0.20)
     
     point_num = LaunchConfiguration('point_num', default=1)
     point0_x = LaunchConfiguration('point0_x', default=0.0)
@@ -42,8 +43,6 @@ def generate_launch_description():
 
     flight_type = LaunchConfiguration('flight_type', default=2)
     use_distinctive_trajs = LaunchConfiguration('use_distinctive_trajs', default=True)
-    
-    obj_num_set = LaunchConfiguration('obj_num_set', default=10)
     
     drone_id = LaunchConfiguration('drone_id', default=0)
 
@@ -68,6 +67,9 @@ def generate_launch_description():
     min_flight_height_arg = DeclareLaunchArgument(
         'min_flight_height', default_value=min_flight_height,
         description='Minimum planning-frame flight height above FAST-LIO origin')
+    goal_tolerance_arg = DeclareLaunchArgument(
+        'goal_tolerance', default_value=goal_tolerance,
+        description='Position tolerance for completing an EGO goal')
     
     point_num_arg = DeclareLaunchArgument('point_num', default_value=point_num, description='Number of waypoints')
     point0_x_arg = DeclareLaunchArgument('point0_x', default_value=point0_x, description='Waypoint 0 X coordinate')
@@ -88,7 +90,6 @@ def generate_launch_description():
     
     flight_type_arg = DeclareLaunchArgument('flight_type', default_value=flight_type, description='flight_type')
     use_distinctive_trajs_arg = DeclareLaunchArgument('use_distinctive_trajs', default_value=use_distinctive_trajs, description='Use distinctive trajectories')
-    obj_num_set_arg = DeclareLaunchArgument('obj_num_set', default_value=obj_num_set, description='Number of objects')
     drone_id_arg = DeclareLaunchArgument('drone_id', default_value=drone_id, description='Drone ID')
 
     # Ego Planner Node
@@ -122,7 +123,8 @@ def generate_launch_description():
             {'fsm/flight_type': flight_type},
             {'fsm/thresh_replan_time': 1.0},
             {'fsm/thresh_no_replan_meter': 1.0},
-            {'fsm/goal_tolerance_m': 0.07},
+            {'fsm/goal_tolerance_m': goal_tolerance},
+            {'fsm/goal_speed_tolerance_mps': 0.20},
             {'fsm/replan_retry_interval': 0.25},
             {'fsm/planning_horizon': planning_horizon},
             {'fsm/planning_horizen_time': 3.0},
@@ -193,16 +195,13 @@ def generate_launch_description():
             {'optimization/swarm_clearance': collision_clearance},
             {'optimization/max_vel': max_vel},
             {'optimization/max_acc': max_acc},
+            {'optimization/max_jerk': max_jerk},
 
             # B-Spline parameters
             {'bspline/limit_vel': max_vel},
             {'bspline/limit_acc': max_acc},
             {'bspline/limit_ratio': 1.1},
 
-            # Object prediction parameters
-            {'prediction/obj_num': obj_num_set},
-            {'prediction/lambda': 1.0},
-            {'prediction/predict_rate': 1.0}
         ]
     )
 
@@ -223,6 +222,7 @@ def generate_launch_description():
     ld.add_action(obstacle_inflation_arg)
     ld.add_action(collision_clearance_arg)
     ld.add_action(min_flight_height_arg)
+    ld.add_action(goal_tolerance_arg)
     
     ld.add_action(point_num_arg)
     ld.add_action(point0_x_arg)
@@ -243,7 +243,6 @@ def generate_launch_description():
     
     ld.add_action(flight_type_arg)
     ld.add_action(use_distinctive_trajs_arg)
-    ld.add_action(obj_num_set_arg)
     ld.add_action(drone_id_arg)
 
 

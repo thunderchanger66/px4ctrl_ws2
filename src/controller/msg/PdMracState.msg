@@ -1,0 +1,7 @@
+std_msgs/Header header
+geometry_msgs/Vector3 estimated_disturbance
+geometry_msgs/Vector3 model_error_position
+geometry_msgs/Vector3 model_error_velocity
+float64 gain1_frobenius_norm
+float64 gain2_frobenius_norm
+float64 filtered_error_norm

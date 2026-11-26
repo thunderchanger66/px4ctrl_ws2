@@ -3,17 +3,14 @@
 <package format="3">
   <name>plan_env</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="ma@todo.todo">ma</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Local occupancy mapping for EGO lidar-based collision avoidance.</description>
+  <maintainer email="thunder@example.com">GRA</maintainer>
+  <license>GPL-3.0-only</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>rclpy</depend>
   <depend>std_msgs</depend>
-  <depend>visualization_msgs</depend>
-  <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>Eigen3</depend>

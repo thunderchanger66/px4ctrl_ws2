@@ -3,9 +3,9 @@
 <package format="3">
   <name>traj_utils</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="ma@todo.todo">ma</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Trajectory messages and visualization utilities for EGO.</description>
+  <maintainer email="thunder@example.com">GRA</maintainer>
+  <license>GPL-3.0-only</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

@@ -22,9 +22,10 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy
 FIELDS = [
     "t_from_trajectory_start_s", "px4_x_n", "px4_y_e", "px4_z_d",
     "px4_vx_n", "px4_vy_e", "px4_vz_d", "px4_ax_n", "px4_ay_e", "px4_az_d",
-    "px4_acceleration_mps2", "ref_x_n", "ref_y_e", "ref_z_d",
+    "px4_acceleration_mps2", "px4_jerk_mps3",
+    "ref_x_n", "ref_y_e", "ref_z_d",
     "ref_vx_n", "ref_vy_e", "ref_vz_d", "ref_ax_n", "ref_ay_e", "ref_az_d",
-    "ref_acceleration_mps2", "error_n", "error_e", "error_d",
+    "ref_acceleration_mps2", "ref_jerk_mps3", "error_n", "error_e", "error_d",
     "tracking_error_3d_m", "tracking_error_xy_m", "actual_speed_mps",
     "reference_speed_mps", "armed", "offboard", "failsafe",
     "goal_x_n", "goal_y_e", "goal_z_d", "goal_error_3d_m", "ref_goal_error_3d_m",
@@ -77,12 +78,14 @@ class PX4NedObserver(Node):
                              "not_armed": 0, "not_offboard": 0, "failsafe": 0,
                              "reference_invalid_or_stale": 0}
         self.terminal_reference = None
+        self.previous_acceleration_sample = None
         self.rows = []
         self.result = "waiting_for_hover"
         self.started_wall = time.monotonic()
         self.csv_path = Path(args.csv)
         self.json_path = self.csv_path.with_suffix(".json")
         self.ready_path = Path(args.ready_file)
+        self.stop_path = Path(args.stop_file) if args.stop_file else None
         self.csv_path.parent.mkdir(parents=True, exist_ok=True)
         self.csv_file = self.csv_path.open("w", newline="", encoding="utf-8")
         self.writer = csv.DictWriter(self.csv_file, fieldnames=FIELDS)
@@ -121,7 +124,8 @@ class PX4NedObserver(Node):
         if msg.header.frame_id != "px4_local_ned":
             return
         values = (msg.position.x, msg.position.y, msg.position.z,
-                  msg.velocity.x, msg.velocity.y, msg.velocity.z)
+                  msg.velocity.x, msg.velocity.y, msg.velocity.z,
+                  msg.acceleration.x, msg.acceleration.y, msg.acceleration.z)
         if not all(math.isfinite(v) for v in values):
             return
         stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
@@ -177,6 +181,10 @@ class PX4NedObserver(Node):
                 not self.vehicle_failsafe)
 
     def tick(self):
+        if self.stop_path is not None and self.stop_path.exists():
+            reason = self.stop_path.read_text(encoding="utf-8").strip()
+            self.finish(reason or "external_stop")
+            return
         now = self.now()
         wall_elapsed = time.monotonic() - self.started_wall
         if wall_elapsed > self.args.startup_timeout and self.trajectory_start is None:
@@ -240,8 +248,25 @@ class PX4NedObserver(Node):
         ref_acc = np.array([ref.acceleration.x, ref.acceleration.y,
                             ref.acceleration.z], dtype=float)
         px4_acc = np.array([p.ax, p.ay, p.az], dtype=float)
-        px4_acc_mag = float(np.linalg.norm(px4_acc)) if np.isfinite(px4_acc).all() else None
-        ref_acc_mag = float(np.linalg.norm(ref_acc)) if np.isfinite(ref_acc).all() else None
+        px4_acc_valid = bool(np.isfinite(px4_acc).all())
+        ref_acc_valid = bool(np.isfinite(ref_acc).all())
+        px4_acc_mag = float(np.linalg.norm(px4_acc)) if px4_acc_valid else None
+        ref_acc_mag = float(np.linalg.norm(ref_acc)) if ref_acc_valid else None
+        sample_dt = (now - self.previous_acceleration_sample[0]
+                     if self.previous_acceleration_sample is not None else 0.0)
+        px4_jerk_mag = None
+        ref_jerk_mag = None
+        if (0.005 <= sample_dt <= 0.20 and px4_acc_valid and ref_acc_valid and
+                self.previous_acceleration_sample[1] is not None and
+                self.previous_acceleration_sample[2] is not None):
+            px4_jerk_mag = float(np.linalg.norm(
+                px4_acc - self.previous_acceleration_sample[1]) / sample_dt)
+            ref_jerk_mag = float(np.linalg.norm(
+                ref_acc - self.previous_acceleration_sample[2]) / sample_dt)
+        if px4_acc_valid and ref_acc_valid:
+            self.previous_acceleration_sample = (now, px4_acc.copy(), ref_acc.copy())
+        else:
+            self.previous_acceleration_sample = None
         ego_position = self.ego_references.get(stamp_key(ref.header))
         if self.trajectory_start is None:
             if ego_position is None:
@@ -272,10 +297,12 @@ class PX4NedObserver(Node):
             "px4_vx_n": p.vx, "px4_vy_e": p.vy, "px4_vz_d": p.vz,
             "px4_ax_n": p.ax, "px4_ay_e": p.ay, "px4_az_d": p.az,
             "px4_acceleration_mps2": px4_acc_mag,
+            "px4_jerk_mps3": px4_jerk_mag,
             "ref_x_n": ref_pos[0], "ref_y_e": ref_pos[1], "ref_z_d": ref_pos[2],
             "ref_vx_n": ref_vel[0], "ref_vy_e": ref_vel[1], "ref_vz_d": ref_vel[2],
             "ref_ax_n": ref_acc[0], "ref_ay_e": ref_acc[1], "ref_az_d": ref_acc[2],
             "ref_acceleration_mps2": ref_acc_mag,
+            "ref_jerk_mps3": ref_jerk_mag,
             "error_n": error[0], "error_e": error[1], "error_d": error[2],
             "tracking_error_3d_m": float(np.linalg.norm(error)),
             "tracking_error_xy_m": float(np.linalg.norm(error[:2])),
@@ -346,6 +373,10 @@ class PX4NedObserver(Node):
                                     if r["px4_acceleration_mps2"] is not None], dtype=float)
         reference_accels = np.asarray([r["ref_acceleration_mps2"] for r in self.rows
                                        if r["ref_acceleration_mps2"] is not None], dtype=float)
+        actual_jerks = np.asarray([r["px4_jerk_mps3"] for r in self.rows
+                                   if r["px4_jerk_mps3"] is not None], dtype=float)
+        reference_jerks = np.asarray([r["ref_jerk_mps3"] for r in self.rows
+                                      if r["ref_jerk_mps3"] is not None], dtype=float)
         return {
             "result": self.result,
             "trial_valid": self.result == "arrived" and len(self.rows) > 0,
@@ -372,6 +403,10 @@ class PX4NedObserver(Node):
             "px4_ned_acceleration_p95_mps2": float(np.percentile(actual_accels, 95)) if actual_accels.size else None,
             "reference_speed_peak_mps": float(np.max(reference_speeds)) if reference_speeds.size else None,
             "reference_acceleration_peak_mps2": float(np.max(reference_accels)) if reference_accels.size else None,
+            "px4_ned_jerk_peak_mps3": float(np.max(actual_jerks)) if actual_jerks.size else None,
+            "px4_ned_jerk_p95_mps3": float(np.percentile(actual_jerks, 95)) if actual_jerks.size else None,
+            "reference_jerk_peak_mps3": float(np.max(reference_jerks)) if reference_jerks.size else None,
+            "jerk_definition": "finite-difference derivative of PX4 VehicleLocalPosition acceleration and controller reference acceleration at observer sample times",
             "actual_acceleration_source": "PX4 VehicleLocalPosition ax/ay/az in local NED",
             "px4_ned_final_tracking_error_m": float(np.linalg.norm([
                 final["error_n"], final["error_e"], final["error_d"]])) if final else None,
@@ -406,6 +441,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", required=True)
     parser.add_argument("--ready-file", required=True)
+    parser.add_argument("--stop-file", default="",
+                        help="Optional file containing a result reason to stop measurement")
     parser.add_argument("--goal-x", type=float, required=True)
     parser.add_argument("--goal-y", type=float, required=True)
     parser.add_argument("--goal-z", type=float, required=True)
@@ -423,7 +460,7 @@ def main():
     parser.add_argument("--terminal-reference-speed", type=float, default=0.08)
     parser.add_argument("--terminal-reference-drift", type=float, default=0.03)
     parser.add_argument("--arrival-radius", type=float, default=0.20)
-    parser.add_argument("--reference-goal-radius", type=float, default=0.08)
+    parser.add_argument("--reference-goal-radius", type=float, default=0.10)
     parser.add_argument("--arrival-speed", type=float, default=0.20)
     parser.add_argument("--settle-duration", type=float, default=1.0)
     args = parser.parse_args()

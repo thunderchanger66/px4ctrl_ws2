@@ -30,7 +30,7 @@ rclcpp::Time last_command_time_;
 double last_yaw_{0.0}, last_yaw_dot_{0.0};
 double time_forward_{1.0};
 
-void bsplineCallback(traj_utils::msg::Bspline::ConstPtr msg)
+void bsplineCallback(const traj_utils::msg::Bspline::SharedPtr msg)
 {
     constexpr int kOrder = 3;
     if (!msg || msg->order != kOrder || msg->pos_pts.size() < kOrder + 1 ||

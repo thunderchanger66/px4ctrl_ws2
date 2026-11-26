@@ -12,23 +12,21 @@ find_package(px4_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/DesiredState.msg"
   "msg/ControlDebug.msg"
+  "msg/PdMracState.msg"
   DEPENDENCIES geometry_msgs std_msgs)
 
-add_executable(px4ctrl_node
-  src/px4ctrl_node.cpp
-  src/cdm/arm_cdm_parameters.cpp)
+rosidl_get_typesupport_target(px4ctrl_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+add_executable(px4ctrl_node src/px4ctrl_node.cpp)
 target_include_directories(px4ctrl_node PRIVATE include)
 target_compile_features(px4ctrl_node PUBLIC cxx_std_17)
-target_link_libraries(px4ctrl_node Eigen3::Eigen)
+target_link_libraries(px4ctrl_node Eigen3::Eigen "${px4ctrl_typesupport_target}")
 ament_target_dependencies(px4ctrl_node
-  geometry_msgs px4_msgs rclcpp std_msgs sensor_msgs)
-rosidl_get_typesupport_target(px4ctrl_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(px4ctrl_node "${px4ctrl_typesupport_target}")
+  geometry_msgs px4_msgs rclcpp std_msgs)
 
 install(TARGETS px4ctrl_node DESTINATION lib/${PROJECT_NAME})
 install(PROGRAMS scripts/offboard_thrust_probe.py

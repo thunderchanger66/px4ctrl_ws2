@@ -6,7 +6,7 @@ px4ctrl:
     use_sim_time: true
     entry_mode: airborne_takeover
     reference_frame: px4_local_ned
-    desired_state_topic: /px4ctrl/desired_state
+    desired_state_topic: /controller/desired_state
     px4_status_topic: /fmu/out/vehicle_status_v4
     px4_attitude_topic: /fmu/out/vehicle_attitude
     px4_local_position_topic: /fmu/out/vehicle_local_position_v1
@@ -31,12 +31,8 @@ px4ctrl:
     takeover_permission_topic: /eight/takeover_allowed
     gravity_mps2: 9.81
     # Measured hover thrust of the bare Gazebo X500 in this simulation.
-    # Regressed from 319 samples of (commanded thrust, measured vertical
-    # acceleration): T_hover = 0.699 +/- 0.042.  PX4's own MPC_THR_HOVER is
-    # 0.60, but that value is only a nominal scale for PX4's own position
-    # loop -- px4ctrl must use the measured value because its integral is
-    # frozen while the velocity error is large and cannot absorb the gap.
-    # Re-calibrate after changing the airframe, battery or props.
+    # Measured hover-thrust calibration for the bare X500 setup.
+    # Re-calibrate after changing airframe, battery or propellers.
     hover_thrust: 0.697
     min_thrust: 0.08
     max_thrust: 0.95
@@ -57,34 +53,3 @@ px4ctrl:
     max_command_velocity_jump_mps: 1.5
     max_yaw_rate_radps: 0.6
     max_yaw_acceleration_radps2: 0.8
-    kp: [1.5, 1.5, 1.8]
-    kv: [1.2, 1.2, 1.4]
-    ki: [0.10, 0.10, 0.15]
-    integral_limit_mps2: [0.40, 0.40, 0.50]
-    integral_enable_velocity_error_mps: 0.60
-    enable_cdm_feedforward: false
-    cdm_joint_state_topic: /joint_states
-    cdm_odometry_topic: /fmu/out/vehicle_odometry
-    cdm_state_timeout_sec: 0.20
-    cdm_max_acceleration_mps2: 1.0
-    cdm:
-      total_mass_kg: 2.843243
-      arm_mass_kg: 0.325331
-      base_inertia_xx: 0.02684785
-      base_inertia_yy: 0.02690653
-      base_inertia_zz: 0.02385432
-      joint_offset_12_m: [0.198, 0.0005, -0.024]
-      joint_offset_23_m: [0.194, -0.0005, 0.0]
-      link_mass_kg: [0.12418, 0.11778, 0.083371]
-      link_com_m: [0.156980, 0.019388, -0.0082101,
-                   0.144410, 0.018876, 8.2381e-7,
-                   0.071417896813, 0.018996302624, 0.010302221502]
-      link_inertia_kg_m2: [3.0533e-5, 1.8411e-9, -1.1909e-9,
-                           1.8411e-9, 8.0863e-5, 1.5749e-8,
-                           -1.1909e-9, 1.5749e-8, 7.8412e-5,
-                           1.9771e-5, 3.3851e-8, -5.9263e-11,
-                           3.3851e-8, 5.6465e-5, 1.1813e-13,
-                           -5.9263e-11, 1.1813e-13, 6.3243e-5,
-                           3.063625451122e-5, 8.370556733279e-9, 2.758764487371e-6,
-                           8.370556733279e-9, 7.715607141505e-5, -2.583337077642e-9,
-                           2.758764487371e-6, -2.583337077642e-9, 5.766176007008e-5]

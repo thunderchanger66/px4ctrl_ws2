@@ -13,7 +13,7 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from px4_msgs.msg import VehicleLocalPosition, VehicleStatus
-from px4ctrl.msg import DesiredState
+from controller.msg import DesiredState
 from quadrotor_msgs.msg import PositionCommand
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -93,7 +93,7 @@ class PX4NedObserver(Node):
         self.create_subscription(VehicleStatus,
             "/fmu/out/vehicle_status_v4", self.status_cb, qos)
         self.create_subscription(DesiredState,
-            "/px4ctrl/desired_state", self.reference_cb, 20)
+            "/controller/desired_state", self.reference_cb, 20)
         self.create_subscription(PositionCommand,
             "/drone_0_planning/pos_cmd", self.ego_reference_cb, 20)
         self.create_subscription(PoseStamped, "/goal_pose", self.goal_cb, 10)

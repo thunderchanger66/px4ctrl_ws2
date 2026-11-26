@@ -13,7 +13,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import VehicleAttitude, VehicleLocalPosition, VehicleStatus
-from px4ctrl.msg import ControlDebug, DesiredState
+from controller.msg import ControlDebug, DesiredState
 from quadrotor_msgs.msg import PositionCommand
 from rcl_interfaces.msg import Log
 from traj_utils.msg import Bspline
@@ -111,7 +111,7 @@ class BenchmarkObserver(Node):
             PositionCommand, "/drone_0_planning/pos_cmd", self.command_cb, 20)
         self.create_subscription(
             Bspline, "/drone_0_planning/bspline", self.bspline_cb, 20)
-        self.create_subscription(DesiredState, "/px4ctrl/desired_state", self.desired_cb, 20)
+        self.create_subscription(DesiredState, "/controller/desired_state", self.desired_cb, 20)
         self.create_subscription(
             VehicleLocalPosition, "/fmu/out/vehicle_local_position_v1", self.px4_cb, px4_qos)
         self.create_subscription(VehicleStatus, "/fmu/out/vehicle_status_v4",

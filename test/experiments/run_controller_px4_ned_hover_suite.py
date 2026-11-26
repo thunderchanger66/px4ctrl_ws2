@@ -141,7 +141,7 @@ def stop(process, stream):
     return False
 
 
-def trial(experiment, output, controller_params, ego_limits):
+def trial(experiment, output, controller_params, ego_limits, adapter_limits, start_pgo=False):
     name = experiment["name"]
     goals = experiment["goals"]
     continuous = experiment["continuous"]
@@ -153,9 +153,11 @@ def trial(experiment, output, controller_params, ego_limits):
     landed = False
     result = {"name": name, "goal_lidar_m": first_goal,
               "route_goals_lidar_m": goals, "continuous_route": continuous,
-              "outcome": "not_started"}
+              "ego_limits": ego_limits, "adapter_limits": adapter_limits,
+              "pgo_started": start_pgo, "outcome": "not_started"}
     ready_file = out / "hover_ready.flag"
     progress_file = out / "waypoint_progress.json"
+    observer_stop_file = out / "observer_stop.txt"
     try:
         sim, stream = start(SOURCE + f"ros2 launch {PX4_LAUNCH} gui:=false",
                             out / "px4_gazebo.log", ROOT)
@@ -164,13 +166,23 @@ def trial(experiment, output, controller_params, ego_limits):
             result["outcome"] = "failed_no_clock"
             return result
 
-        pgo, stream = start(
+        lio, stream = start(
             "source /opt/ros/jazzy/setup.bash && "
             "source /home/thunder/GRA_1/ws_livox/install/setup.bash && "
             "source /home/thunder/GRA_1/fastlio2_pgo_ws/install/setup.bash && "
-            "ros2 launch pgo pgo_launch.py use_sim_time:=true",
-            out / "fastlio_pgo.log", ROOT / "fastlio2_pgo_ws")
-        processes.append((pgo, stream))
+            "ros2 launch fastlio2 lio_launch.py use_sim_time:=true rviz:=false",
+            out / "fastlio_lio.log", ROOT / "fastlio2_pgo_ws")
+        processes.append((lio, stream))
+        if start_pgo:
+            pgo, stream = start(
+                "source /opt/ros/jazzy/setup.bash && "
+                "source /home/thunder/GRA_1/ws_livox/install/setup.bash && "
+                "source /home/thunder/GRA_1/fastlio2_pgo_ws/install/setup.bash && "
+                "ros2 run pgo pgo_node --ros-args "
+                "-p config_path:=/home/thunder/GRA_1/fastlio2_pgo_ws/install/pgo/share/pgo/config/pgo.yaml "
+                "-p use_sim_time:=true",
+                out / "pgo.log", ROOT / "fastlio2_pgo_ws")
+            processes.append((pgo, stream))
         if not wait_topic("/fastlio2/lio_odom", 90):
             result["outcome"] = "failed_no_fastlio_odom"
             return result
@@ -181,6 +193,10 @@ def trial(experiment, output, controller_params, ego_limits):
             f"ego_max_vel:={ego_limits['max_vel']} ego_max_acc:={ego_limits['max_acc']} "
             f"ego_max_jerk:={ego_limits['max_jerk']} "
             f"ego_lambda_smooth:={ego_limits['lambda_smooth']} "
+            f"ego_goal_tolerance:={ego_limits['goal_tolerance']} "
+            f"adapter_max_reference_acceleration:={adapter_limits['max_acc']} "
+            f"adapter_max_reference_jerk:={adapter_limits['max_jerk']} "
+            f"adapter_acceleration_preview:={adapter_limits['preview_sec']} "
             "ego_planning_horizon:=7.5 ego_obstacle_inflation:=0.45 "
             "ego_collision_clearance:=0.65")
         bringup, stream = start(SOURCE + launch, out / "bringup.log", WS)
@@ -190,7 +206,8 @@ def trial(experiment, output, controller_params, ego_limits):
             return result
 
         observer_cmd = (SOURCE + f"python3 {OBSERVER} --csv {out/'samples.csv'} "
-            f"--ready-file {ready_file} --goal-x {first_goal[0]} "
+            f"--ready-file {ready_file} --stop-file {observer_stop_file} "
+            f"--goal-x {first_goal[0]} "
             f"--goal-y {first_goal[1]} --goal-z {first_goal[2]} "
             f"--route-json '{json.dumps(goals, separators=(',', ':'))}' "
             f"--timeout {420 if continuous else 120} --startup-timeout 300")
@@ -234,17 +251,23 @@ def trial(experiment, output, controller_params, ego_limits):
                 while time.monotonic() < marker_deadline:
                     if marker in observer_log.read_text(encoding="utf-8", errors="replace"):
                         break
-                    if observer.poll() is not None:
+                    if observer.poll() is not None or observer_stop_file.exists():
                         break
                     time.sleep(0.1)
                 if marker in observer_log.read_text(encoding="utf-8", errors="replace"):
+                    break
+                if observer_stop_file.exists() or observer.poll() is not None:
                     break
                 if attempt < 2:
                     retry_exit_codes.append(run_command(
                         goal_command, out / f"manual_goal_waypoint_{index+1}_retry_{attempt+1}.log",
                         WS, 60))
             if marker not in observer_log.read_text(encoding="utf-8", errors="replace"):
-                result["outcome"] = f"waypoint_{index+1}_goal_not_observed"
+                if observer_stop_file.exists():
+                    result["outcome"] = observer_stop_file.read_text(
+                        encoding="utf-8").strip()
+                else:
+                    result["outcome"] = f"waypoint_{index+1}_goal_not_observed"
                 break
 
             progress_deadline = time.monotonic() + progress_deadline_sec
@@ -258,8 +281,14 @@ def trial(experiment, output, controller_params, ego_limits):
                         reached = False
                 if reached or observer.poll() is not None:
                     break
+                bringup_text = (out / "bringup.log").read_text(
+                    encoding="utf-8", errors="replace")
+                if "[SAFE_HOLD]:" in bringup_text:
+                    result["outcome"] = f"planner_safe_hold_before_waypoint_{index+1}"
+                    observer_stop_file.write_text(result["outcome"] + "\n", encoding="utf-8")
+                    break
                 time.sleep(0.2)
-            if not reached:
+            if not reached and result.get("outcome") == "not_started":
                 result["outcome"] = f"waypoint_{index+1}_not_reached_before_timeout"
                 break
 
@@ -277,7 +306,7 @@ def trial(experiment, output, controller_params, ego_limits):
             result["outcome"] = "missing_observer_summary"
 
         result["landing_exit_code"] = run_command(
-            SOURCE + f"python3 {LANDER} --timeout 90", out / "landing.log", WS, 110)
+            SOURCE + f"python3 {LANDER} --timeout 20", out / "landing.log", WS, 30)
         result["landing_confirmed"] = result["landing_exit_code"] == 0
         landed = True
         if result.get("trial_valid") and result["landing_confirmed"]:
@@ -305,8 +334,8 @@ def trial(experiment, output, controller_params, ego_limits):
         if processes and not landed:
             try:
                 result["landing_exit_code"] = run_command(
-                    SOURCE + f"python3 {LANDER} --timeout 90",
-                    out / "landing_fallback.log", WS, 110)
+                    SOURCE + f"python3 {LANDER} --timeout 20",
+                    out / "landing_fallback.log", WS, 30)
                 result["landing_confirmed"] = result["landing_exit_code"] == 0
             except Exception as exc:
                 result["landing_confirmed"] = False
@@ -326,10 +355,16 @@ def main():
     parser.add_argument("--ros-domain-id", type=int, default=81,
                         help="Dedicated DDS domain for the SITL stack (default: 81)")
     parser.add_argument("--controller-params", type=Path, default=CONTROLLER_PARAMS)
-    parser.add_argument("--ego-max-vel", type=float, default=0.5)
-    parser.add_argument("--ego-max-acc", type=float, default=0.4)
-    parser.add_argument("--ego-max-jerk", type=float, default=1.4)
+    parser.add_argument("--ego-max-vel", type=float, default=2.0)
+    parser.add_argument("--ego-max-acc", type=float, default=1.5)
+    parser.add_argument("--ego-max-jerk", type=float, default=4.0)
     parser.add_argument("--ego-lambda-smooth", type=float, default=2.0)
+    parser.add_argument("--ego-goal-tolerance", type=float, default=0.05)
+    parser.add_argument("--adapter-max-acc", type=float, default=1.8)
+    parser.add_argument("--adapter-max-jerk", type=float, default=5.0)
+    parser.add_argument("--adapter-acceleration-preview", type=float, default=0.15)
+    parser.add_argument("--start-pgo", action="store_true",
+                        help="Start PGO diagnostics; P03 local-frame planner/controller do not consume its corrected pose")
     args = parser.parse_args()
     if not 1 <= args.ros_domain_id <= 101:
         parser.error("--ros-domain-id must be in [1, 101]")
@@ -354,12 +389,23 @@ def main():
         "max_acc": args.ego_max_acc,
         "max_jerk": args.ego_max_jerk,
         "lambda_smooth": args.ego_lambda_smooth,
+        "goal_tolerance": args.ego_goal_tolerance,
     }
     if any(not math.isfinite(value) or value <= 0 for value in ego_limits.values()):
         parser.error("EGO velocity, acceleration, jerk and smoothing values must be positive")
+    adapter_limits = {
+        "max_acc": args.adapter_max_acc,
+        "max_jerk": args.adapter_max_jerk,
+        "preview_sec": args.adapter_acceleration_preview,
+    }
+    if (not math.isfinite(adapter_limits["max_acc"]) or adapter_limits["max_acc"] <= 0 or
+        not math.isfinite(adapter_limits["max_jerk"]) or adapter_limits["max_jerk"] <= 0 or
+        not math.isfinite(adapter_limits["preview_sec"]) or
+        adapter_limits["preview_sec"] < 0 or adapter_limits["preview_sec"] > 0.5):
+        parser.error("adapter acceleration/jerk must be positive and preview must be in [0, 0.5] s")
     results = []
     for i, case in enumerate(selected):
-        item = trial(case, output, controller_params, ego_limits)
+        item = trial(case, output, controller_params, ego_limits, adapter_limits, args.start_pgo)
         results.append(item)
         print(json.dumps({k: item.get(k) for k in (
                 "name", "outcome", "result", "arrival_time_s",
@@ -368,6 +414,8 @@ def main():
             "px4_ned_goal_error_final_m",
             "goal_retry_exit_codes", "landing_confirmed",
             "stack_shutdown_confirmed")}, allow_nan=False), flush=True)
+        # This runner owns the entire SITL stack. A landing timeout is reported
+        # separately; only verified teardown permits starting the next simulation.
         if not item.get("stack_shutdown_confirmed", False):
             results.extend({"name": c["name"], "route_goals_lidar_m": c["goals"],
                 "outcome": "not_run_previous_stack_shutdown_unconfirmed",
